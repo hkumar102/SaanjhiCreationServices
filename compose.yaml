@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15
@@ -16,13 +14,25 @@ services:
     build:
       context: .
       dockerfile: Services/UserService/UserService.API/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=usersdb;Username=user;Password=password
+    image: sanjhi.user.api
+    container_name: sanjhi.user.api
     ports:
-      - "5001:80"
+      - "8002:80"
+      - "8003:443"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: https://+:443;http://+:80
+      ASPNETCORE_Kestrel__Certificates__Default__Password: reallyStrongPassword123
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aspnetapp.pfx
     depends_on:
       - postgres
+    volumes:
+      - ${HOME}/.aspnet/dev-certs/https:/https/
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "https://localhost:443/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata:

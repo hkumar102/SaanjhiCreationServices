@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using FluentValidation.AspNetCore;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication;
 using Shared.Authentication;
 
 namespace Shared.Infrastructure.Extensions;
@@ -26,7 +27,8 @@ public static class ServiceCollectionExtensions
         {
             options.DefaultAuthenticateScheme = FirebaseAuthenticationDefaults.Scheme;
             options.DefaultChallengeScheme = FirebaseAuthenticationDefaults.Scheme;
-        }).AddFirebaseAuthentication();
+        })
+            .AddFirebaseAuthentication();
         
         services.AddAuthorization();
         // Controllers
