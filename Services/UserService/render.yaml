@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: user-service
+    env: dotnet
+    region: oregon
+    plan: free
+    repo: https://github.com/hkumar102/SaanjhiCreationServices
+    branch: main
+    buildCommand: dotnet build
+    startCommand: dotnet run --project UserService.API/UserService.API.csproj
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        value: YOUR_DATABASE_URL
