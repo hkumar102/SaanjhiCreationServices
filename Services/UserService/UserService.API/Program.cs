@@ -4,6 +4,7 @@ using UserService.Infrastructure.Persistence;
 using Shared.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseUrls("http://+:80");
 
 var appAssembly = Assembly.Load("UserService.Application");
 

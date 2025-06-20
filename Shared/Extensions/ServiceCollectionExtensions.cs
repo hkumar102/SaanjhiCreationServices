@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using FluentValidation.AspNetCore;
 using FluentValidation;
-using Microsoft.AspNetCore.Authorization;
 using Shared.Authentication;
 
 namespace Shared.Infrastructure.Extensions;

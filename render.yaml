@@ -7,9 +7,9 @@ services:
     repo: https://github.com/hkumar102/SaanjhiCreationServices
     branch: main
     buildCommand: dotnet build
-    startCommand: dotnet run --project UserService.API/UserService.API.csproj
+    startCommand: dotnet run --project Services/UserService/UserService.API/UserService.API.csproj
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: ConnectionStrings__DefaultConnection
-        value: YOUR_DATABASE_URL
+        value: Host=dpg-d1adan3ipnbc73a0g3bg-a;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=nWOBb9SgGyay35Xv8guprDVXEyGXBwUS
