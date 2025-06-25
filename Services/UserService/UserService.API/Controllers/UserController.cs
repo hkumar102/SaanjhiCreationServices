@@ -112,4 +112,24 @@ public class UserController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
+    
+    [HttpPut("{userId}/Roles")]
+    public async Task<ActionResult<List<UserRoleDto>>> UpdateUserRoles(Guid userId, [FromBody] List<UserRoleDto> roles)
+    {
+        var command = new UpdateUserRolesCommand
+        {
+            UserId = userId,
+            Roles = roles
+        };
+
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+    
+    [HttpPut("profile")]
+    public async Task<IActionResult> UpdateProfile(UpdateUserProfileCommand command)
+    {
+        await _mediator.Send(command);
+        return NoContent();
+    }
 }

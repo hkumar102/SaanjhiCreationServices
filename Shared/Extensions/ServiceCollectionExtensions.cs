@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using FluentValidation.AspNetCore;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication;
 using Shared.Authentication;
 
 namespace Shared.Infrastructure.Extensions;
@@ -16,6 +15,11 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, Assembly applicationAssembly)
     {
+        services.AddScoped<ICurrentUserService, FirebaseCurrentUserService>();
+
+        //Firebase Authentication
+        FirebaseInitializer.InitializeFirebase("Secrets/saanjhicreation-firebase-adminsdk.json");
+        
         // MediatR
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationAssembly));
 
@@ -33,7 +37,20 @@ public static class ServiceCollectionExtensions
         services.AddAuthorization();
         // Controllers
         services.AddControllers();
-
+        
+        
+        // Add CORS policy
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
+        
         return services;
     }
 

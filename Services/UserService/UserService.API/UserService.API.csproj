@@ -27,4 +27,8 @@
     <ProjectReference Include="..\UserService.Infrastructure\UserService.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Secrets\saanjhicreation-firebase-adminsdk.json" />
+  </ItemGroup>
+
 </Project>

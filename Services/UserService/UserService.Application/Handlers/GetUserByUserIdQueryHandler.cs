@@ -1,3 +1,4 @@
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using UserService.Application.Queries;
@@ -12,23 +13,18 @@ namespace UserService.Application.Handlers;
 public class GetUserByUserIdQueryHandler : IRequestHandler<GetUserByUserIdQuery, UserDto>
 {
     private readonly UserDbContext _context;
-
-    public GetUserByUserIdQueryHandler(UserDbContext context)
+    private readonly IMapper _mapper;
+    public GetUserByUserIdQueryHandler(UserDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     public async Task<UserDto> Handle(GetUserByUserIdQuery request, CancellationToken cancellationToken)
     {
         var user = await _context.Users
             .Where(x => x.Id == request.UserId)
-            .Select(x => new UserDto
-            {
-                Id = x.Id,
-                FullName = x.FullName,
-                Email = x.Email,
-                PhoneNumber = x.PhoneNumber
-            }).FirstOrDefaultAsync(cancellationToken);
+            .Select(x => _mapper.Map<UserDto>(x)).FirstOrDefaultAsync(cancellationToken);
 
         return user ?? throw new KeyNotFoundException("User not found");
     }

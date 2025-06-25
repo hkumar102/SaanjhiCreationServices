@@ -1,3 +1,4 @@
+using AutoMapper;
 using MediatR;
 using UserService.Application.Commands;
 using UserService.Domain.Entities;
@@ -12,10 +13,11 @@ namespace UserService.Application.Handlers;
 public class AddShippingAddressCommandHandler : IRequestHandler<AddShippingAddressCommand, ShippingAddressDto>
 {
     private readonly UserDbContext _context;
-
-    public AddShippingAddressCommandHandler(UserDbContext context)
+    private readonly IMapper _mapper;
+    public AddShippingAddressCommandHandler(UserDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     public async Task<ShippingAddressDto> Handle(AddShippingAddressCommand request, CancellationToken cancellationToken)
@@ -34,15 +36,6 @@ public class AddShippingAddressCommandHandler : IRequestHandler<AddShippingAddre
         _context.ShippingAddresses.Add(address);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new ShippingAddressDto
-        {
-            Id = address.Id,
-            AddressLine1 = address.AddressLine1,
-            AddressLine2 = address.AddressLine2,
-            City = address.City,
-            State = address.State,
-            ZipCode = address.ZipCode,
-            Country = address.Country
-        };
+        return _mapper.Map<ShippingAddressDto>(address);
     }
 }
