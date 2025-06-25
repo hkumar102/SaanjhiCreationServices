@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Shared.ErrorHandling;
+using Shared.Extensions;
 using Shared.Extensions.Telemetry;
 using UserService.Infrastructure.Persistence;
 using Shared.Infrastructure.Extensions;
@@ -26,7 +27,7 @@ builder.Services.AddSaanjhiHealthChecks(builder.Configuration);
 builder.Services.AddAutoMapper(appAssembly);
 
 var app = builder.Build();
-
+app.ApplyMigrations<UserDbContext>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

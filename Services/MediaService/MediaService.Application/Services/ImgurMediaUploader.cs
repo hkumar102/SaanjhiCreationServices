@@ -1,13 +1,12 @@
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Configuration;
+using Shared.Contracts.Media;
 
 namespace MediaService.Application.Services;
 
 using Microsoft.AspNetCore.Http;
 using Interfaces;
 using DTOs;
-using Domain.Enums;
-
 using System.Text.Json;
 
 public class ImgurMediaUploader : IMediaUploader

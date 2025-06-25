@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MediaService.Infrastructure.Data.Migrations
 {
-    [DbContext(typeof(MediaServiceDbContext))]
+    [DbContext(typeof(MediaDbContext))]
     [Migration("20250623213621_Initial")]
     partial class Initial
     {

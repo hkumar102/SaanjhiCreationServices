@@ -6,6 +6,7 @@ using MediaService.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Shared.ErrorHandling;
+using Shared.Extensions;
 using Shared.Extensions.Telemetry;
 using Shared.Infrastructure.Extensions;
 using Shared.HealthChecks;
@@ -22,14 +23,14 @@ builder.Services.AddHttpClient<IMediaUploader, ImgurMediaUploader>();
 builder.Services.AddSwaggerDocs("Media Service");
 
 // EF Core registration specific to the service
-builder.Services.AddDbContext<MediaServiceDbContext>(options =>
+builder.Services.AddDbContext<MediaDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSaanjhiHealthChecks(builder.Configuration);
 builder.Services.AddAutoMapper(appAssembly);
 
 var app = builder.Build();
-
+app.ApplyMigrations<MediaDbContext>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

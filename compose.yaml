@@ -1,10 +1,12 @@
 services:
   postgres:
     image: postgres:15
+    container_name: postgres
+    restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: usersdb
+      POSTGRES_USER: saanjhiuser
+      POSTGRES_PASSWORD: saanjhiuser
+      POSTGRES_DB: saanjhicreation
     ports:
       - "5432:5432"
     volumes:
@@ -19,6 +21,78 @@ services:
     ports:
       - "8002:80"
       - "8003:443"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: https://+:443;http://+:80
+      ASPNETCORE_Kestrel__Certificates__Default__Password: reallyStrongPassword123
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aspnetapp.pfx
+    depends_on:
+      - postgres
+    volumes:
+      - ${HOME}/.aspnet/dev-certs/https:/https/
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "https://localhost:443/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  media-service:
+    build:
+      context: .
+      dockerfile: Services/MediaService/MediaService.API/Dockerfile
+    image: sanjhi.media.api
+    container_name: sanjhi.media.api
+    ports:
+      - "8004:80"
+      - "8005:443"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: https://+:443;http://+:80
+      ASPNETCORE_Kestrel__Certificates__Default__Password: reallyStrongPassword123
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aspnetapp.pfx
+    depends_on:
+      - postgres
+    volumes:
+      - ${HOME}/.aspnet/dev-certs/https:/https/
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "https://localhost:443/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  category-service:
+    build:
+      context: .
+      dockerfile: Services/CategoryService/CategoryService.API/Dockerfile
+    image: sanjhi.category.api
+    container_name: sanjhi.category.api
+    ports:
+      - "8006:80"
+      - "8007:443"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: https://+:443;http://+:80
+      ASPNETCORE_Kestrel__Certificates__Default__Password: reallyStrongPassword123
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aspnetapp.pfx
+    depends_on:
+      - postgres
+    volumes:
+      - ${HOME}/.aspnet/dev-certs/https:/https/
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "https://localhost:443/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  product-service:
+    build:
+      context: .
+      dockerfile: Services/ProductService/ProductService.API/Dockerfile
+    image: sanjhi.product.api
+    container_name: sanjhi.product.api
+    ports:
+      - "8009:80"
+      - "8010:443"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: https://+:443;http://+:80

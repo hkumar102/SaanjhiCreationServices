@@ -1,4 +1,4 @@
-using MediaService.Domain.Enums;
+using Shared.Contracts.Media;
 
 namespace MediaService.Application.DTOs;
 

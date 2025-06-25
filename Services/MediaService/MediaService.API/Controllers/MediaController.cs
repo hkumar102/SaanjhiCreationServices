@@ -1,5 +1,4 @@
 using MediaService.Application.DTOs;
-using MediaService.Domain.Enums;
 
 namespace MediaService.API.Controllers;
 

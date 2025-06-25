@@ -11,10 +11,10 @@ using Shared.Contracts.Media;
 
 public class CreateMediaCommandHandler : IRequestHandler<CreateMediaCommand, MediaDto>
 {
-    private readonly MediaServiceDbContext _db;
+    private readonly MediaDbContext _db;
     private readonly IMapper _mapper;
 
-    public CreateMediaCommandHandler(MediaServiceDbContext db, IMapper mapper)
+    public CreateMediaCommandHandler(MediaDbContext db, IMapper mapper)
     {
         _db = db;
         _mapper = mapper;
