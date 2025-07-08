@@ -1,15 +1,96 @@
 services:
   - type: web
     name: user-service
-    env: dotnet
-    region: oregon
-    plan: free
-    repo: https://github.com/hkumar102/SaanjhiCreationServices
-    branch: main
-    buildCommand: dotnet build
-    startCommand: dotnet run --project Services/UserService/UserService.API/UserService.API.csproj
+    env: docker
+    repo: https://github.com/your-org/your-repo
+    dockerfilePath: Services/UserService/UserService.API/Dockerfile
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
-        value: Production
+        value: Development
+      - key: ASPNETCORE_URLS
+        value: http://*:80
+      - key: FirebaseSecretPath
+        value: /secrets/firebase.json
       - key: ConnectionStrings__DefaultConnection
-        value: Host=dpg-d1adan3ipnbc73a0g3bg-a;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=nWOBb9SgGyay35Xv8guprDVXEyGXBwUS
+        value: Host=postgres;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=saanjhiuser
+    autoDeploy: false
+
+  - type: web
+    name: media-service
+    env: docker
+    repo: https://github.com/your-org/your-repo
+    dockerfilePath: Services/MediaService/MediaService.API/Dockerfile
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Development
+      - key: ASPNETCORE_URLS
+        value: http://*:80
+      - key: FirebaseSecretPath
+        value: /secrets/firebase.json
+      - key: ConnectionStrings__DefaultConnection
+        value: Host=postgres;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=saanjhiuser
+    autoDeploy: false
+
+  - type: web
+    name: category-service
+    env: docker
+    repo: https://github.com/your-org/your-repo
+    dockerfilePath: Services/CategoryService/CategoryService.API/Dockerfile
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Development
+      - key: ASPNETCORE_URLS
+        value: http://*:80
+      - key: FirebaseSecretPath
+        value: /secrets/firebase.json
+      - key: ConnectionStrings__DefaultConnection
+        value: Host=postgres;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=saanjhiuser
+    autoDeploy: false
+
+  - type: web
+    name: product-service
+    env: docker
+    repo: https://github.com/your-org/your-repo
+    dockerfilePath: Services/ProductService/ProductService.API/Dockerfile
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Development
+      - key: ASPNETCORE_URLS
+        value: http://*:80
+      - key: FirebaseSecretPath
+        value: /secrets/firebase.json
+      - key: ConnectionStrings__DefaultConnection
+        value: Host=postgres;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=saanjhiuser
+    autoDeploy: false
+
+  - type: web
+    name: customer-service
+    env: docker
+    repo: https://github.com/your-org/your-repo
+    dockerfilePath: Services/CustomerService/CustomerService.API/Dockerfile
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Development
+      - key: ASPNETCORE_URLS
+        value: http://*:80
+      - key: FirebaseSecretPath
+        value: /secrets/firebase.json
+      - key: ConnectionStrings__DefaultConnection
+        value: Host=postgres;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=saanjhiuser
+    autoDeploy: false
+
+  - type: web
+    name: rental-service
+    env: docker
+    repo: https://github.com/your-org/your-repo
+    dockerfilePath: Services/RentalService/RentalService.API/Dockerfile
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Development
+      - key: ASPNETCORE_URLS
+        value: http://*:80
+      - key: FirebaseSecretPath
+        value: /secrets/firebase.json
+      - key: ConnectionStrings__DefaultConnection
+        value: Host=postgres;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=saanjhiuser
+    autoDeploy: false
