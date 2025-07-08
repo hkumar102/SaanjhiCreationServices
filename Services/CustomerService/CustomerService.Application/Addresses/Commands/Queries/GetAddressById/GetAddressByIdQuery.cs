@@ -1,7 +1,7 @@
-using MediatR;
 using CustomerService.Domain.Entities;
+using MediatR;
 
-namespace CustomerService.Application.Addresses.Queries.GetAddressById;
+namespace CustomerService.Application.Addresses.Commands.Queries.GetAddressById;
 
 public class GetAddressByIdQuery : IRequest<Address?>
 {

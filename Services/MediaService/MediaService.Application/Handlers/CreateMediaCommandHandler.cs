@@ -9,22 +9,14 @@ using Infrastructure.Persistence;
 using Shared.Contracts.Media;
 
 
-public class CreateMediaCommandHandler : IRequestHandler<CreateMediaCommand, MediaDto>
+public class CreateMediaCommandHandler(MediaDbContext db, IMapper mapper)
+    : IRequestHandler<CreateMediaCommand, MediaDto>
 {
-    private readonly MediaDbContext _db;
-    private readonly IMapper _mapper;
-
-    public CreateMediaCommandHandler(MediaDbContext db, IMapper mapper)
-    {
-        _db = db;
-        _mapper = mapper;
-    }
-
     public async Task<MediaDto> Handle(CreateMediaCommand request, CancellationToken cancellationToken)
     {
-        var entity = _mapper.Map<Media>(request);
-        _db.Medias.Add(entity);
-        await _db.SaveChangesAsync(cancellationToken);
-        return _mapper.Map<MediaDto>(entity);
+        var entity = mapper.Map<Media>(request);
+        db.Medias.Add(entity);
+        await db.SaveChangesAsync(cancellationToken);
+        return mapper.Map<MediaDto>(entity);
     }
 }

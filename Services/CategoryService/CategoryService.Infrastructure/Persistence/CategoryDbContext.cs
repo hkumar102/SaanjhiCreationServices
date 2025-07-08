@@ -1,15 +1,11 @@
 using CategoryService.Domain.Entities;
-using CategoryService.Domain.Configurations;
+using CategoryService.Infrastructure.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace CategoryService.Infrastructure.Persistence;
 
-public class CategoryDbContext : DbContext
+public class CategoryDbContext(DbContextOptions<CategoryDbContext> options) : DbContext(options)
 {
-    public CategoryDbContext(DbContextOptions<CategoryDbContext> options) : base(options)
-    {
-    }
-
     public DbSet<Category> Categories => Set<Category>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

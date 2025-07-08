@@ -2,27 +2,19 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ProductService.Contracts.DTOs;
+using ProductService.Infrastructure.HttpClients;
 using ProductService.Infrastructure.Persistence;
 using Shared.Contracts.Common;
-using Shared.Contracts.Products;
 
 namespace ProductService.Application.Products.Queries.GetAllProducts;
 
-public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, PaginatedResult<ProductDto>>
+public class GetAllProductsQueryHandler(ProductDbContext db, IMapper mapper, CategoryApiClient categoryApiClient)
+    : IRequestHandler<GetAllProductsQuery, PaginatedResult<ProductDto>>
 {
-    private readonly ProductDbContext _db;
-    private readonly IMapper _mapper;
-
-    public GetAllProductsQueryHandler(ProductDbContext db, IMapper mapper)
-    {
-        _db = db;
-        _mapper = mapper;
-    }
-
     public async Task<PaginatedResult<ProductDto>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
     {
-        var query = _db.Products
-            .Include(p => p.Category)
+        var query = db.Products
             .Include(p => p.Media)
             .AsQueryable();
 
@@ -60,9 +52,20 @@ public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, P
             .OrderByDescending(p => p.CreatedAt)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
-            .ProjectTo<ProductDto>(_mapper.ConfigurationProvider)
+            .ProjectTo<ProductDto>(mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
+        
+        // Fetch categories in bulk
+        var categoryIds = items.Select(p => p.CategoryId).Distinct().ToList();
+        var categories = await categoryApiClient.GetCategoryByIdsAsync(categoryIds) ?? [];
 
+        // Map category names to products
+        var categoryDict = categories.ToDictionary(c => c.Id, c => c.Name);
+        foreach (var dto in items)
+        {
+            if (dto.CategoryId != Guid.Empty && categoryDict.TryGetValue(dto.CategoryId, out var name))
+                dto.CategoryName = name;
+        }
         return new PaginatedResult<ProductDto>
         {
             Items = items,

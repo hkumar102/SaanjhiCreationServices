@@ -6,15 +6,8 @@ using MediatR;
 
 namespace CustomerService.Application.Customers.Commands.Create;
 
-public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, Guid>
+public class CreateCustomerCommandHandler(CustomerDbContext context) : IRequestHandler<CreateCustomerCommand, Guid>
 {
-    private readonly CustomerDbContext _context;
-
-    public CreateCustomerCommandHandler(CustomerDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Guid> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
         var customer = new Customer
@@ -27,8 +20,8 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
             CreatedAt = DateTime.UtcNow
         };
 
-        _context.Customers.Add(customer);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.Customers.Add(customer);
+        await context.SaveChangesAsync(cancellationToken);
 
         return customer.Id;
     }

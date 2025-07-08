@@ -1,24 +1,26 @@
 using System.Collections.Generic;
 using System.Reflection;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using FluentValidation.AspNetCore;
-using FluentValidation;
 using Shared.Authentication;
 
-namespace Shared.Infrastructure.Extensions;
+namespace Shared.Extensions;
 
 public static class ServiceCollectionExtensions
 {
     /// <summary>
     /// Registers common application services like MediatR, FluentValidation, Swagger, and FirebaseAuth.
     /// </summary>
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, Assembly applicationAssembly)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, Assembly applicationAssembly, IConfiguration configuration)
     {
         services.AddScoped<ICurrentUserService, FirebaseCurrentUserService>();
 
         //Firebase Authentication
-        FirebaseInitializer.InitializeFirebase("Secrets/saanjhicreation-firebase-adminsdk.json");
+        var firebaseConfig = configuration["FirebaseSecretPath"];
+        FirebaseInitializer.InitializeFirebase(firebaseConfig);
         
         // MediatR
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationAssembly));
@@ -50,6 +52,8 @@ public static class ServiceCollectionExtensions
                     .AllowAnyHeader();
             });
         });
+        
+        services.AddHttpClient();
         
         return services;
     }

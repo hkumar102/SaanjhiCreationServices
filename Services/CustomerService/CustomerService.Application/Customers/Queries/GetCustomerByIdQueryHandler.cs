@@ -1,23 +1,20 @@
+using AutoMapper;
+using CustomerService.Contracts.DTOs;
 using MediatR;
 using CustomerService.Infrastructure.Persistence;
-using CustomerService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CustomerService.Application.Customers.Queries;
 
-public class GetCustomerByIdQueryHandler : IRequestHandler<GetCustomerByIdQuery, Customer?>
+public class GetCustomerByIdQueryHandler(CustomerDbContext context, IMapper mapper)
+    : IRequestHandler<GetCustomerByIdQuery, CustomerDto?>
 {
-    private readonly CustomerDbContext _context;
-
-    public GetCustomerByIdQueryHandler(CustomerDbContext context)
+    public async Task<CustomerDto?> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
     {
-        _context = context;
-    }
-
-    public async Task<Customer?> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
-    {
-        return await _context.Customers
+        var customer = await context.Customers
             .Include(c => c.Addresses)
             .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+
+        return customer == null ? null : mapper.Map<CustomerDto>(customer);
     }
 }

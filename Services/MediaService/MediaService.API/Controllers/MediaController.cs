@@ -10,19 +10,12 @@ using Shared.Contracts.Media;
 
 [ApiController]
 [Route("api/media")]
-public class MediaController : ControllerBase
+public class MediaController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public MediaController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpPost("upload")]
     public async Task<ActionResult<UploadMediaResult>> Upload([FromForm] MediaType mediaType, IFormFile file)
     {
-        var result = await _mediator.Send(new UploadMediaCommand
+        var result = await mediator.Send(new UploadMediaCommand
         {
             File = file,
             MediaType = mediaType

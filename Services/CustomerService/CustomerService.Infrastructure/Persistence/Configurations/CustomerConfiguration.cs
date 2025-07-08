@@ -24,15 +24,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.UserId)
             .IsRequired(false);
 
-        // Configure UserId as a foreign key to the Users table
         builder.HasIndex(c => c.UserId);
-        builder.HasOne<User>() // No navigation property
-            .WithMany()
-            .HasForeignKey(c => c.UserId)
-            .HasPrincipalKey("Id") // User's PK
-            .OnDelete(DeleteBehavior.Restrict)
-            .IsRequired(false)
-            .HasConstraintName("FK_Customer_User");
 
         builder.Property(c => c.CreatedAt)
             .IsRequired();
@@ -45,10 +37,4 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .HasForeignKey(a => a.CustomerId)
             .OnDelete(DeleteBehavior.Cascade);
     }
-}
-
-// Dummy User class for configuration only (not referenced elsewhere)
-public class User
-{
-    public Guid Id { get; set; }
 }

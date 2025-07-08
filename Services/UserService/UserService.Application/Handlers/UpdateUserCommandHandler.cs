@@ -11,19 +11,12 @@ namespace UserService.Application.Handlers;
 /// <summary>
 /// Handles user updates.
 /// </summary>
-public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserDto>
+public class UpdateUserCommandHandler(UserDbContext context, IMapper mapper)
+    : IRequestHandler<UpdateUserCommand, UserDto>
 {
-    private readonly UserDbContext _context;
-    private readonly IMapper _mapper;
-    public UpdateUserCommandHandler(UserDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-
     public async Task<UserDto> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _context.Users.FindAsync(new object[] { request.Id }, cancellationToken);
+        var user = await context.Users.FindAsync(new object[] { request.Id }, cancellationToken);
         if (user == null)
             throw new KeyNotFoundException("User not found");
     
@@ -44,8 +37,8 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
             });
         }
         
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-        return _mapper.Map<UserDto>(user);
+        return mapper.Map<UserDto>(user);
     }
 }

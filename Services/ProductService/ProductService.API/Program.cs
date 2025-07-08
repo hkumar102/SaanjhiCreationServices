@@ -2,11 +2,12 @@ using System.Reflection;
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using ProductService.Infrastructure.HttpClients;
+using ProductService.Infrastructure.HttpHandlers;
 using Shared.ErrorHandling;
 using Shared.Extensions.Telemetry;
 using ProductService.Infrastructure.Persistence;
 using Shared.Extensions;
-using Shared.Infrastructure.Extensions;
 using Shared.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,14 +17,23 @@ var appAssembly = Assembly.Load("ProductService.Application");
 builder.UseSharedSentry();
 builder.Services.AddSharedTelemetry(builder.Configuration, "ProductService");
 // Common shared service registration
-builder.Services.AddApplicationServices(appAssembly);
+builder.Services.AddApplicationServices(appAssembly, builder.Configuration);
+builder.Services.AddTransient<AuthenticatedHttpClientHandler>();
+builder.Services.AddTransient<ITokenProvider, TokenProvider>();
+builder.Services.AddHttpClient<CategoryApiClient>(c =>
+    {
+        var categoryServiceUrl = builder.Configuration["HttpClient:CategoryService:BaseAddress"];
+        if (categoryServiceUrl != null) c.BaseAddress = new Uri(categoryServiceUrl);
+    })
+    .AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
 builder.Services.AddSwaggerDocs("Product Service");
 
 // EF Core registration specific to the service
 builder.Services.AddDbContext<ProductDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddSaanjhiHealthChecks(builder.Configuration);
+builder.Services.AddSaanjhiHealthChecks(builder.Configuration).AddSaanjhiServiceHealthCheck("Category Service", 
+    builder.Configuration["HttpClient:CategoryService:BaseAddress"] ?? string.Empty);
 builder.Services.AddAutoMapper(appAssembly);
 
 var app = builder.Build();
@@ -57,6 +67,5 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();

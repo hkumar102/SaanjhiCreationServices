@@ -1,9 +1,9 @@
 using AutoMapper;
 using ProductService.Application.Products.Commands.CreateProduct;
 using ProductService.Application.Products.Commands.UpdateProduct;
+using ProductService.Contracts.DTOs;
 using ProductService.Domain.Entities;
 using Shared.Contracts.Media;
-using Shared.Contracts.Products;
 
 namespace ProductService.Application.Mappings;
 
@@ -25,7 +25,6 @@ public class ProductMappingProfile : Profile
             .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => (MediaType)src.MediaType));
 
         CreateMap<Product, ProductDto>()
-            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category!.Name))
             .ForMember(dest => dest.Media, opt => opt.MapFrom(src => src.Media));
 
         CreateMap<ProductMedia, ProductMediaDto>()

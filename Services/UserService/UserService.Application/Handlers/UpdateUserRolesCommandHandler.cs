@@ -9,20 +9,12 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
 using Infrastructure.Persistence;
 
-public class UpdateUserRolesCommandHandler : IRequestHandler<UpdateUserRolesCommand, List<UserRoleDto>>
+public class UpdateUserRolesCommandHandler(UserDbContext dbContext, IMapper mapper)
+    : IRequestHandler<UpdateUserRolesCommand, List<UserRoleDto>>
 {
-    private readonly UserDbContext _dbContext;
-    private readonly IMapper _mapper;
-
-    public UpdateUserRolesCommandHandler(UserDbContext dbContext, IMapper mapper)
-    {
-        _dbContext = dbContext;
-        _mapper = mapper;
-    }
-
     public async Task<List<UserRoleDto>> Handle(UpdateUserRolesCommand request, CancellationToken cancellationToken)
     {
-        var user = await _dbContext.Users
+        var user = await dbContext.Users
             .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
 
@@ -41,8 +33,8 @@ public class UpdateUserRolesCommandHandler : IRequestHandler<UpdateUserRolesComm
             });
         }
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
-        return _mapper.Map<List<UserRoleDto>>(user.Roles);
+        return mapper.Map<List<UserRoleDto>>(user.Roles);
     }
 }

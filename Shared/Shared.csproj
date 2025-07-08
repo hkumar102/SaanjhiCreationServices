@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <NoWarn>$(NoWarn);8632</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +23,11 @@
     <PackageReference Include="Sentry.AspNetCore" Version="5.11.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="System.Text.Json" Version="9.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Contracts\Categories\" />
   </ItemGroup>
 
 </Project>

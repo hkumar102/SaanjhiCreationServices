@@ -11,19 +11,12 @@ namespace UserService.Application.Handlers;
 /// <summary>
 /// Handles user search with pagination and filters.
 /// </summary>
-public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, PaginatedResult<UserDto>>
+public class SearchUsersQueryHandler(UserDbContext context, IMapper mapper)
+    : IRequestHandler<SearchUsersQuery, PaginatedResult<UserDto>>
 {
-    private readonly UserDbContext _context;
-    private readonly IMapper _mapper;
-    public SearchUsersQueryHandler(UserDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-
     public async Task<PaginatedResult<UserDto>> Handle(SearchUsersQuery request, CancellationToken cancellationToken)
     {
-        var query = _context.Users.AsQueryable();
+        var query = context.Users.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(request.Name))
             query = query.Where(x => x.DisplayName.Contains(request.Name));
@@ -39,7 +32,7 @@ public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, Paginat
         var users = await query
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(x => _mapper.Map<UserDto>(x)).ToListAsync(cancellationToken);
+            .Select(x => mapper.Map<UserDto>(x)).ToListAsync(cancellationToken);
 
         return new PaginatedResult<UserDto>
         {

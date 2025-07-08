@@ -1,7 +1,7 @@
 using AutoMapper;
 using CategoryService.Application.Categories.Commands.CreateCategory;
 using CategoryService.Domain.Entities;
-using Shared.Contracts.Categories;
+using CategoryService.Contracts.DTOs;
 
 namespace CategoryService.Application.Mappings;
 

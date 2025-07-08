@@ -1,6 +1,6 @@
 using MediatR;
+using ProductService.Contracts.DTOs;
 using Shared.Contracts.Common;
-using Shared.Contracts.Products;
 
 namespace ProductService.Application.Products.Queries.GetAllProducts;
 

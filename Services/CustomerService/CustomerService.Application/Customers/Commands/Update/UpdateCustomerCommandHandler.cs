@@ -4,18 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CustomerService.Application.Customers.Commands.Update;
 
-public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, bool>
+public class UpdateCustomerCommandHandler(CustomerDbContext context) : IRequestHandler<UpdateCustomerCommand, bool>
 {
-    private readonly CustomerDbContext _context;
-
-    public UpdateCustomerCommandHandler(CustomerDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<bool> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
     {
-        var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+        var customer = await context.Customers.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
         if (customer == null) return false;
 
         customer.Name = request.Name;
@@ -24,7 +17,7 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
         customer.UserId = request.UserId;
         customer.ModifiedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

@@ -1,9 +1,10 @@
+using CustomerService.Contracts.DTOs;
 using MediatR;
 using CustomerService.Domain.Entities;
 
 namespace CustomerService.Application.Customers.Queries;
 
-public class GetAllCustomersQuery : IRequest<List<Customer>>
+public class GetAllCustomersQuery : IRequest<List<CustomerDto>>
 {
     public string? Name { get; set; }
     public string? Email { get; set; }

@@ -1,3 +1,4 @@
+using CustomerService.Contracts.Enums;
 using Shared.Domain.Entities;
 
 namespace CustomerService.Domain.Entities;
@@ -15,10 +16,4 @@ public class Address : AuditableEntity
     public string PhoneNumber { get; set; } = default!;
     public AddressType Type { get; set; }
     public Customer Customer { get; set; } = default!;
-}
-
-public enum AddressType
-{
-    Shipping,
-    Mailing
 }

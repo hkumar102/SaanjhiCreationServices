@@ -7,21 +7,13 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Persistence;
 
-public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfileCommand>
+public class UpdateUserProfileCommandHandler(UserDbContext db, ICurrentUserService currentUser)
+    : IRequestHandler<UpdateUserProfileCommand>
 {
-    private readonly UserDbContext _db;
-    private readonly ICurrentUserService _currentUser;
-
-    public UpdateUserProfileCommandHandler(UserDbContext db, ICurrentUserService currentUser)
-    {
-        _db = db;
-        _currentUser = currentUser;
-    }
-
     public async Task Handle(UpdateUserProfileCommand request, CancellationToken cancellationToken)
     {
-        var user = await _db.Users
-            .FirstOrDefaultAsync(u => u.FirebaseUserId == _currentUser.FirebaseUserId, cancellationToken);
+        var user = await db.Users
+            .FirstOrDefaultAsync(u => u.FirebaseUserId == currentUser.FirebaseUserId, cancellationToken);
 
         if (user == null)
             throw new KeyNotFoundException("User not found");
@@ -30,6 +22,6 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
         user.PhoneNumber = request.PhoneNumber;
         user.PhotoUrl = request.PhotoUrl;
 
-        await _db.SaveChangesAsync(cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
     }
 }

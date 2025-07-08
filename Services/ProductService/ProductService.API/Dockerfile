@@ -11,6 +11,7 @@ COPY Services/ProductService/ProductService.API/*.csproj ./Services/ProductServi
 COPY Services/ProductService/ProductService.Application/*.csproj ./Services/ProductService/ProductService.Application/
 COPY Services/ProductService/ProductService.Domain/*.csproj ./Services/ProductService/ProductService.Domain/
 COPY Services/ProductService/ProductService.Infrastructure/*.csproj ./Services/ProductService/ProductService.Infrastructure/
+COPY Services/CategoryService/CategoryService.Contracts/*.csproj ./Services/CategoryService/CategoryService.Contracts/
 COPY Shared/Shared.*/*.csproj ./Shared/
 
 # Restore dependencies

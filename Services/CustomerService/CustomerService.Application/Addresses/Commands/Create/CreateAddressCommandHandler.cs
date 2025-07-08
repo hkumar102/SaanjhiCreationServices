@@ -4,15 +4,8 @@ using CustomerService.Domain.Entities;
 
 namespace CustomerService.Application.Addresses.Commands.Create;
 
-public class CreateAddressCommandHandler : IRequestHandler<CreateAddressCommand, Guid>
+public class CreateAddressCommandHandler(CustomerDbContext context) : IRequestHandler<CreateAddressCommand, Guid>
 {
-    private readonly CustomerDbContext _context;
-
-    public CreateAddressCommandHandler(CustomerDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Guid> Handle(CreateAddressCommand request, CancellationToken cancellationToken)
     {
         var address = new Address
@@ -31,8 +24,8 @@ public class CreateAddressCommandHandler : IRequestHandler<CreateAddressCommand,
             ModifiedAt = DateTime.UtcNow
         };
 
-        _context.Addresses.Add(address);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.Addresses.Add(address);
+        await context.SaveChangesAsync(cancellationToken);
         return address.Id;
     }
 }

@@ -9,20 +9,11 @@ using Interfaces;
 using DTOs;
 using System.Text.Json;
 
-public class ImgurMediaUploader : IMediaUploader
+public class ImgurMediaUploader(HttpClient httpClient, IConfiguration config) : IMediaUploader
 {
-    private readonly HttpClient _httpClient;
-    private readonly IConfiguration _config;
-
-    public ImgurMediaUploader(HttpClient httpClient, IConfiguration config)
-    {
-        _httpClient = httpClient;
-        _config = config;
-    }
-
     public async Task<UploadMediaResult> UploadAsync(IFormFile file, MediaType mediaType, CancellationToken cancellationToken = default)
     {
-        var clientId = _config["Imgur:ClientId"];
+        var clientId = config["Imgur:ClientId"];
         if (string.IsNullOrWhiteSpace(clientId))
             throw new InvalidOperationException("Imgur Client ID is not configured.");
 
@@ -32,9 +23,9 @@ public class ImgurMediaUploader : IMediaUploader
         streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
         content.Add(streamContent, "image", file.FileName); // Imgur uses "image" field even for videos
 
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", clientId);
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", clientId);
 
-        var response = await _httpClient.PostAsync("https://api.imgur.com/3/upload", content, cancellationToken);
+        var response = await httpClient.PostAsync("https://api.imgur.com/3/upload", content, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);

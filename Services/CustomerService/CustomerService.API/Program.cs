@@ -6,17 +6,15 @@ using Shared.ErrorHandling;
 using Shared.Extensions.Telemetry;
 using CustomerService.Infrastructure.Persistence;
 using Shared.Extensions;
-using Shared.Infrastructure.Extensions;
 using Shared.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
-
 var appAssembly = Assembly.Load("CustomerService.Application");
 
 builder.UseSharedSentry();
 builder.Services.AddSharedTelemetry(builder.Configuration, "CustomerService");
 // Common shared service registration
-builder.Services.AddApplicationServices(appAssembly);
+builder.Services.AddApplicationServices(appAssembly, builder.Configuration);
 builder.Services.AddSwaggerDocs("Customer Service");
 
 // EF Core registration specific to the service
@@ -57,6 +55,5 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();

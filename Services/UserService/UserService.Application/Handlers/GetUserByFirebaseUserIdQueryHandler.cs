@@ -10,21 +10,14 @@ namespace UserService.Application.Handlers;
 /// <summary>
 /// Handles retrieval of user by FirebaseUserId.
 /// </summary>
-public class GetUserByFirebaseUserIdQueryHandler : IRequestHandler<GetUserByFirebaseUserIdQuery, UserDto>
+public class GetUserByFirebaseUserIdQueryHandler(UserDbContext context, IMapper mapper)
+    : IRequestHandler<GetUserByFirebaseUserIdQuery, UserDto>
 {
-    private readonly UserDbContext _context;
-    private readonly IMapper _mapper;
-    public GetUserByFirebaseUserIdQueryHandler(UserDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-
     public async Task<UserDto> Handle(GetUserByFirebaseUserIdQuery request, CancellationToken cancellationToken)
     {
-        var user = await _context.Users
+        var user = await context.Users
             .Where(x => x.FirebaseUserId == request.FirebaseUserId)
-            .Select(x =>  _mapper.Map<UserDto>(x)).FirstOrDefaultAsync(cancellationToken);
+            .Select(x =>  mapper.Map<UserDto>(x)).FirstOrDefaultAsync(cancellationToken);
 
         return user ?? throw new KeyNotFoundException("User not found");
     }

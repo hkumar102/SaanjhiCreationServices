@@ -1,5 +1,5 @@
 using MediatR;
-using Shared.Contracts.Categories;
+using CategoryService.Contracts.DTOs;
 
 namespace CategoryService.Application.Categories.Queries.GetCategoryById;
 

@@ -4,18 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CustomerService.Application.Addresses.Commands.Update;
 
-public class UpdateAddressCommandHandler : IRequestHandler<UpdateAddressCommand, bool>
+public class UpdateAddressCommandHandler(CustomerDbContext context) : IRequestHandler<UpdateAddressCommand, bool>
 {
-    private readonly CustomerDbContext _context;
-
-    public UpdateAddressCommandHandler(CustomerDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<bool> Handle(UpdateAddressCommand request, CancellationToken cancellationToken)
     {
-        var address = await _context.Addresses.FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken);
+        var address = await context.Addresses.FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken);
         if (address == null) return false;
 
         address.CustomerId = request.CustomerId;
@@ -29,7 +22,7 @@ public class UpdateAddressCommandHandler : IRequestHandler<UpdateAddressCommand,
         address.Type = request.Type;
         address.ModifiedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

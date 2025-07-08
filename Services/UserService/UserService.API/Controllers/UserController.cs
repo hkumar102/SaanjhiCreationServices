@@ -14,22 +14,15 @@ namespace UserService.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public class UserController : ControllerBase
+public class UserController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public UserController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     /// <summary>
     /// Create a new user.
     /// </summary>
     [HttpPost]
     public async Task<ActionResult<UserDto>> Create(CreateUserCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return CreatedAtAction(nameof(GetByUserId), new { userId = result.Id }, result);
     }
 
@@ -39,7 +32,7 @@ public class UserController : ControllerBase
     [HttpPut]
     public async Task<ActionResult<UserDto>> Update(UpdateUserCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return Ok(result);
     }
 
@@ -49,7 +42,7 @@ public class UserController : ControllerBase
     [HttpPost("address")]
     public async Task<ActionResult<ShippingAddressDto>> AddAddress(AddShippingAddressCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return Ok(result);
     }
 
@@ -59,7 +52,7 @@ public class UserController : ControllerBase
     [HttpPost("{userId:guid}/deactivate")]
     public async Task<IActionResult> Deactivate(Guid userId)
     {
-        await _mediator.Send(new DeactivateUserCommand { UserId = userId });
+        await mediator.Send(new DeactivateUserCommand { UserId = userId });
         return NoContent();
     }
 
@@ -69,7 +62,7 @@ public class UserController : ControllerBase
     [HttpPost("{userId:guid}/activate")]
     public async Task<IActionResult> Activate(Guid userId)
     {
-        await _mediator.Send(new ActivateUserCommand { UserId = userId });
+        await mediator.Send(new ActivateUserCommand { UserId = userId });
         return NoContent();
     }
 
@@ -79,7 +72,7 @@ public class UserController : ControllerBase
     [HttpGet("firebase/{firebaseUserId}")]
     public async Task<ActionResult<UserDto>> GetByFirebaseUserId(string firebaseUserId)
     {
-        var result = await _mediator.Send(new GetUserByFirebaseUserIdQuery { FirebaseUserId = firebaseUserId });
+        var result = await mediator.Send(new GetUserByFirebaseUserIdQuery { FirebaseUserId = firebaseUserId });
         return Ok(result);
     }
 
@@ -89,7 +82,7 @@ public class UserController : ControllerBase
     [HttpGet("{userId:guid}")]
     public async Task<ActionResult<UserDto>> GetByUserId(Guid userId)
     {
-        var result = await _mediator.Send(new GetUserByUserIdQuery { UserId = userId });
+        var result = await mediator.Send(new GetUserByUserIdQuery { UserId = userId });
         return Ok(result);
     }
 
@@ -99,7 +92,7 @@ public class UserController : ControllerBase
     [HttpGet("{userId:guid}/roles")]
     public async Task<ActionResult<List<string>>> GetRoles(Guid userId)
     {
-        var result = await _mediator.Send(new GetUserRolesQuery { UserId = userId });
+        var result = await mediator.Send(new GetUserRolesQuery { UserId = userId });
         return Ok(result);
     }
 
@@ -109,7 +102,7 @@ public class UserController : ControllerBase
     [HttpGet("search")]
     public async Task<ActionResult<PaginatedResult<UserDto>>> Search([FromQuery] SearchUsersQuery query)
     {
-        var result = await _mediator.Send(query);
+        var result = await mediator.Send(query);
         return Ok(result);
     }
     
@@ -122,14 +115,14 @@ public class UserController : ControllerBase
             Roles = roles
         };
 
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return Ok(result);
     }
     
     [HttpPut("profile")]
     public async Task<IActionResult> UpdateProfile(UpdateUserProfileCommand command)
     {
-        await _mediator.Send(command);
+        await mediator.Send(command);
         return NoContent();
     }
 }

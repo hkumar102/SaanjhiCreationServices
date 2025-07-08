@@ -1,6 +1,5 @@
 using FluentValidation;
-using Shared.Contracts.Media;
-using Shared.Contracts.Products;
+using ProductService.Contracts.DTOs;
 
 namespace ProductService.Application.Products.Validators;
 

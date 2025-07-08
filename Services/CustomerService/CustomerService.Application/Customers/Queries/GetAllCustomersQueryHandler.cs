@@ -1,22 +1,17 @@
+using AutoMapper;
+using CustomerService.Contracts.DTOs;
 using MediatR;
 using CustomerService.Infrastructure.Persistence;
-using CustomerService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CustomerService.Application.Customers.Queries;
 
-public class GetAllCustomersQueryHandler : IRequestHandler<GetAllCustomersQuery, List<Customer>>
+public class GetAllCustomersQueryHandler(CustomerDbContext context, IMapper mapper)
+    : IRequestHandler<GetAllCustomersQuery, List<CustomerDto>>
 {
-    private readonly CustomerDbContext _context;
-
-    public GetAllCustomersQueryHandler(CustomerDbContext context)
+    public async Task<List<CustomerDto>> Handle(GetAllCustomersQuery request, CancellationToken cancellationToken)
     {
-        _context = context;
-    }
-
-    public async Task<List<Customer>> Handle(GetAllCustomersQuery request, CancellationToken cancellationToken)
-    {
-        var query = _context.Customers.Include(c => c.Addresses).AsQueryable();
+        var query = context.Customers.Include(c => c.Addresses).AsQueryable();
 
         // Filtering
         if (!string.IsNullOrWhiteSpace(request.Name))
@@ -41,6 +36,7 @@ public class GetAllCustomersQueryHandler : IRequestHandler<GetAllCustomersQuery,
         // Pagination
         query = query.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize);
 
-        return await query.ToListAsync(cancellationToken);
+        var customers = await query.ToListAsync(cancellationToken);
+        return mapper.Map<List<CustomerDto>>(customers);
     }
 }

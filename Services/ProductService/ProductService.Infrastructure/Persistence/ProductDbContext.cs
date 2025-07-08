@@ -1,23 +1,18 @@
 // ProductService.Infrastructure/Persistence/ProductDbContext.cs
 using Microsoft.EntityFrameworkCore;
 using ProductService.Domain.Entities;
+using ProductService.Infrastructure.Configurations;
 using Shared.Domain.Entities;
 
 namespace ProductService.Infrastructure.Persistence;
 
-public class ProductDbContext : DbContext
+public class ProductDbContext(DbContextOptions<ProductDbContext> options) : DbContext(options)
 {
-    public ProductDbContext(DbContextOptions<ProductDbContext> options)
-        : base(options) { }
-
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductMedia> ProductMedia => Set<ProductMedia>();
-    public DbSet<Category> Categories => Set<Category>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Tell EF Core to ignore the Category entity here
-        modelBuilder.Entity<Category>().Metadata.SetIsTableExcludedFromMigrations(true);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProductDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }

@@ -1,5 +1,5 @@
 using MediatR;
-using Shared.Contracts.Products;
+using ProductService.Contracts.DTOs;
 
 namespace ProductService.Application.Products.Commands.UpdateProduct;
 

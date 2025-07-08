@@ -1,9 +1,9 @@
+using CustomerService.Contracts.DTOs;
 using MediatR;
-using CustomerService.Domain.Entities;
 
 namespace CustomerService.Application.Customers.Queries;
 
-public class GetCustomerByIdQuery : IRequest<Customer?>
+public class GetCustomerByIdQuery : IRequest<CustomerDto?>
 {
     public Guid Id { get; set; }
 }

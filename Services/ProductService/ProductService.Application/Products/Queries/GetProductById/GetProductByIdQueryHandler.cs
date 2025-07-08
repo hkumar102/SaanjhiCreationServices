@@ -1,30 +1,27 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ProductService.Contracts.DTOs;
+using ProductService.Infrastructure.HttpClients;
 using ProductService.Infrastructure.Persistence;
-using Shared.Contracts.Products;
 
 namespace ProductService.Application.Products.Queries.GetProductById;
 
-public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, ProductDto>
+public class GetProductByIdQueryHandler(ProductDbContext db, IMapper mapper, CategoryApiClient categoryApiClient)
+    : IRequestHandler<GetProductByIdQuery, ProductDto>
 {
-    private readonly ProductDbContext _db;
-    private readonly IMapper _mapper;
-
-    public GetProductByIdQueryHandler(ProductDbContext db, IMapper mapper)
-    {
-        _db = db;
-        _mapper = mapper;
-    }
-
     public async Task<ProductDto> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
     {
-        var product = await _db.Products
-            .Include(p => p.Category)
-            .Include(p => p.Media)
-            .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException("Product not found");
+        var product = await db.Products
+                          .Include(p => p.Media)
+                          .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken)
+                      ?? throw new KeyNotFoundException("Product not found");
+        
+        var productDto = mapper.Map<ProductDto>(product);
+        // Fetch category from CategoryApiClient
+        var category = await categoryApiClient.GetCategoryByIdAsync(product.CategoryId);
+        productDto.CategoryName = category.Name;
 
-        return _mapper.Map<ProductDto>(product);
+        return productDto;
     }
 }

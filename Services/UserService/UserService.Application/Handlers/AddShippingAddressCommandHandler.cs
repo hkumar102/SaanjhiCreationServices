@@ -10,16 +10,9 @@ namespace UserService.Application.Handlers;
 /// <summary>
 /// Handles adding a shipping address.
 /// </summary>
-public class AddShippingAddressCommandHandler : IRequestHandler<AddShippingAddressCommand, ShippingAddressDto>
+public class AddShippingAddressCommandHandler(UserDbContext context, IMapper mapper)
+    : IRequestHandler<AddShippingAddressCommand, ShippingAddressDto>
 {
-    private readonly UserDbContext _context;
-    private readonly IMapper _mapper;
-    public AddShippingAddressCommandHandler(UserDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-
     public async Task<ShippingAddressDto> Handle(AddShippingAddressCommand request, CancellationToken cancellationToken)
     {
         var address = new ShippingAddress
@@ -33,9 +26,9 @@ public class AddShippingAddressCommandHandler : IRequestHandler<AddShippingAddre
             Country = request.Country
         };
 
-        _context.ShippingAddresses.Add(address);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.ShippingAddresses.Add(address);
+        await context.SaveChangesAsync(cancellationToken);
 
-        return _mapper.Map<ShippingAddressDto>(address);
+        return mapper.Map<ShippingAddressDto>(address);
     }
 }

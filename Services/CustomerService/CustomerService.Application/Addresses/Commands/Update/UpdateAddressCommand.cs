@@ -1,4 +1,4 @@
-using CustomerService.Domain.Entities;
+using CustomerService.Contracts.Enums;
 using MediatR;
 
 namespace CustomerService.Application.Addresses.Commands.Update;

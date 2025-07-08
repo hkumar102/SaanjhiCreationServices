@@ -20,7 +20,6 @@ public class Product : AuditableEntity
     public int? MaxRentalDays { get; set; }
 
     public Guid CategoryId { get; set; }
-    public Category? Category { get; set; }
 
     public ICollection<ProductMedia> Media { get; set; } = new List<ProductMedia>();
 }
