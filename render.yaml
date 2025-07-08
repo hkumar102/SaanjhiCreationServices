@@ -13,6 +13,9 @@ services:
         value: /secrets/firebase.json
       - key: ConnectionStrings__DefaultConnection
         value: Host=postgres;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=saanjhiuser
+    privateFiles:
+      - name: firebase.json
+        mountPath: /secrets/firebase.json
     autoDeploy: false
 
   - type: web
