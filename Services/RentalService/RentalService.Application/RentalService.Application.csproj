@@ -7,11 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="MediatR" Version="12.5.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\RentalService.Contracts\RentalService.Contracts.csproj" />
+    <ProjectReference Include="..\RentalService.Domain\RentalService.Domain.csproj" />
+    <ProjectReference Include="..\RentalService.Infrastructure\RentalService.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

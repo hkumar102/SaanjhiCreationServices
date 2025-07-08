@@ -1,12 +1,52 @@
+using System.Reflection;
+using System.Text.Json;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
+using RentalService.Infrastructure.HttpClients;
+using RentalService.Infrastructure.HttpHandlers;
+using Shared.ErrorHandling;
+using Shared.Extensions.Telemetry;
+using RentalService.Infrastructure.Persistence;
+using Shared.Extensions;
+using Shared.HealthChecks;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var appAssembly = Assembly.Load("RentalService.Application");
+
+builder.UseSharedSentry();
+builder.Services.AddSharedTelemetry(builder.Configuration, "RentalService");
+// Common shared service registration
+builder.Services.AddApplicationServices(appAssembly, builder.Configuration);
+builder.Services.AddTransient<AuthenticatedHttpClientHandler>();
+builder.Services.AddTransient<ITokenProvider, TokenProvider>();
+builder.Services.AddHttpClient<ICustomerApiClient, CustomerApiClient>(c =>
+    {
+        var categoryServiceUrl = builder.Configuration["HttpClient:CustomerService:BaseAddress"];
+        if (categoryServiceUrl != null) c.BaseAddress = new Uri(categoryServiceUrl);
+    })
+    .AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
+builder.Services.AddHttpClient<IProductApiClient, ProductApiClient>(c =>
+    {
+        var categoryServiceUrl = builder.Configuration["HttpClient:ProductService:BaseAddress"];
+        if (categoryServiceUrl != null) c.BaseAddress = new Uri(categoryServiceUrl);
+    })
+    .AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
+builder.Services.AddSwaggerDocs("Rental Service");
+
+// EF Core registration specific to the service
+builder.Services.AddDbContext<RentalDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddSaanjhiHealthChecks(builder.Configuration)
+    .AddSaanjhiServiceHealthCheck("Product Service",
+        builder.Configuration["HttpClient:ProductService:BaseAddress"] ?? string.Empty)
+    .AddSaanjhiServiceHealthCheck("Customer Service",
+        builder.Configuration["HttpClient:CustomerService:BaseAddress"] ?? string.Empty);
+builder.Services.AddAutoMapper(appAssembly);
 
 var app = builder.Build();
-
+app.ApplyMigrations<RentalDbContext>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -14,31 +54,29 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
+app.MapHealthChecks("/health", new HealthCheckOptions
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var result = JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            checks = report.Entries.Select(e => new
+            {
+                name = e.Key,
+                status = e.Value.Status.ToString(),
+                duration = e.Value.Duration.TotalMilliseconds
+            })
+        });
+        await context.Response.WriteAsync(result);
+    }
+});
+// Use CORS policy
+app.UseCors("AllowAll");
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
+app.MapControllers();
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

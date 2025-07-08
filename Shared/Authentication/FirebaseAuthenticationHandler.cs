@@ -13,15 +13,12 @@ namespace Shared.Authentication;
 /// <summary>
 /// Firebase authentication handler that validates bearer tokens.
 /// </summary>
-public class FirebaseAuthenticationHandler : AuthenticationHandler<FirebaseAuthenticationOptions>
+public class FirebaseAuthenticationHandler(
+    IOptionsMonitor<FirebaseAuthenticationOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder)
+    : AuthenticationHandler<FirebaseAuthenticationOptions>(options, logger, encoder)
 {
-    public FirebaseAuthenticationHandler(
-        IOptionsMonitor<FirebaseAuthenticationOptions> options,
-        ILoggerFactory logger,
-        UrlEncoder encoder,
-        ISystemClock clock)
-        : base(options, logger, encoder, clock) { }
-
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         if (!Request.Headers.ContainsKey("Authorization"))

@@ -1,16 +1,23 @@
+using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Shared.HealthChecks;
 
 public static class HealthCheckExtensions
 {
-    public static IServiceCollection AddSaanjhiHealthChecks(this IServiceCollection services, IConfiguration configuration)
+    public static IHealthChecksBuilder AddSaanjhiHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddHealthChecks()
+        return services.AddHealthChecks()
             .AddNpgSql(configuration.GetConnectionString("DefaultConnection")!)
             .AddCheck<FirebaseHealthCheck>("firebase");
-        return services;
+    }
+    
+    public static IHealthChecksBuilder AddSaanjhiServiceHealthCheck(this IHealthChecksBuilder builder, string serviceName, string endpoint)
+    {
+        
+        return builder
+            .AddCheck(serviceName, 
+                new SaanjhiServiceHealthCheck(builder.Services.BuildServiceProvider().GetRequiredService<IHttpClientFactory>(), serviceName, endpoint));
     }
 }

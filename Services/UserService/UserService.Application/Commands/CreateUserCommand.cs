@@ -8,8 +8,12 @@ namespace UserService.Application.Commands;
 /// </summary>
 public class CreateUserCommand : IRequest<UserDto>
 {
-    public string FirebaseUserId { get; set; } = null!;
-    public string Name { get; set; } = null!;
+    public string DisplayName { get; set; } = null!;
     public string Email { get; set; } = null!;
-    public string? Phone { get; set; }
+    public string PhoneNumber { get; set; } = null!;
+    public string? PhotoUrl { get; set; }
+    public bool IsActive { get; set; }
+    public bool EmailVerified { get; set; }
+    public string FirebaseUserId { get; set; } = null!;
+    public List<AuthProviderDto> providers { get; set; } = new();
 }

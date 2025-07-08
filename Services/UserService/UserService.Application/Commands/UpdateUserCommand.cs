@@ -8,7 +8,11 @@ namespace UserService.Application.Commands;
 /// </summary>
 public class UpdateUserCommand : IRequest<UserDto>
 {
-    public Guid UserId { get; set; }
-    public string Name { get; set; } = null!;
-    public string? Phone { get; set; }
+    public Guid Id { get; set; }
+    public string DisplayName { get; set; } = null!;
+    public string PhoneNumber { get; set; } = null!;
+    public string? PhotoUrl { get; set; }
+    public bool IsActive { get; set; }
+    public bool EmailVerified { get; set; }
+    public List<UserRoleDto> Roles { get; set; } = new();
 }
