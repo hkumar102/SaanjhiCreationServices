@@ -2,95 +2,99 @@ services:
   - type: web
     name: user-service
     env: docker
-    repo: https://github.com/your-org/your-repo
+    repo: https://github.com/hkumar102/SaanjhiCreationServices
     dockerfilePath: Services/UserService/UserService.API/Dockerfile
+    healthCheckIntervalSeconds: 60  # ⬅️ Ping every 60 seconds
+    healthCheckTimeoutSeconds: 10
+    envGroups:
+      - name: saanjhi-creation
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Development
       - key: ASPNETCORE_URLS
-        value: http://*:80
-      - key: FirebaseSecretPath
-        value: /etc/secrets/firebase.json
-      - key: ConnectionStrings__DefaultConnection
-        value: Host=dpg-d1adan3ipnbc73a0g3bg-a;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=nWOBb9SgGyay35Xv8guprDVXEyGXBwUS
+        value: http://*:80      
     autoDeploy: false
 
   - type: web
     name: media-service
     env: docker
-    repo: https://github.com/your-org/your-repo
+    repo: https://github.com/hkumar102/SaanjhiCreationServices
     dockerfilePath: Services/MediaService/MediaService.API/Dockerfile
+    healthCheckIntervalSeconds: 60  # ⬅️ Ping every 60 seconds
+    healthCheckTimeoutSeconds: 10
+    envGroups:
+      - name: saanjhi-creation
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Development
       - key: ASPNETCORE_URLS
         value: http://*:80
-      - key: FirebaseSecretPath
-        value: /etc/secrets/firebase.json
-      - key: ConnectionStrings__DefaultConnection
-        value: Host=dpg-d1adan3ipnbc73a0g3bg-a;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=nWOBb9SgGyay35Xv8guprDVXEyGXBwUS
     autoDeploy: false
 
   - type: web
     name: category-service
     env: docker
-    repo: https://github.com/your-org/your-repo
+    repo: https://github.com/hkumar102/SaanjhiCreationServices
     dockerfilePath: Services/CategoryService/CategoryService.API/Dockerfile
+    healthCheckIntervalSeconds: 60  # ⬅️ Ping every 60 seconds
+    healthCheckTimeoutSeconds: 10
+    envGroups:
+      - name: saanjhi-creation
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Development
       - key: ASPNETCORE_URLS
         value: http://*:80
-      - key: FirebaseSecretPath
-        value: /etc/secrets/firebase.json
-      - key: ConnectionStrings__DefaultConnection
-        value: Host=dpg-d1adan3ipnbc73a0g3bg-a;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=nWOBb9SgGyay35Xv8guprDVXEyGXBwUS
     autoDeploy: false
 
   - type: web
     name: product-service
     env: docker
-    repo: https://github.com/your-org/your-repo
+    repo: https://github.com/hkumar102/SaanjhiCreationServices
     dockerfilePath: Services/ProductService/ProductService.API/Dockerfile
+    healthCheckIntervalSeconds: 60  # ⬅️ Ping every 60 seconds
+    healthCheckTimeoutSeconds: 10
+    envGroups:
+      - name: saanjhi-creation
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Development
       - key: ASPNETCORE_URLS
         value: http://*:80
-      - key: FirebaseSecretPath
-        value: /etc/secrets/firebase.json
-      - key: ConnectionStrings__DefaultConnection
-        value: Host=dpg-d1adan3ipnbc73a0g3bg-a;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=nWOBb9SgGyay35Xv8guprDVXEyGXBwUS
     autoDeploy: false
 
   - type: web
     name: customer-service
     env: docker
-    repo: https://github.com/your-org/your-repo
+    repo: https://github.com/hkumar102/SaanjhiCreationServices
     dockerfilePath: Services/CustomerService/CustomerService.API/Dockerfile
+    healthCheckIntervalSeconds: 60  # ⬅️ Ping every 60 seconds
+    healthCheckTimeoutSeconds: 10
+    envGroups:
+      - name: saanjhi-creation
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Development
       - key: ASPNETCORE_URLS
         value: http://*:80
-      - key: FirebaseSecretPath
-        value: /etc/secrets/firebase.json
-      - key: ConnectionStrings__DefaultConnection
-        value: Host=dpg-d1adan3ipnbc73a0g3bg-a;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=nWOBb9SgGyay35Xv8guprDVXEyGXBwUS
     autoDeploy: false
 
   - type: web
     name: rental-service
     env: docker
-    repo: https://github.com/your-org/your-repo
+    repo: https://github.com/hkumar102/SaanjhiCreationServices
     dockerfilePath: Services/RentalService/RentalService.API/Dockerfile
+    healthCheckIntervalSeconds: 60  # ⬅️ Ping every 60 seconds
+    healthCheckTimeoutSeconds: 10
+    envGroups:
+      - name: saanjhi-creation
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Development
       - key: ASPNETCORE_URLS
         value: http://*:80
-      - key: FirebaseSecretPath
-        value: /etc/secrets/firebase.json
-      - key: ConnectionStrings__DefaultConnection
-        value: Host=dpg-d1adan3ipnbc73a0g3bg-a;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=nWOBb9SgGyay35Xv8guprDVXEyGXBwUS
+      - key: HttpClient__ProductService__BaseAddress
+        value: http://product-service-kox4/
+      - key: HttpClient__CustomerService__BaseAddress
+        value: http://customer-service-5ats/
     autoDeploy: false

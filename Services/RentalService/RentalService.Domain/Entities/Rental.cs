@@ -26,6 +26,7 @@ public class Rental : AuditableEntity
     public string? Shoulder { get; set; }
     public string? SleeveLength { get; set; }
     public string? Inseam { get; set; }
-
+    
+    public int BookNumber { get; set; } 
     public string? Notes { get; set; } // Optional additional notes
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -31,7 +32,14 @@ public static class TelemetryExtensions
             o.Debug = true;
             o.TracesSampleRate = 1.0;
             o.SendDefaultPii = true;
+            o.Environment = builder.Environment.EnvironmentName;
+            o.AttachStacktrace = true;
+            // Configure log levels
+            o.MinimumBreadcrumbLevel = LogLevel.Information; // Capture logs as breadcrumbs starting from Information level
+            o.MinimumEventLevel = LogLevel.Warning;
         });
+
+        builder.Logging.AddSentry();
 
         return builder;
     }
