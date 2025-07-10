@@ -2,6 +2,7 @@ using System.Net;
 using CustomerService.Application.Addresses.Commands.Create;
 using CustomerService.Application.Addresses.Commands.Delete;
 using CustomerService.Application.Addresses.Commands.Queries.GetAddressById;
+using CustomerService.Application.Addresses.Commands.Queries.GetAddressesByIds;
 using CustomerService.Application.Addresses.Commands.Update;
 using CustomerService.Contracts.DTOs;
 using MediatR;
@@ -17,6 +18,14 @@ public class CustomerAddressController(IMediator mediator) : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<AddressDto>> GetById(Guid id)
         => Ok(await mediator.Send(new GetAddressByIdQuery { Id = id }));
+
+    [HttpPost("by-ids")]
+    [ProducesResponseType(typeof(List<AddressDto>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetByIds([FromBody] GetAddressesByIdsQuery query)
+    {
+        var addresses = await mediator.Send(query);
+        return Ok(addresses);
+    }
     
     [HttpPost("address")]
     [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]

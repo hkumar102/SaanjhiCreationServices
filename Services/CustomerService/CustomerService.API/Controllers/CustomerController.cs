@@ -29,6 +29,14 @@ public class CustomerController(IMediator mediator) : ControllerBase
         var customer = await mediator.Send(new GetCustomerByIdQuery(){ Id = id });
         return Ok(customer);
     }
+
+    [HttpPost("by-ids")]
+    [ProducesResponseType(typeof(List<CustomerDto>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetByIds([FromBody] GetCustomersByIdsQuery query)
+    {
+        var customers = await mediator.Send(query);
+        return Ok(customers);
+    }
     
     [HttpGet]
     [ProducesResponseType(typeof(List<CustomerDto>), (int)HttpStatusCode.OK)]

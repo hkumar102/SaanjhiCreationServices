@@ -64,18 +64,43 @@ public class GetRentalsQueryHandler(
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
-        var rentals = await query.ToListAsync(cancellationToken);
+        // Extract unique IDs for bulk API calls
+        var customerIds = pagedRentals.Select(r => r.CustomerId).Distinct().ToList();
+        var productIds = pagedRentals.Select(r => r.ProductId).Distinct().ToList();
+
+        // Bulk API calls
+        var customersTask = customerClient.GetCustomersByIdsAsync(customerIds, cancellationToken);
+        var productsTask = productClient.GetProductsByIdsAsync(productIds, cancellationToken);
+
+        await Task.WhenAll(customersTask, productsTask);
+
+        var customers = await customersTask;
+        var products = await productsTask;
+
+        // Create lookup dictionaries for fast access
+        var customerLookup = customers.ToDictionary(c => c.Id, c => c);
+        var productLookup = products.ToDictionary(p => p.Id, p => p);
+        
+        // Create address lookup from customer addresses
+        var addressLookup = customers
+            .SelectMany(c => c.Addresses.Select(a => new { AddressId = a.Id, Address = a }))
+            .ToDictionary(x => x.AddressId, x => x.Address);
+
         var result = new List<RentalDto>();
 
-        foreach (var rental in rentals)
+        foreach (var rental in pagedRentals)
         {
             var dto = mapper.Map<RentalDto>(rental);
 
-            dto.Customer = await customerClient.GetCustomerByIdAsync(rental.CustomerId, cancellationToken);
-            var customerAddress =
-                await customerClient.GetAddressByIdAsync(rental.ShippingAddressId, cancellationToken);
-            dto.ShippingAddress = customerAddress?.Address();
-            dto.Product = await productClient.GetProductByIdAsync(rental.ProductId, cancellationToken);
+            // Use lookup dictionaries instead of API calls
+            dto.Customer = customerLookup.GetValueOrDefault(rental.CustomerId);
+            dto.Product = productLookup.GetValueOrDefault(rental.ProductId);
+            
+            if (addressLookup.TryGetValue(rental.ShippingAddressId, out var address))
+            {
+                dto.ShippingAddress = address.Address();
+            }
+
             result.Add(dto);
         }
 

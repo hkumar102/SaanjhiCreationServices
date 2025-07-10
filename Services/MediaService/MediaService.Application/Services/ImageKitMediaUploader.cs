@@ -8,7 +8,7 @@ using MediaService.Application.Interfaces;
 
 namespace MediaService.Application.Services;
 
-public class ImageKitMediaUploader(HttpClient httpClient, IConfiguration config) : IMediaUploader
+public class ImageKitMediaUploader(IConfiguration config) : IMediaUploader
 {
     public async Task<UploadMediaResult> UploadAsync(IFormFile file, MediaType mediaType,
         CancellationToken cancellationToken = default)

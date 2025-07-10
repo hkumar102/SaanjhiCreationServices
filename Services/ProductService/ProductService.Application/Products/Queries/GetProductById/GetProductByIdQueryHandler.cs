@@ -20,7 +20,7 @@ public class GetProductByIdQueryHandler(ProductDbContext db, IMapper mapper, Cat
         var productDto = mapper.Map<ProductDto>(product);
         // Fetch category from CategoryApiClient
         var category = await categoryApiClient.GetCategoryByIdAsync(product.CategoryId);
-        productDto.CategoryName = category.Name;
+        productDto.CategoryName = category?.Name;
 
         return productDto;
     }

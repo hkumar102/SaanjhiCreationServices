@@ -5,6 +5,7 @@ using ProductService.Application.Products.Commands.UpdateProduct;
 using ProductService.Application.Products.Commands.DeleteProduct;
 using ProductService.Application.Products.Queries.GetProductById;
 using ProductService.Application.Products.Queries.GetAllProducts;
+using ProductService.Application.Products.Queries.GetProductsByIds;
 using ProductService.Contracts.DTOs;
 using Shared.Contracts.Common;
 
@@ -21,6 +22,10 @@ public class ProductController(IMediator mediator) : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<ProductDto>> GetById(Guid id)
         => Ok(await mediator.Send(new GetProductByIdQuery { Id = id }));
+
+    [HttpPost("by-ids")]
+    public async Task<ActionResult<List<ProductDto>>> GetByIds(GetProductsByIdsQuery query)
+        => Ok(await mediator.Send(query));
 
     [HttpPost]
     public async Task<ActionResult<Guid>> Create(CreateProductCommand command)
