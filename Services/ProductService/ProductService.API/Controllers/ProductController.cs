@@ -15,8 +15,8 @@ namespace ProductService.API.Controllers;
 [Route("api/[controller]")]
 public class ProductController(IMediator mediator) : ControllerBase
 {
-    [HttpGet]
-    public async Task<ActionResult<PaginatedResult<ProductDto>>> GetAll([FromQuery] GetAllProductsQuery query)
+    [HttpPost("search")]
+    public async Task<ActionResult<PaginatedResult<ProductDto>>> Search([FromBody] GetAllProductsQuery query)
         => Ok(await mediator.Send(query));
 
     [HttpGet("{id}")]

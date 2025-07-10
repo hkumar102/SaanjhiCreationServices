@@ -3,13 +3,14 @@ using CustomerService.Contracts.DTOs;
 using MediatR;
 using CustomerService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Shared.Contracts.Common;
 
 namespace CustomerService.Application.Customers.Queries;
 
 public class GetAllCustomersQueryHandler(CustomerDbContext context, IMapper mapper)
-    : IRequestHandler<GetAllCustomersQuery, List<CustomerDto>>
+    : IRequestHandler<GetAllCustomersQuery, PaginatedResult<CustomerDto>>
 {
-    public async Task<List<CustomerDto>> Handle(GetAllCustomersQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedResult<CustomerDto>> Handle(GetAllCustomersQuery request, CancellationToken cancellationToken)
     {
         var query = context.Customers.Include(c => c.Addresses).AsQueryable();
 
@@ -33,10 +34,21 @@ public class GetAllCustomersQueryHandler(CustomerDbContext context, IMapper mapp
             };
         }
 
-        // Pagination
-        query = query.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize);
+        // Count total records before pagination
+        var totalCount = await query.CountAsync(cancellationToken);
 
-        var customers = await query.ToListAsync(cancellationToken);
-        return mapper.Map<List<CustomerDto>>(customers);
+        // Pagination
+        var pagedQuery = query.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize);
+
+        var customers = await pagedQuery.ToListAsync(cancellationToken);
+        var customerDtos = mapper.Map<List<CustomerDto>>(customers);
+
+        return new PaginatedResult<CustomerDto>
+        {
+            Items = customerDtos,
+            TotalCount = totalCount,
+            PageNumber = request.Page,
+            PageSize = request.PageSize
+        };
     }
 }

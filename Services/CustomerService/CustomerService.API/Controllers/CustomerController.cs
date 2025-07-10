@@ -7,6 +7,7 @@ using CustomerService.Application.Customers.Commands.Create;
 using CustomerService.Application.Customers.Commands.Delete;
 using CustomerService.Application.Customers.Commands.Update;
 using CustomerService.Contracts.DTOs;
+using Shared.Contracts.Common;
 
 namespace CustomerService.API.Controllers;
 
@@ -39,13 +40,10 @@ public class CustomerController(IMediator mediator) : ControllerBase
     }
     
     [HttpGet]
-    [ProducesResponseType(typeof(List<CustomerDto>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(PaginatedResult<CustomerDto>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAll(
         [FromQuery] string? name,
         [FromQuery] string? email,
-        [FromQuery] string? phoneNumber,
-        [FromQuery] string? sortBy,
-        [FromQuery] bool sortDesc = false,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
@@ -53,13 +51,18 @@ public class CustomerController(IMediator mediator) : ControllerBase
         {
             Name = name,
             Email = email,
-            PhoneNumber = phoneNumber,
-            SortBy = sortBy,
-            SortDesc = sortDesc,
             Page = page,
             PageSize = pageSize
         };
     
+        var customers = await mediator.Send(query);
+        return Ok(customers);
+    }
+
+    [HttpPost("search")]
+    [ProducesResponseType(typeof(PaginatedResult<CustomerDto>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Search([FromBody] GetAllCustomersQuery query)
+    {
         var customers = await mediator.Send(query);
         return Ok(customers);
     }

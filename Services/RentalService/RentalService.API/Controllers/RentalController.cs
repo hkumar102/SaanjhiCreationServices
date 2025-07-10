@@ -17,7 +17,25 @@ namespace RentalService.API.Controllers;
 public class RentalController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<PaginatedResult<RentalDto>>> GetRentals([FromQuery] GetRentalsQuery query)
+    public async Task<ActionResult<PaginatedResult<RentalDto>>> GetRentals(
+        [FromQuery] DateTime? fromDate,
+        [FromQuery] DateTime? toDate,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
+    {
+        var query = new GetRentalsQuery
+        {
+            FromDate = fromDate,
+            ToDate = toDate,
+            Page = page,
+            PageSize = pageSize
+        };
+        var result = await mediator.Send(query);
+        return Ok(result);
+    }
+
+    [HttpPost("search")]
+    public async Task<ActionResult<PaginatedResult<RentalDto>>> Search([FromBody] GetRentalsQuery query)
     {
         var result = await mediator.Send(query);
         return Ok(result);

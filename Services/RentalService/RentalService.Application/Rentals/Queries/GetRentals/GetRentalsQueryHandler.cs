@@ -22,11 +22,11 @@ public class GetRentalsQueryHandler(
         var query = dbContext.Rentals.AsNoTracking().AsQueryable();
 
         // Filtering
-        if (request.CustomerId.HasValue)
-            query = query.Where(r => r.CustomerId == request.CustomerId);
+        if (request.CustomerIds != null && request.CustomerIds.Any())
+            query = query.Where(r => request.CustomerIds.Contains(r.CustomerId));
 
-        if (request.ProductId.HasValue)
-            query = query.Where(r => r.ProductId == request.ProductId);
+        if (request.ProductIds != null && request.ProductIds.Any())
+            query = query.Where(r => request.ProductIds.Contains(r.ProductId));
 
         if (request.FromDate.HasValue)
             query = query.Where(r => r.StartDate >= request.FromDate);

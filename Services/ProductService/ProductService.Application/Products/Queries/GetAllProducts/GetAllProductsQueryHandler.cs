@@ -25,8 +25,8 @@ public class GetAllProductsQueryHandler(ProductDbContext db, IMapper mapper, Cat
                 (p.Description != null && p.Description.Contains(request.Search)));
         }
 
-        if (request.CategoryId.HasValue)
-            query = query.Where(p => p.CategoryId == request.CategoryId);
+        if (request.CategoryIds != null && request.CategoryIds.Any())
+            query = query.Where(p => request.CategoryIds.Contains(p.CategoryId));
 
         if (request.IsRentable.HasValue)
             query = query.Where(p => p.IsRentable == request.IsRentable);
@@ -46,10 +46,28 @@ public class GetAllProductsQueryHandler(ProductDbContext db, IMapper mapper, Cat
         if (request.MaxRentalPrice.HasValue)
             query = query.Where(p => p.RentalPrice <= request.MaxRentalPrice.Value);
 
+        // Sorting
+        if (!string.IsNullOrWhiteSpace(request.SortBy))
+        {
+            query = request.SortBy.ToLower() switch
+            {
+                "name" => request.SortDesc ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
+                "price" => request.SortDesc ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
+                "rentalprice" => request.SortDesc ? query.OrderByDescending(p => p.RentalPrice) : query.OrderBy(p => p.RentalPrice),
+                "quantity" => request.SortDesc ? query.OrderByDescending(p => p.Quantity) : query.OrderBy(p => p.Quantity),
+                "createdat" => request.SortDesc ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
+                "modifiedat" => request.SortDesc ? query.OrderByDescending(p => p.ModifiedAt) : query.OrderBy(p => p.ModifiedAt),
+                _ => query.OrderByDescending(p => p.CreatedAt) // default fallback
+            };
+        }
+        else
+        {
+            query = query.OrderByDescending(p => p.CreatedAt); // default when no sort specified
+        }
+
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
-            .OrderByDescending(p => p.CreatedAt)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
             .ProjectTo<ProductDto>(mapper.ConfigurationProvider)

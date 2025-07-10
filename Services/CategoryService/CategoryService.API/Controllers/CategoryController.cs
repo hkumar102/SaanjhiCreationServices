@@ -8,6 +8,7 @@ using CategoryService.Application.Categories.Queries.GetCategoriesByIds;
 using CategoryService.Application.Categories.Queries.GetCategoryById;
 using CategoryService.Contracts.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using Shared.Contracts.Common;
 
 namespace CategoryService.API.Controllers;
 
@@ -17,8 +18,28 @@ namespace CategoryService.API.Controllers;
 public class CategoryController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<CategoryDto>>> GetAll()
-        => Ok(await mediator.Send(new GetAllCategoriesQuery()));
+    public async Task<ActionResult<PaginatedResult<CategoryDto>>> GetAll(
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDesc = false,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
+    {
+        var query = new GetAllCategoriesQuery
+        {
+            Search = search,
+            SortBy = sortBy,
+            SortDesc = sortDesc,
+            Page = page,
+            PageSize = pageSize
+        };
+        
+        return Ok(await mediator.Send(query));
+    }
+
+    [HttpPost("search")]
+    public async Task<ActionResult<PaginatedResult<CategoryDto>>> Search([FromBody] GetAllCategoriesQuery query)
+        => Ok(await mediator.Send(query));
 
     [HttpGet("{id}")]
     public async Task<ActionResult<CategoryDto>> GetById(Guid id)

@@ -6,8 +6,8 @@ namespace RentalService.Application.Rentals.Queries.GetRentals;
 
 public class GetRentalsQuery : IRequest<PaginatedResult<RentalDto>>
 {
-    public Guid? CustomerId { get; set; }
-    public Guid? ProductId { get; set; }
+    public List<Guid>? CustomerIds { get; set; }
+    public List<Guid>? ProductIds { get; set; }
     public DateTime? FromDate { get; set; }
     public DateTime? ToDate { get; set; }
 

@@ -18,7 +18,7 @@ builder.UseSharedSentry();
 builder.Services.AddSharedTelemetry(builder.Configuration, "MediaService");
 // Common shared service registration
 builder.Services.AddApplicationServices(appAssembly, builder.Configuration);
-builder.Services.AddHttpClient<IMediaUploader, ImageKitMediaUploader>();
+builder.Services.AddScoped<IMediaUploader, ImageKitMediaUploader>();
 builder.Services.AddSwaggerDocs("Media Service");
 
 // EF Core registration specific to the service
