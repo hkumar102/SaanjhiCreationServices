@@ -1,42 +1,68 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ProductService.Contracts.DTOs;
 using ProductService.Infrastructure.HttpClients;
 using ProductService.Infrastructure.Persistence;
 
 namespace ProductService.Application.Products.Queries.GetProductsByIds;
 
-public class GetProductsByIdsQueryHandler(ProductDbContext db, IMapper mapper, CategoryApiClient categoryApiClient)
+public class GetProductsByIdsQueryHandler(
+    ProductDbContext db, 
+    IMapper mapper, 
+    CategoryApiClient categoryApiClient,
+    ILogger<GetProductsByIdsQueryHandler> logger)
     : IRequestHandler<GetProductsByIdsQuery, List<ProductDto>>
 {
     public async Task<List<ProductDto>> Handle(GetProductsByIdsQuery request, CancellationToken cancellationToken)
     {
-        if (!request.ProductIds.Any())
-            return new List<ProductDto>();
+        logger.LogDebug("Starting GetProductsByIdsQuery execution for {ProductCount} product IDs", request.ProductIds.Count);
 
-        var products = await db.Products
-            .Include(p => p.Media)
-            .Where(p => request.ProductIds.Contains(p.Id))
-            .ToListAsync(cancellationToken);
-
-        var productDtos = mapper.Map<List<ProductDto>>(products);
-
-        // Fetch categories for all products
-        var categoryIds = products.Select(p => p.CategoryId).Distinct().ToList();
-        var categories = await categoryApiClient.GetCategoryByIdsAsync(categoryIds) ?? [];
-
-        // Set category names
-        foreach (var productDto in productDtos)
+        try
         {
-            var product = products.FirstOrDefault(p => p.Id == productDto.Id);
-            if (product != null)
+            if (!request.ProductIds.Any())
             {
-                var categoryName = categories.FirstOrDefault(c => c.Id == product.CategoryId)?.Name;
-                productDto.CategoryName = categoryName;
+                logger.LogDebug("No product IDs provided, returning empty list");
+                return new List<ProductDto>();
             }
-        }
 
-        return productDtos;
+            logger.LogDebug("Fetching products from database for IDs: {ProductIds}", request.ProductIds);
+            var products = await db.Products
+                .Include(p => p.Media)
+                .Where(p => request.ProductIds.Contains(p.Id))
+                .ToListAsync(cancellationToken);
+
+            logger.LogDebug("Found {ProductCount} products in database", products.Count);
+
+            var productDtos = mapper.Map<List<ProductDto>>(products);
+
+            // Fetch categories for all products
+            var categoryIds = products.Select(p => p.CategoryId).Distinct().ToList();
+            logger.LogDebug("Fetching {CategoryCount} categories from CategoryService", categoryIds.Count);
+            
+            var categories = await categoryApiClient.GetCategoryByIdsAsync(categoryIds) ?? [];
+            logger.LogDebug("Received {CategoryCount} categories from CategoryService", categories.Count);
+
+            // Set category names
+            logger.LogDebug("Mapping category names to products");
+            foreach (var productDto in productDtos)
+            {
+                var product = products.FirstOrDefault(p => p.Id == productDto.Id);
+                if (product != null)
+                {
+                    var categoryName = categories.FirstOrDefault(c => c.Id == product.CategoryId)?.Name;
+                    productDto.CategoryName = categoryName;
+                }
+            }
+
+            logger.LogDebug("GetProductsByIdsQuery completed successfully. Returning {ProductCount} products", productDtos.Count);
+            return productDtos;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred while executing GetProductsByIdsQuery for {ProductCount} product IDs", request.ProductIds.Count);
+            throw;
+        }
     }
 }
