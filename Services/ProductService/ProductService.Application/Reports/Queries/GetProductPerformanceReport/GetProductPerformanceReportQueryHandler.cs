@@ -1,4 +1,3 @@
-using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,8 +7,7 @@ using ProductService.Infrastructure.Persistence;
 namespace ProductService.Application.Reports.Queries.GetProductPerformanceReport;
 
 public class GetProductPerformanceReportQueryHandler(
-    ProductDbContext db, 
-    IMapper mapper,
+    ProductDbContext db,
     ILogger<GetProductPerformanceReportQueryHandler> logger)
     : IRequestHandler<GetProductPerformanceReportQuery, List<ProductPerformanceReportDto>>
 {

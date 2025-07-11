@@ -50,12 +50,14 @@ public class InventoryAgingReportDto
     public int DaysSinceAcquisition { get; set; }
     public decimal AcquisitionCost { get; set; }
     
-    public int TotalRentals { get; set; }
-    public DateTime? LastRentedDate { get; set; }
+    public int TimesRented { get; set; }
+    public DateTime? LastRentalDate { get; set; }
     public int? DaysSinceLastRental { get; set; }
     
     public DateTime? LastMaintenanceDate { get; set; }
     public int? DaysSinceLastMaintenance { get; set; }
+    
+    public decimal CurrentValue { get; set; }
     
     // Aging Categories
     public string AgingCategory { get; set; } = null!; // "0-30 days", "31-90 days", "91-180 days", "180+ days"
@@ -154,4 +156,35 @@ public class InventoryDashboardDto
     public int RetiredItemsThisMonth { get; set; }
     public List<ProductPerformanceReportDto> TopPerformingProducts { get; set; } = new();
     public List<InventoryAgingReportDto> MaintenanceAlerts { get; set; } = new();
+}
+
+/// <summary>
+/// DTO for trend analysis report
+/// </summary>
+public class TrendAnalysisReportDto
+{
+    public Guid ProductId { get; set; }
+    public string ProductName { get; set; } = null!;
+    public Guid CategoryId { get; set; }
+    public string? CategoryName { get; set; }
+    public DateTime Period { get; set; }
+    public int RentalCount { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public decimal AverageRentalPrice { get; set; }
+    public int UniqueCustomers { get; set; }
+}
+
+/// <summary>
+/// DTO for demand analysis report (size, color, category analysis)
+/// </summary>
+public class DemandAnalysisReportDto
+{
+    public string DimensionType { get; set; } = null!; // "Size", "Color", "Category"
+    public string DimensionValue { get; set; } = null!;
+    public int TotalRentals { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public decimal AverageRentalPrice { get; set; }
+    public int UniqueProducts { get; set; }
+    public double UtilizationRate { get; set; }
+    public double MarketShare { get; set; } // Percentage of total rentals
 }
