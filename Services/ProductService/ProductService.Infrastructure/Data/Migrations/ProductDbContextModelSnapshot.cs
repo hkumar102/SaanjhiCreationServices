@@ -34,9 +34,18 @@ namespace ProductService.Infrastructure.Data.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -48,6 +57,9 @@ namespace ProductService.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .HasColumnType("bytea");
 
                     b.HasKey("Id");
 
@@ -91,6 +103,15 @@ namespace ProductService.Infrastructure.Data.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsRetired")
                         .HasColumnType("boolean");
 
@@ -115,6 +136,9 @@ namespace ProductService.Infrastructure.Data.Migrations
                     b.Property<string>("RetirementReason")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SerialNumber")
                         .HasMaxLength(100)
@@ -155,7 +179,7 @@ namespace ProductService.Infrastructure.Data.Migrations
 
                     b.HasIndex("ProductId", "Size", "Color");
 
-                    b.ToTable("InventoryItems");
+                    b.ToTable("InventoryItems", (string)null);
                 });
 
             modelBuilder.Entity("ProductService.Domain.Entities.Product", b =>
@@ -187,7 +211,15 @@ namespace ProductService.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
@@ -199,6 +231,11 @@ namespace ProductService.Infrastructure.Data.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsPurchasable")
                         .HasColumnType("boolean");
@@ -217,7 +254,8 @@ namespace ProductService.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ModifiedBy")
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -234,6 +272,11 @@ namespace ProductService.Infrastructure.Data.Migrations
                     b.Property<decimal>("RentalPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
                     b.Property<string>("SKU")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -249,7 +292,11 @@ namespace ProductService.Infrastructure.Data.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("IsDeleted");
+
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("ProductService.Domain.Entities.ProductMedia", b =>
@@ -271,6 +318,15 @@ namespace ProductService.Infrastructure.Data.Migrations
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsGeneric")
                         .HasColumnType("boolean");
@@ -294,6 +350,9 @@ namespace ProductService.Infrastructure.Data.Migrations
                     b.Property<string>("PublicId")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Size")
                         .HasMaxLength(20)
@@ -319,7 +378,7 @@ namespace ProductService.Infrastructure.Data.Migrations
 
                     b.HasIndex("ProductId", "Color", "MediaPurpose");
 
-                    b.ToTable("ProductMedia");
+                    b.ToTable("ProductMedia", (string)null);
                 });
 
             modelBuilder.Entity("ProductService.Domain.Entities.InventoryItem", b =>

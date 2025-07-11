@@ -9,6 +9,7 @@ using Shared.Extensions.Telemetry;
 using ProductService.Infrastructure.Persistence;
 using Shared.Extensions;
 using Shared.HealthChecks;
+using Shared.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,10 @@ var appAssembly = Assembly.Load("ProductService.Application");
 
 builder.UseSharedSentry();
 builder.Services.AddSharedTelemetry(builder.Configuration, "ProductService");
+
+// Add shared infrastructure services (includes ICurrentUserService)
+builder.Services.AddSharedInfrastructure();
+
 // Common shared service registration
 builder.Services.AddApplicationServices(appAssembly, builder.Configuration);
 builder.Services.AddTransient<AuthenticatedHttpClientHandler>();

@@ -1,6 +1,6 @@
-using MediaService.Application.DTOs;
 using Microsoft.AspNetCore.Http;
-using Shared.Contracts.Media;
+using MediaService.Contracts.DTOs;
+using MediaService.Contracts.Enums;
 
 namespace MediaService.Application.Interfaces;
 

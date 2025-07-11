@@ -16,16 +16,20 @@ public class DeleteCategoryCommandHandler(
 
         try
         {
-            // Check if category has any products before deleting
-            var hasProducts = await db.Products.AnyAsync(p => p.CategoryId == request.Id, cancellationToken);
-            if (hasProducts)
+            // Check if category has any active products before deleting
+            var hasActiveProducts = await db.Products
+                .Where(p => p.CategoryId == request.Id && !p.IsDeleted)
+                .AnyAsync(cancellationToken);
+                
+            if (hasActiveProducts)
             {
-                throw new InvalidOperationException($"Cannot delete category with ID {request.Id} because it has associated products");
+                throw new InvalidOperationException($"Cannot delete category with ID {request.Id} because it has associated active products");
             }
 
             var category = await db.Categories.FindAsync(new object[] { request.Id }, cancellationToken)
                 ?? throw new KeyNotFoundException($"Category with ID {request.Id} not found");
 
+            // Use standard Remove() - DbContext will automatically convert to soft delete
             db.Categories.Remove(category);
             await db.SaveChangesAsync(cancellationToken);
             

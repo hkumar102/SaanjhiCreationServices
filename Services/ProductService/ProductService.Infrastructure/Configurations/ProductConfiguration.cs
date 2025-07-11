@@ -1,14 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProductService.Domain.Entities;
+using Shared.Infrastructure.Configurations;
 
 namespace ProductService.Infrastructure.Configurations;
 
-public class ProductConfiguration : IEntityTypeConfiguration<Product>
+public class ProductConfiguration : BaseEntityConfiguration<Product>
 {
-    public void Configure(EntityTypeBuilder<Product> builder)
+    public override void Configure(EntityTypeBuilder<Product> builder)
     {
-        builder.HasKey(p => p.Id);
+        base.Configure(builder);
 
         // Basic Properties
         builder.Property(p => p.Name)

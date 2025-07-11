@@ -87,6 +87,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentalService.Contracts", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductService.Contracts", "Services\ProductService\ProductService.Contracts\ProductService.Contracts.csproj", "{3F16C95C-491D-46AC-8324-BE70B1225981}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaService.Contracts", "Services\MediaService\MediaService.Contracts\MediaService.Contracts.csproj", "{8100EFF2-8765-421B-8BF4-9FD2DC0BE0BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -228,6 +230,10 @@ Global
 		{3F16C95C-491D-46AC-8324-BE70B1225981}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F16C95C-491D-46AC-8324-BE70B1225981}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F16C95C-491D-46AC-8324-BE70B1225981}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8100EFF2-8765-421B-8BF4-9FD2DC0BE0BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8100EFF2-8765-421B-8BF4-9FD2DC0BE0BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8100EFF2-8765-421B-8BF4-9FD2DC0BE0BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8100EFF2-8765-421B-8BF4-9FD2DC0BE0BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{950FBFAD-66A1-4C85-9FE5-66C601BF2531} = {4B421E02-34B5-466E-8CCE-9AF3AF4CA6FE}
@@ -270,5 +276,6 @@ Global
 		{C31786F2-C400-4703-8573-1676C1E4D301} = {2570FFEF-D026-49B6-897A-F2B62238C1D0}
 		{7014A9C6-E89C-4DCC-B51C-A3C1B8CFCF81} = {BDE6494D-DBB5-4E76-A384-ED7F8F2E7FEA}
 		{3F16C95C-491D-46AC-8324-BE70B1225981} = {1DBA8BE3-55EC-4097-839B-7688F6E37792}
+		{8100EFF2-8765-421B-8BF4-9FD2DC0BE0BC} = {DC7C0A7A-CE14-49BB-8EEC-60817A724921}
 	EndGlobalSection
 EndGlobal

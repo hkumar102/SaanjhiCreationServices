@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.Categories.Commands.CreateCategory;
 using ProductService.Application.Categories.Commands.UpdateCategory;
 using ProductService.Application.Categories.Commands.DeleteCategory;
+using ProductService.Application.Categories.Commands.RestoreCategory;
 using ProductService.Application.Categories.Queries.GetAllCategories;
 using ProductService.Application.Categories.Queries.GetCategoriesByIds;
 using ProductService.Application.Categories.Queries.GetCategoryById;
+using ProductService.Application.Categories.Queries.GetDeletedCategories;
 using ProductService.Contracts.DTOs;
 
 namespace ProductService.API.Controllers;
@@ -87,6 +89,31 @@ public class CategoryController(IMediator mediator) : ControllerBase
     public async Task<ActionResult> DeleteCategory(Guid id)
     {
         var command = new DeleteCategoryCommand { Id = id };
+        await mediator.Send(command);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Get all deleted categories
+    /// </summary>
+    /// <returns>List of deleted categories</returns>
+    [HttpGet("deleted")]
+    public async Task<ActionResult<List<CategoryDto>>> GetDeletedCategories()
+    {
+        var query = new GetDeletedCategoriesQuery();
+        var result = await mediator.Send(query);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Restore a soft deleted category (Admin only)
+    /// </summary>
+    /// <param name="id">Category ID</param>
+    /// <returns>No content</returns>
+    [HttpPost("{id:guid}/restore")]
+    public async Task<ActionResult> RestoreCategory(Guid id)
+    {
+        var command = new RestoreCategoryCommand(id);
         await mediator.Send(command);
         return NoContent();
     }

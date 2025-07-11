@@ -6,10 +6,8 @@ namespace ProductService.Domain.Entities;
 /// <summary>
 /// Product represents the catalog/design template - what customers see and browse
 /// </summary>
-public class Product : AuditableEntity
+public class Product : BaseEntity
 {
-    public Guid Id { get; set; }
-
     // Basic Product Information
     public string Name { get; set; } = null!;
     public string? Description { get; set; }

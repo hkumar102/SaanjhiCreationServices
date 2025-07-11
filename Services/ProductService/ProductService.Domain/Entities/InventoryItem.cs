@@ -7,10 +7,8 @@ namespace ProductService.Domain.Entities;
 /// InventoryItem represents the actual physical items that can be rented
 /// Each Product can have multiple InventoryItems (different sizes, colors, individual units)
 /// </summary>
-public class InventoryItem : AuditableEntity
+public class InventoryItem : BaseEntity
 {
-    public Guid Id { get; set; }
-
     // Product Reference
     public Guid ProductId { get; set; }
     public Product Product { get; set; } = null!;
