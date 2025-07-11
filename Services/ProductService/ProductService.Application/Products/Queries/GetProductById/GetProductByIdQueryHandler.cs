@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProductService.Contracts.DTOs;
-using ProductService.Infrastructure.HttpClients;
 using ProductService.Infrastructure.Persistence;
 
 namespace ProductService.Application.Products.Queries.GetProductById;
@@ -11,7 +10,6 @@ namespace ProductService.Application.Products.Queries.GetProductById;
 public class GetProductByIdQueryHandler(
     ProductDbContext db, 
     IMapper mapper, 
-    CategoryApiClient categoryApiClient,
     ILogger<GetProductByIdQueryHandler> logger)
     : IRequestHandler<GetProductByIdQuery, ProductDto>
 {
@@ -22,8 +20,21 @@ public class GetProductByIdQueryHandler(
         try
         {
             logger.LogDebug("Fetching product with ID: {ProductId} from database", request.Id);
-            var product = await db.Products
-                              .Include(p => p.Media)
+            
+            // Build query with conditional includes
+            var query = db.Products.AsQueryable();
+
+            if (request.IncludeMedia)
+            {
+                query = query.Include(p => p.Media);
+            }
+
+            if (request.IncludeInventory)
+            {
+                query = query.Include(p => p.InventoryItems);
+            }
+
+            var product = await query
                               .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken)
                           ?? throw new KeyNotFoundException($"Product with ID {request.Id} not found");
             
@@ -31,12 +42,9 @@ public class GetProductByIdQueryHandler(
             
             var productDto = mapper.Map<ProductDto>(product);
             
-            // Fetch category from CategoryApiClient
-            logger.LogDebug("Fetching category with ID: {CategoryId} from CategoryService", product.CategoryId);
-            var category = await categoryApiClient.GetCategoryByIdAsync(product.CategoryId);
-            productDto.CategoryName = category?.Name;
+            // Enhance DTO with additional data
+            await EnhanceProductDto(productDto, request, cancellationToken);
             
-            logger.LogDebug("Successfully retrieved category: {CategoryName}", category?.Name);
             logger.LogDebug("GetProductByIdQuery completed successfully for ProductId: {ProductId}", request.Id);
 
             return productDto;
@@ -45,6 +53,64 @@ public class GetProductByIdQueryHandler(
         {
             logger.LogError(ex, "Error occurred while executing GetProductByIdQuery for ProductId: {ProductId}", request.Id);
             throw;
+        }
+    }
+
+    private async Task EnhanceProductDto(ProductDto productDto, GetProductByIdQuery request, CancellationToken cancellationToken)
+    {
+        // Fetch category name
+        await FetchCategoryName(productDto, cancellationToken);
+
+        // Calculate inventory counts
+        CalculateInventoryCounts(productDto);
+
+        // Organize media by color if requested
+        if (request.OrganizeMediaByColor && request.IncludeMedia)
+        {
+            OrganizeMediaByColor(productDto);
+        }
+    }
+
+    private async Task FetchCategoryName(ProductDto productDto, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Fetching category with ID: {CategoryId} from local database", productDto.CategoryId);
+        var category = await db.Categories
+            .Where(c => c.Id == productDto.CategoryId)
+            .Select(c => new { c.Name })
+            .FirstOrDefaultAsync(cancellationToken);
+            
+        productDto.CategoryName = category?.Name ?? string.Empty;
+        logger.LogDebug("Successfully retrieved category: {CategoryName}", category?.Name);
+    }
+
+    private void CalculateInventoryCounts(ProductDto productDto)
+    {
+        if (productDto.InventoryItems != null)
+        {
+            productDto.TotalInventoryCount = productDto.InventoryItems.Count;
+            productDto.AvailableInventoryCount = productDto.InventoryItems.Count(i => 
+                i.Status == Contracts.Enums.InventoryStatus.Available && !i.IsRetired);
+        }
+    }
+
+    private void OrganizeMediaByColor(ProductDto productDto)
+    {
+        if (productDto.Media?.Any() == true)
+        {
+            // Organize media by color
+            productDto.MediaByColor = productDto.Media
+                .Where(m => !string.IsNullOrEmpty(m.Color) && !m.IsGeneric)
+                .GroupBy(m => m.Color!)
+                .ToDictionary(g => g.Key, g => g.OrderBy(m => m.SortOrder).ToList());
+
+            // Separate generic media
+            productDto.GenericMedia = productDto.Media
+                .Where(m => m.IsGeneric)
+                .OrderBy(m => m.SortOrder)
+                .ToList();
+
+            logger.LogDebug("Organized media: {ColorCount} colors, {GenericCount} generic items", 
+                productDto.MediaByColor.Count, productDto.GenericMedia.Count);
         }
     }
 }

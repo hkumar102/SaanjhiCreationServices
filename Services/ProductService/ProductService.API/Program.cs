@@ -20,12 +20,7 @@ builder.Services.AddSharedTelemetry(builder.Configuration, "ProductService");
 builder.Services.AddApplicationServices(appAssembly, builder.Configuration);
 builder.Services.AddTransient<AuthenticatedHttpClientHandler>();
 builder.Services.AddTransient<ITokenProvider, TokenProvider>();
-builder.Services.AddHttpClient<CategoryApiClient>(c =>
-    {
-        var categoryServiceUrl = builder.Configuration["HttpClient:CategoryService:BaseAddress"];
-        if (categoryServiceUrl != null) c.BaseAddress = new Uri(categoryServiceUrl);
-    })
-    .AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
+// CategoryApiClient removed - categories are now handled locally
 builder.Services.AddSwaggerDocs("Product Service");
 
 // EF Core registration specific to the service

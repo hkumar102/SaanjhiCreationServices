@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProductService.Contracts.DTOs;
-using ProductService.Infrastructure.HttpClients;
 using ProductService.Infrastructure.Persistence;
 
 namespace ProductService.Application.Products.Queries.GetProductsByIds;
@@ -11,7 +10,6 @@ namespace ProductService.Application.Products.Queries.GetProductsByIds;
 public class GetProductsByIdsQueryHandler(
     ProductDbContext db, 
     IMapper mapper, 
-    CategoryApiClient categoryApiClient,
     ILogger<GetProductsByIdsQueryHandler> logger)
     : IRequestHandler<GetProductsByIdsQuery, List<ProductDto>>
 {
@@ -39,10 +37,14 @@ public class GetProductsByIdsQueryHandler(
 
             // Fetch categories for all products
             var categoryIds = products.Select(p => p.CategoryId).Distinct().ToList();
-            logger.LogDebug("Fetching {CategoryCount} categories from CategoryService", categoryIds.Count);
+            logger.LogDebug("Fetching {CategoryCount} categories from local database", categoryIds.Count);
             
-            var categories = await categoryApiClient.GetCategoryByIdsAsync(categoryIds) ?? [];
-            logger.LogDebug("Received {CategoryCount} categories from CategoryService", categories.Count);
+            var categories = await db.Categories
+                .Where(c => categoryIds.Contains(c.Id))
+                .Select(c => new { c.Id, c.Name })
+                .ToListAsync(cancellationToken);
+                
+            logger.LogDebug("Received {CategoryCount} categories from local database", categories.Count);
 
             // Set category names
             logger.LogDebug("Mapping category names to products");
@@ -52,7 +54,7 @@ public class GetProductsByIdsQueryHandler(
                 if (product != null)
                 {
                     var categoryName = categories.FirstOrDefault(c => c.Id == product.CategoryId)?.Name;
-                    productDto.CategoryName = categoryName;
+                    productDto.CategoryName = categoryName ?? string.Empty;
                 }
             }
 

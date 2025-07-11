@@ -7,18 +7,28 @@ public class Rental : AuditableEntity
 {
     public Guid Id { get; set; }
 
-    public Guid ProductId { get; set; }
+    // Product & Inventory References
+    public Guid ProductId { get; set; } // Reference to Product (catalog item)
+    public Guid InventoryItemId { get; set; } // Reference to specific physical item being rented
     public Guid CustomerId { get; set; }
 
+    // Rental Period
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
+    public DateTime? ActualReturnDate { get; set; } // When item was actually returned
 
-    public decimal RentalPrice { get; set; }
+    // Pricing
+    public decimal RentalPrice { get; set; } // Total rental price for the period
+    public decimal DailyRate { get; set; } // Daily rental rate
     public decimal SecurityDeposit { get; set; }
+    public decimal? LateFee { get; set; } // If returned late
+    public decimal? DamageFee { get; set; } // If item was damaged
+
+    // Logistics
     public Guid ShippingAddressId { get; set; }
     public RentalStatus Status { get; set; }
 
-    // New: Measurement-related fields
+    // Customer Measurements (for proper fit)
     public string? Height { get; set; }
     public string? Chest { get; set; }
     public string? Waist { get; set; }
@@ -27,6 +37,13 @@ public class Rental : AuditableEntity
     public string? SleeveLength { get; set; }
     public string? Inseam { get; set; }
     
+    // Business Properties
     public int BookNumber { get; set; } 
     public string? Notes { get; set; } // Optional additional notes
+    public string? ReturnConditionNotes { get; set; } // Condition when returned
+
+    // Calculated Properties
+    public int RentalDays => (int)(EndDate - StartDate).TotalDays + 1;
+    public bool IsOverdue => DateTime.UtcNow > EndDate && Status != RentalStatus.Returned;
+    public decimal TotalAmount => RentalPrice + SecurityDeposit + (LateFee ?? 0) + (DamageFee ?? 0);
 }

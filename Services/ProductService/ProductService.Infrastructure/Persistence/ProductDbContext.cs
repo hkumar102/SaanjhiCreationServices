@@ -10,7 +10,8 @@ public class ProductDbContext(DbContextOptions<ProductDbContext> options) : DbCo
 {
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductMedia> ProductMedia => Set<ProductMedia>();
-
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProductDbContext).Assembly);
