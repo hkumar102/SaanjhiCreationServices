@@ -116,21 +116,10 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
     {
         try
         {
-            // Read file content into byte array
-            byte[] fileBytes;
-            using (var stream = request.File.OpenReadStream())
-            {
-                fileBytes = new byte[stream.Length];
-                var totalBytesRead = 0;
-                
-                while (totalBytesRead < stream.Length)
-                {
-                    var bytesRead = await stream.ReadAsync(fileBytes, totalBytesRead, (int)(stream.Length - totalBytesRead));
-                    if (bytesRead == 0)
-                        break;
-                    totalBytesRead += bytesRead;
-                }
-            }
+            // Read file content into byte array using the working pattern from ImageKitMediaUploader
+            using var memoryStream = new MemoryStream();
+            await request.File.CopyToAsync(memoryStream);
+            var fileBytes = memoryStream.ToArray();
 
             // Validate we have data
             if (fileBytes.Length == 0)
@@ -152,7 +141,7 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
                 {
                     { "altText", request.AltText ?? "" },
                     { "color", request.Color ?? "" },
-                    { "isPrimary", request.IsPrimary.ToString() }
+                    { "isPrimary", request.IsPrimary }
                 }
             };
 

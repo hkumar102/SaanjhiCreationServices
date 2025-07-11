@@ -35,14 +35,21 @@ public class ImageKitUrlService
 
         var transformationString = string.Join(",", transformations);
         
-        // Insert transformations into URL
-        // https://ik.imagekit.io/your_id/path/file.jpg becomes
-        // https://ik.imagekit.io/your_id/tr:w-400,h-400,q-85,f-auto/path/file.jpg
+        // Extract just the file path from the original URL
+        // originalUrl: https://ik.imagekit.io/pq3akxlqp/products/file.jpg
+        // We need: https://ik.imagekit.io/pq3akxlqp/tr:w-400,h-400,q-85,f-auto/products/file.jpg
         
         var uri = new Uri(originalUrl);
-        var pathAndQuery = uri.PathAndQuery;
+        var pathWithoutLeadingSlash = uri.AbsolutePath.TrimStart('/');
         
-        return $"{_urlEndpoint}/tr:{transformationString}{pathAndQuery}";
+        // Remove the imagekit ID from the path if it's duplicated
+        var imagekitId = _urlEndpoint.Split('/').Last();
+        if (pathWithoutLeadingSlash.StartsWith(imagekitId + "/"))
+        {
+            pathWithoutLeadingSlash = pathWithoutLeadingSlash.Substring(imagekitId.Length + 1);
+        }
+        
+        return $"{_urlEndpoint}/tr:{transformationString}/{pathWithoutLeadingSlash}";
     }
 
     /// <summary>
