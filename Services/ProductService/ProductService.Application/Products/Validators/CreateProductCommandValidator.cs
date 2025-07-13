@@ -12,11 +12,10 @@ public class CreateProductCommandValidator : AbstractValidator<CreateProductComm
         RuleFor(x => x.Description).MaximumLength(1000);
         RuleFor(x => x.Brand).MaximumLength(50);
         RuleFor(x => x.Designer).MaximumLength(50);
-        RuleFor(x => x.SKU).MaximumLength(50);
 
         // Pricing
-        RuleFor(x => x.PurchasePrice).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.RentalPrice).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.PurchasePrice).GreaterThanOrEqualTo(1);
+        RuleFor(x => x.RentalPrice).GreaterThanOrEqualTo(1);
         RuleFor(x => x.SecurityDeposit).GreaterThanOrEqualTo(0).When(x => x.SecurityDeposit.HasValue);
         RuleFor(x => x.MaxRentalDays).GreaterThan(0).LessThanOrEqualTo(365);
 

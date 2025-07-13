@@ -5,12 +5,17 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Imagekit.Sdk;
 using Microsoft.Extensions.Configuration;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Webp;
 
 namespace MediaService.Application.Handlers;
 
 /// <summary>
 /// Enhanced handler that uses ImageKit's built-in transformations
-/// instead of processing images locally
+/// and optimizes images before upload to save on ImageKit storage (important for free tier)
 /// </summary>
 public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadProductMediaCommand, ProductMediaUploadResult>
 {
@@ -51,14 +56,17 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
                 throw new ArgumentException("File must be a valid image (jpg, jpeg, png, webp)");
             }
 
-            const long maxFileSize = 10 * 1024 * 1024; // 10MB
+            const long maxFileSize = 50 * 1024 * 1024; // 50MB - Allow larger input since we'll compress
             if (request.File.Length > maxFileSize)
             {
-                throw new ArgumentException($"File size cannot exceed {maxFileSize / (1024 * 1024)}MB");
+                throw new ArgumentException($"Input file size cannot exceed {maxFileSize / (1024 * 1024)}MB");
             }
 
+            // Compress and optimize image before upload to save ImageKit storage
+            var optimizedImageData = await CompressImageForUpload(request.File);
+
             // Upload to ImageKit
-            var uploadResult = await UploadToImageKit(request);
+            var uploadResult = await UploadToImageKit(request, optimizedImageData);
 
             // Generate variants using ImageKit URL transformations
             var variants = GenerateImageKitVariants(uploadResult.url);
@@ -66,10 +74,10 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
             // Extract basic metadata
             var metadata = new ImageMetadata
             {
-                OriginalWidth = uploadResult.width,
-                OriginalHeight = uploadResult.height,
+                OriginalWidth = optimizedImageData.width,
+                OriginalHeight = optimizedImageData.height,
                 ColorProfile = "sRGB",
-                HasTransparency = request.File.ContentType == "image/png",
+                HasTransparency = optimizedImageData.contentType == "image/png",
                 DominantColor = "#000000", // Could enhance with ImageKit's color extraction
                 DetectedColors = new string[0]
             };
@@ -78,8 +86,8 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
             {
                 MediaId = Guid.NewGuid(),
                 OriginalFileName = request.File.FileName,
-                ContentType = request.File.ContentType,
-                FileSize = request.File.Length,
+                ContentType = optimizedImageData.contentType,
+                FileSize = optimizedImageData.data.Length, // Use optimized file size
                 Url = variants["medium"].Url, // Use medium as main URL
                 ThumbnailUrl = variants["thumbnail"].Url,
                 Variants = variants,
@@ -112,26 +120,98 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
         }
     }
 
-    private async Task<Result> UploadToImageKit(UploadProductMediaCommand request)
+    /// <summary>
+    /// Compress and optimize image before uploading to save ImageKit storage
+    /// </summary>
+    private async Task<(byte[] data, string contentType, int width, int height)> CompressImageForUpload(Microsoft.AspNetCore.Http.IFormFile file)
+    {
+        using var inputStream = file.OpenReadStream();
+        using var image = await Image.LoadAsync(inputStream);
+        
+        // Configuration for optimization
+        const int maxWidth = 2048;  // Max width for uploaded images
+        const int maxHeight = 2048; // Max height for uploaded images
+        const int jpegQuality = 85;  // Good balance between quality and file size
+        
+        var originalWidth = image.Width;
+        var originalHeight = image.Height;
+        
+        // Resize if image is too large
+        if (image.Width > maxWidth || image.Height > maxHeight)
+        {
+            var aspectRatio = (double)image.Width / image.Height;
+            
+            int newWidth, newHeight;
+            if (aspectRatio > 1) // Landscape
+            {
+                newWidth = Math.Min(maxWidth, image.Width);
+                newHeight = (int)(newWidth / aspectRatio);
+            }
+            else // Portrait or square
+            {
+                newHeight = Math.Min(maxHeight, image.Height);
+                newWidth = (int)(newHeight * aspectRatio);
+            }
+            
+            _logger.LogDebug("Resizing image from {OriginalWidth}x{OriginalHeight} to {NewWidth}x{NewHeight}", 
+                originalWidth, originalHeight, newWidth, newHeight);
+            
+            image.Mutate(x => x.Resize(newWidth, newHeight));
+        }
+        
+        // Compress based on file type
+        using var outputStream = new MemoryStream();
+        string contentType;
+        
+        if (file.ContentType.ToLower().Contains("png"))
+        {
+            // For PNG, use PNG encoder with compression
+            var pngEncoder = new PngEncoder
+            {
+                CompressionLevel = PngCompressionLevel.BestCompression
+            };
+            await image.SaveAsync(outputStream, pngEncoder);
+            contentType = "image/png";
+        }
+        else if (file.ContentType.ToLower().Contains("webp"))
+        {
+            // For WebP, use high quality compression
+            var webpEncoder = new WebpEncoder
+            {
+                Quality = jpegQuality
+            };
+            await image.SaveAsync(outputStream, webpEncoder);
+            contentType = "image/webp";
+        }
+        else
+        {
+            // Default to JPEG for all other formats (including original JPEG)
+            var jpegEncoder = new JpegEncoder
+            {
+                Quality = jpegQuality
+            };
+            await image.SaveAsync(outputStream, jpegEncoder);
+            contentType = "image/jpeg";
+        }
+        
+        var compressedData = outputStream.ToArray();
+        var compressionRatio = (double)compressedData.Length / file.Length * 100;
+        
+        _logger.LogDebug("Image compression complete. Original: {OriginalSize} bytes, Compressed: {CompressedSize} bytes ({CompressionRatio:F1}%)", 
+            file.Length, compressedData.Length, compressionRatio);
+        
+        return (compressedData, contentType, image.Width, image.Height);
+    }
+
+    private async Task<Result> UploadToImageKit(UploadProductMediaCommand request, (byte[] data, string contentType, int width, int height) optimizedImage)
     {
         try
         {
-            // Read file content into byte array using the working pattern from ImageKitMediaUploader
-            using var memoryStream = new MemoryStream();
-            await request.File.CopyToAsync(memoryStream);
-            var fileBytes = memoryStream.ToArray();
-
-            // Validate we have data
-            if (fileBytes.Length == 0)
-            {
-                throw new InvalidOperationException("File content is empty");
-            }
-
             var uniqueFileName = $"{Guid.NewGuid()}_{request.File.FileName}";
 
             var uploadRequest = new FileCreateRequest
             {
-                file = fileBytes,
+                file = optimizedImage.data,
                 fileName = uniqueFileName,
                 folder = "/products/",
                 useUniqueFileName = false,
@@ -145,13 +225,14 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
                 }
             };
 
-            _logger.LogDebug("Uploading file to ImageKit: {FileName}, Size: {Size} bytes", 
-                uniqueFileName, fileBytes.Length);
+            _logger.LogDebug("Uploading optimized file to ImageKit: {FileName}, Original Size: {OriginalSize} bytes, Optimized Size: {OptimizedSize} bytes", 
+                uniqueFileName, request.File.Length, optimizedImage.data.Length);
 
             var result = await _imagekitClient.UploadAsync(uploadRequest);
             
             if (result == null || string.IsNullOrEmpty(result.url))
             {
+                _logger.LogError("ImageKit upload failed - no URL returned for file: {FileName}", result?.Raw);
                 throw new InvalidOperationException("ImageKit upload failed - no URL returned");
             }
 

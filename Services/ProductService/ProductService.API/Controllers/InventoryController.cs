@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using ProductService.Application.Products.Commands.AddInventoryItem;
+using ProductService.Application.Inventory.Commands.CreateInventoryItem;
+using ProductService.Application.Inventory.Commands.UpdateInventoryItem;
 using ProductService.Application.Products.Commands.UpdateInventoryStatus;
 using ProductService.Application.Products.Queries.GetProductInventory;
 using ProductService.Contracts.DTOs;
@@ -37,7 +38,7 @@ public class InventoryController(IMediator mediator) : ControllerBase
     /// <param name="command">Add inventory item command</param>
     /// <returns>Created inventory item ID</returns>
     [HttpPost]
-    public async Task<ActionResult<Guid>> AddInventoryItem([FromBody] AddInventoryItemCommand command)
+    public async Task<ActionResult<Guid>> AddInventoryItem([FromBody] CreateInventoryItemCommand command)
     {
         var result = await mediator.Send(command);
         return CreatedAtAction(nameof(GetProductInventory), new { productId = command.ProductId }, result);
@@ -93,6 +94,21 @@ public class InventoryController(IMediator mediator) : ControllerBase
             false);
         
         var result = await mediator.Send(query);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Update an inventory item
+    /// </summary>
+    /// <param name="inventoryItemId">Inventory item ID</param>
+    /// <param name="command">Update inventory item command</param>
+    /// <returns>Updated inventory item</returns>
+    [HttpPut("{inventoryItemId:guid}")]
+    public async Task<ActionResult<InventoryItemDto>> UpdateInventoryItem(Guid inventoryItemId, [FromBody] UpdateInventoryItemCommand command)
+    {
+        if (inventoryItemId != command.Id)
+            return BadRequest("Mismatched inventory item ID");
+        var result = await mediator.Send(command);
         return Ok(result);
     }
 }

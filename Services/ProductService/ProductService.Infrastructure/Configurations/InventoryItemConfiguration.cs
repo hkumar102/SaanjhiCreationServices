@@ -23,8 +23,8 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.Property(i => i.SerialNumber)
             .HasMaxLength(100);
 
-        builder.Property(i => i.Barcode)
-            .HasMaxLength(100);
+        builder.Property(i => i.BarcodeImageBase64)
+            .HasColumnType("text");
 
         // Status and Condition as integers
         builder.Property(i => i.Status)
@@ -56,11 +56,10 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
 
         // Indexes for performance
         builder.HasIndex(i => i.ProductId);
+        builder.HasIndex(i => i.SerialNumber);
+        builder.HasIndex(i => new { i.ProductId, i.Size, i.Color });
         builder.HasIndex(i => i.Status);
         builder.HasIndex(i => i.Condition);
-        builder.HasIndex(i => i.SerialNumber);
-        builder.HasIndex(i => i.Barcode);
-        builder.HasIndex(i => new { i.ProductId, i.Size, i.Color });
         builder.HasIndex(i => i.IsRetired);
 
         // Product relationship

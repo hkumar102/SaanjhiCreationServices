@@ -9,6 +9,7 @@ using ProductService.Application.Categories.Queries.GetCategoriesByIds;
 using ProductService.Application.Categories.Queries.GetCategoryById;
 using ProductService.Application.Categories.Queries.GetDeletedCategories;
 using ProductService.Contracts.DTOs;
+using Shared.Contracts.Common;
 
 namespace ProductService.API.Controllers;
 
@@ -17,13 +18,36 @@ namespace ProductService.API.Controllers;
 public class CategoryController(IMediator mediator) : ControllerBase
 {
     /// <summary>
-    /// Get all categories
+    /// Get all categories with optional search, sorting, and pagination
     /// </summary>
-    /// <returns>List of all categories</returns>
+    /// <param name="search">General search term to filter categories by name or description</param>
+    /// <param name="searchName">Search specifically in category name</param>
+    /// <param name="searchDescription">Search specifically in category description</param>
+    /// <param name="sortBy">Field to sort by (name, description, createdat, modifiedat)</param>
+    /// <param name="sortDesc">Sort in descending order if true</param>
+    /// <param name="page">Page number (default: 1)</param>
+    /// <param name="pageSize">Number of items per page (default: 10)</param>
+    /// <returns>Paginated list of categories</returns>
     [HttpGet]
-    public async Task<ActionResult<List<CategoryDto>>> GetAllCategories()
+    public async Task<ActionResult<PaginatedResult<CategoryDto>>> GetAllCategories(
+        [FromQuery] string? search = null,
+        [FromQuery] string? searchName = null,
+        [FromQuery] string? searchDescription = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDesc = false,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
     {
-        var query = new GetAllCategoriesQuery();
+        var query = new GetAllCategoriesQuery
+        {
+            Search = search,
+            SearchName = searchName,
+            SearchDescription = searchDescription,
+            SortBy = sortBy,
+            SortDesc = sortDesc,
+            Page = page,
+            PageSize = pageSize
+        };
         var result = await mediator.Send(query);
         return Ok(result);
     }

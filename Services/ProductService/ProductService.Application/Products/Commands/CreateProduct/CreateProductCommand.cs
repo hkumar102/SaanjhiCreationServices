@@ -10,7 +10,6 @@ public class CreateProductCommand : IRequest<Guid>
     public string? Description { get; set; }
     public string? Brand { get; set; }
     public string? Designer { get; set; }
-    public string? SKU { get; set; }
 
     // Pricing Information
     public decimal PurchasePrice { get; set; }

@@ -14,7 +14,7 @@ public class InventoryItemDto
     public string Size { get; set; } = null!;
     public string Color { get; set; } = null!;
     public string? SerialNumber { get; set; }
-    public string? Barcode { get; set; }
+    public string? BarcodeImageBase64 { get; set; }
     
     // Item Status and Condition
     public InventoryStatus Status { get; set; }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using ProductService.Infrastructure.HttpClients;
 using ProductService.Infrastructure.HttpHandlers;
+using ProductService.Application.Services;
 using Shared.ErrorHandling;
 using Shared.Extensions.Telemetry;
 using ProductService.Infrastructure.Persistence;
@@ -25,6 +26,16 @@ builder.Services.AddSharedInfrastructure();
 builder.Services.AddApplicationServices(appAssembly, builder.Configuration);
 builder.Services.AddTransient<AuthenticatedHttpClientHandler>();
 builder.Services.AddTransient<ITokenProvider, TokenProvider>();
+
+// MediaService HTTP client
+builder.Services.AddHttpClient<IMediaServiceClient, MediaServiceClient>(client =>
+{
+    var mediaServiceBaseUrl = builder.Configuration["Services:MediaService:BaseUrl"] ?? "http://localhost:5003";
+    client.BaseAddress = new Uri(mediaServiceBaseUrl);
+    client.Timeout = TimeSpan.FromMinutes(5); // Allow for large file uploads
+})
+.AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
+
 // CategoryApiClient removed - categories are now handled locally
 builder.Services.AddSwaggerDocs("Product Service");
 
@@ -32,8 +43,8 @@ builder.Services.AddSwaggerDocs("Product Service");
 builder.Services.AddDbContext<ProductDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddSaanjhiHealthChecks(builder.Configuration).AddSaanjhiServiceHealthCheck("Category Service", 
-    builder.Configuration["HttpClient:CategoryService:BaseAddress"] ?? string.Empty);
+builder.Services.AddSaanjhiHealthChecks(builder.Configuration).AddSaanjhiServiceHealthCheck("Media Service", 
+    builder.Configuration["Services:MediaService:BaseUrl"] ?? string.Empty);
 builder.Services.AddAutoMapper(appAssembly);
 
 var app = builder.Build();
@@ -63,7 +74,8 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 });
 // Use CORS policy
 app.UseCors("AllowAll");
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+// app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<Shared.ErrorHandling.CustomExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

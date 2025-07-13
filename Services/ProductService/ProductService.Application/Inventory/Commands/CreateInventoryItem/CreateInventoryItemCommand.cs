@@ -10,5 +10,6 @@ public record CreateInventoryItemCommand(
     Contracts.Enums.ItemCondition Condition,
     decimal AcquisitionCost,
     DateTime? AcquisitionDate = null,
-    string? ConditionNotes = null
+    string? ConditionNotes = null,
+    string? WarehouseLocation = null
 ) : IRequest<InventoryItemDto>;

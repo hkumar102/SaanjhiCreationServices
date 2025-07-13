@@ -5,6 +5,7 @@ using ProductService.Application.Categories.Commands.CreateCategory;
 using ProductService.Application.Categories.Commands.UpdateCategory;
 using ProductService.Contracts.DTOs;
 using ProductService.Domain.Entities;
+using System.Text.Json;
 
 namespace ProductService.Application.Mappings;
 
@@ -58,8 +59,26 @@ public class ProductMappingProfile : Profile
             .ForMember(dest => dest.ProductId, opt => opt.Ignore())
             .ForMember(dest => dest.Product, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.ModifiedAt, opt => opt.Ignore());
+            .ForMember(dest => dest.ModifiedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.VariantsJson, opt => opt.MapFrom(src => 
+                SerializeVariants(src.Variants)))
+            .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => (Shared.Contracts.Media.MediaType)src.MediaType));
 
-        CreateMap<ProductMedia, ProductMediaDto>();
+        CreateMap<ProductMedia, ProductMediaDto>()
+            .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => 
+                DeserializeVariants(src.VariantsJson)))
+            .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => (int)src.MediaType));
+    }
+
+    private static string? SerializeVariants(MediaVariantsDto? variants)
+    {
+        return variants != null ? JsonSerializer.Serialize(variants) : null;
+    }
+
+    private static MediaVariantsDto? DeserializeVariants(string? variantsJson)
+    {
+        return !string.IsNullOrEmpty(variantsJson) 
+            ? JsonSerializer.Deserialize<MediaVariantsDto>(variantsJson)
+            : null;
     }
 }

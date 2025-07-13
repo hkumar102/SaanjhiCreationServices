@@ -6,6 +6,7 @@ using ProductService.Application.Products.Commands.DeleteProduct;
 using ProductService.Application.Products.Queries.GetProductById;
 using ProductService.Application.Products.Queries.GetAllProducts;
 using ProductService.Application.Products.Queries.GetProductsByIds;
+using ProductService.Application.Media.Commands.UploadProductMedia;
 using ProductService.Contracts.DTOs;
 using Shared.Contracts.Common;
 
@@ -45,5 +46,19 @@ public class ProductController(IMediator mediator) : ControllerBase
     {
         await mediator.Send(new DeleteProductCommand { Id = id });
         return NoContent();
+    }
+
+    [HttpPost("{id}/media")]
+    public async Task<ActionResult<ProductMediaDto>> UploadMedia(
+        Guid id, 
+        IFormFile file,
+        [FromForm] bool isPrimary = false,
+        [FromForm] string? color = null,
+        [FromForm] string? altText = null,
+        [FromForm] int displayOrder = 0)
+    {
+        var command = new UploadProductMediaCommand(id, file, isPrimary, color, altText, displayOrder);
+        var result = await mediator.Send(command);
+        return Ok(result);
     }
 }

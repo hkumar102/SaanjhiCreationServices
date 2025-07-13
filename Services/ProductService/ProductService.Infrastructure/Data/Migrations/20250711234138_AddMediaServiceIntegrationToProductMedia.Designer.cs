@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProductService.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using ProductService.Infrastructure.Persistence;
 namespace ProductService.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProductDbContext))]
-    partial class ProductDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250711234138_AddMediaServiceIntegrationToProductMedia")]
+    partial class AddMediaServiceIntegrationToProductMedia
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,8 +84,9 @@ namespace ProductService.Infrastructure.Data.Migrations
                     b.Property<DateTime>("AcquisitionDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("BarcodeImageBase64")
-                        .HasColumnType("text");
+                    b.Property<string>("Barcode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Color")
                         .IsRequired()
@@ -163,6 +167,8 @@ namespace ProductService.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Barcode");
 
                     b.HasIndex("Condition");
 

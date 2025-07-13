@@ -17,20 +17,34 @@ public class GetAllCategoriesQueryHandler(
 {
     public async Task<PaginatedResult<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
     {
-        logger.LogDebug("Starting GetAllCategoriesQuery execution with Page={Page}, PageSize={PageSize}, Search={Search}",
-            request.Page, request.PageSize, request.Search);
+        logger.LogDebug("Starting GetAllCategoriesQuery execution with Page={Page}, PageSize={PageSize}, Search={Search}, SearchName={SearchName}, SearchDescription={SearchDescription}",
+            request.Page, request.PageSize, request.Search, request.SearchName, request.SearchDescription);
 
         try
         {
             var query = db.Categories.AsNoTracking().AsQueryable();
 
-            // Filtering
+            // General search (searches both name and description)
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
-                logger.LogDebug("Filtering by search term: {Search}", request.Search);
+                logger.LogDebug("Filtering by general search term: {Search}", request.Search);
                 query = query.Where(c => 
                     c.Name.Contains(request.Search) ||
                     (c.Description != null && c.Description.Contains(request.Search)));
+            }
+
+            // Specific name search
+            if (!string.IsNullOrWhiteSpace(request.SearchName))
+            {
+                logger.LogDebug("Filtering by name search term: {SearchName}", request.SearchName);
+                query = query.Where(c => c.Name.Contains(request.SearchName));
+            }
+
+            // Specific description search
+            if (!string.IsNullOrWhiteSpace(request.SearchDescription))
+            {
+                logger.LogDebug("Filtering by description search term: {SearchDescription}", request.SearchDescription);
+                query = query.Where(c => c.Description != null && c.Description.Contains(request.SearchDescription));
             }
 
             // Sorting
