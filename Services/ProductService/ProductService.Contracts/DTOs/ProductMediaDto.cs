@@ -5,6 +5,7 @@ namespace ProductService.Contracts.DTOs;
 /// </summary>
 public class ProductMediaDto
 {
+    public Guid ProductId { get; set; }
     public Guid Id { get; set; }
     public Guid MediaId { get; set; }  // From MediaService
     

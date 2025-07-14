@@ -18,6 +18,12 @@ public class UpdateProductCommandHandler(
 
         try
         {
+            // Check for duplicate product name and category (excluding current product)
+            if (await db.Products.AnyAsync(p => p.Name == request.Name && p.CategoryId == request.CategoryId && p.Id != request.Id, cancellationToken))
+            {
+                throw new Shared.ErrorHandling.BusinessRuleException($"A product with the name '{request.Name}' and already exists in this category.");
+            }
+
             logger.LogDebug("Fetching product with ID: {ProductId} from database", request.Id);
             var product = await db.Products
                 .Include(p => p.Media)

@@ -21,4 +21,8 @@
     <ProjectReference Include="..\ProductService.Infrastructure\ProductService.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Media/Validators/" />
+  </ItemGroup>
+
 </Project>

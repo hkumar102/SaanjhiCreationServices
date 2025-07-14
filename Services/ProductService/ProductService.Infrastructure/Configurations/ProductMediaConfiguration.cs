@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProductService.Domain.Entities;
+using Shared.Infrastructure.Configurations;
 
 namespace ProductService.Infrastructure.Configurations;
 
-public class ProductMediaConfiguration : IEntityTypeConfiguration<ProductMedia>
+public class ProductMediaConfiguration : BaseEntityConfiguration<ProductMedia>
 {
     public void Configure(EntityTypeBuilder<ProductMedia> builder)
     {

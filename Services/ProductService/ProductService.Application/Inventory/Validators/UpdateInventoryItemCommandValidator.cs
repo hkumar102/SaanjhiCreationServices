@@ -1,6 +1,7 @@
 using FluentValidation;
+using ProductService.Application.Inventory.Commands.UpdateInventoryItem;
 
-namespace ProductService.Application.Inventory.Commands.UpdateInventoryItem;
+namespace ProductService.Application.Inventory.Validators;
 
 public class UpdateInventoryItemCommandValidator : AbstractValidator<UpdateInventoryItemCommand>
 {

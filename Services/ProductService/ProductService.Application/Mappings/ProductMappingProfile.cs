@@ -22,8 +22,7 @@ public class ProductMappingProfile : Profile
 
         CreateMap<UpdateProductCommand, Product>()
             .ForMember(dest => dest.Media, opt => opt.MapFrom(src => src.Media))
-            .ForMember(dest => dest.ModifiedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+            .ForMember(dest => dest.SKU, opt => opt.Ignore());
 
         // Category command mappings
         CreateMap<CreateCategoryCommand, Category>()

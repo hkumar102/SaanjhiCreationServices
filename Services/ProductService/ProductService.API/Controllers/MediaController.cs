@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using ProductService.Application.Media.Commands.DeleteProductMedia;
 using ProductService.Application.Products.Commands.AddProductMedia;
 using ProductService.Application.Products.Queries.GetProductMedia;
 using ProductService.Contracts.DTOs;
@@ -116,10 +117,9 @@ public class MediaController(IMediator mediator) : ControllerBase
     /// <param name="mediaId">Media ID</param>
     /// <returns>No content</returns>
     [HttpDelete("{mediaId:guid}")]
-    public ActionResult DeleteProductMedia(Guid mediaId)
+    public async Task<IActionResult> DeleteProductMedia(Guid mediaId)
     {
-        // For now, we'll need to implement a DeleteProductMediaCommand
-        // This is a placeholder implementation
-        return BadRequest("Delete media functionality not yet implemented. Please create DeleteProductMediaCommand.");
+        await mediator.Send(new DeleteProductMediaCommand(mediaId));
+        return NoContent();
     }
 }

@@ -61,8 +61,6 @@ public class CreateInventoryItemCommandHandler(
                 ConditionNotes = request.ConditionNotes,
                 IsRetired = false,
                 TimesRented = 0,
-                CreatedAt = DateTime.UtcNow,
-                ModifiedAt = DateTime.UtcNow,
                 SerialNumber = serialNumber,
                 BarcodeImageBase64 = barcodeImageBase64,
                 WarehouseLocation = request.WarehouseLocation

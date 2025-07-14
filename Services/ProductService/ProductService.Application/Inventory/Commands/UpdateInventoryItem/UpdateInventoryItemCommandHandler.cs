@@ -31,9 +31,20 @@ public class UpdateInventoryItemCommandHandler(
             if (request.AcquisitionDate.HasValue) item.AcquisitionDate = request.AcquisitionDate.Value;
             if (request.ConditionNotes != null) item.ConditionNotes = request.ConditionNotes;
             if (request.WarehouseLocation != null) item.WarehouseLocation = request.WarehouseLocation;
-            if (request.IsRetired.HasValue) item.IsRetired = request.IsRetired.Value;
-
-            item.ModifiedAt = DateTime.UtcNow;
+            if (request.IsRetired.HasValue)
+            {
+                item.IsRetired = request.IsRetired.Value;
+                if (request.IsRetired.Value)
+                {
+                    item.RetirementDate = DateTime.UtcNow;
+                    item.RetirementReason = request.RetirementReason ?? "Retired by user";
+                }
+                else
+                {
+                    item.RetirementDate = null;
+                    item.RetirementReason = null;
+                }
+            }
 
             await db.SaveChangesAsync(cancellationToken);
             logger.LogDebug("Successfully updated inventory item with ID: {InventoryItemId}", item.Id);

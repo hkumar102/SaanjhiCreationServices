@@ -1,5 +1,6 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProductService.Domain.Entities;
 using ProductService.Infrastructure.Persistence;
@@ -18,6 +19,12 @@ public class CreateProductCommandHandler(
 
         try
         {
+            // Check for duplicate product name and category
+            if (await db.Products.AnyAsync(p => p.Name == request.Name && p.CategoryId == request.CategoryId, cancellationToken))
+            {
+                throw new Shared.ErrorHandling.BusinessRuleException($"A product with the name '{request.Name}' already exists in this category.");
+            }
+
             var product = mapper.Map<Product>(request);
             product.Id = Guid.NewGuid();
             product.SKU = GenerateSku(request.Name, request.CategoryId);

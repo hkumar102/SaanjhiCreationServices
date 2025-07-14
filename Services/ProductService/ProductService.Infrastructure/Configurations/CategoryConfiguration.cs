@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProductService.Domain.Entities;
+using Shared.Infrastructure.Configurations;
 
 namespace ProductService.Infrastructure.Configurations;
 
-public class CategoryConfiguration : IEntityTypeConfiguration<Category>
+public class CategoryConfiguration : BaseEntityConfiguration<Category>
 {
     public void Configure(EntityTypeBuilder<Category> builder)
     {

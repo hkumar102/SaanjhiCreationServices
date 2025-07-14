@@ -13,5 +13,7 @@ public record UpdateInventoryItemCommand(
     DateTime? AcquisitionDate,
     string? ConditionNotes,
     string? WarehouseLocation,
-    bool? IsRetired
+    bool? IsRetired,
+    string? RetirementReason,
+    DateTime? RetirementDate
 ) : IRequest<InventoryItemDto>;

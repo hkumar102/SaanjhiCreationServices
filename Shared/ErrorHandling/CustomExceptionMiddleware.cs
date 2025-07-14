@@ -27,21 +27,21 @@ public class CustomExceptionMiddleware
         {
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             context.Response.ContentType = "application/json";
-            var errorResponse = new { errors = ex.Errors.Select(e => e.ErrorMessage).ToList() };
+            var errorResponse = ex.Errors.Select(e => e.ErrorMessage).ToList();
             await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
         }
         catch (BusinessRuleException ex)
         {
-            context.Response.StatusCode = 402;
+            context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
             context.Response.ContentType = "application/json";
-            var errorResponse = new { errors = new[] { ex.Message } };
+            var errorResponse = new[] { ex.Message };
             await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
         }
         catch (Exception ex)
         {
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";
-            var errorResponse = new { errors = new[] { "An unexpected error occurred.", ex.Message } };
+            var errorResponse = new[] { "An unexpected error occurred.", ex.Message };
             await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
         }
     }
