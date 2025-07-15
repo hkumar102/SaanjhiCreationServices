@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProductService.Domain.Entities;
-using ProductService.Contracts.Enums;
 using Shared.Infrastructure.Configurations;
 
 namespace ProductService.Infrastructure.Configurations;

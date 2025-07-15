@@ -5,9 +5,10 @@ using Microsoft.Extensions.Logging;
 using ProductService.Contracts.DTOs;
 using ProductService.Domain.Entities;
 using ProductService.Infrastructure.Persistence;
-using System.Drawing;
+using SkiaSharp;
 using ZXing;
 using ZXing.Common;
+using ZXing.SkiaSharp.Rendering;
 
 namespace ProductService.Application.Inventory.Commands.CreateInventoryItem;
 
@@ -88,18 +89,31 @@ public class CreateInventoryItemCommandHandler(
         var random = new Random().Next(1000, 9999);
         return $"SAANJHI-{productId}-{timestamp}-{random}";
     }
-
-    private static string GenerateBarcodeBase64(string value)
+    
+    
+    public static byte[] GenerateBarcode(string text, int width = 300, int height = 100)
     {
-        // ZXing.Net barcode generation
-        var writer = new BarcodeWriter<Bitmap>
+        var writer = new BarcodeWriter<SKBitmap>
         {
             Format = BarcodeFormat.CODE_128,
-            Options = new EncodingOptions { Width = 300, Height = 100 }
+            Options = new EncodingOptions
+            {
+                Width = width,
+                Height = height,
+                Margin = 10
+            },
+            Renderer = new SKBitmapRenderer()
         };
-        using var bitmap = writer.Write(value);
-        using var ms = new System.IO.MemoryStream();
-        bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-        return Convert.ToBase64String(ms.ToArray());
+
+        using var bitmap = writer.Write(text);
+        using var image = SKImage.FromBitmap(bitmap);
+        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+
+        return data.ToArray();
+    }
+    private static string GenerateBarcodeBase64(string value)
+    {
+        var barcodeArray = GenerateBarcode(value);
+        return Convert.ToBase64String(barcodeArray);
     }
 }

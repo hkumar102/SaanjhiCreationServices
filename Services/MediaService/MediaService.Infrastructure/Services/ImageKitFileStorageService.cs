@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Imagekit.Sdk;
-using Imagekit.Models;
 using MediaService.Contracts.Interfaces;
 
 namespace MediaService.Infrastructure.Services;

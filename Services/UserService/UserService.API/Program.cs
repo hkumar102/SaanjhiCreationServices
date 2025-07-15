@@ -2,7 +2,6 @@ using System.Reflection;
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
-using Shared.ErrorHandling;
 using Shared.Extensions;
 using Shared.Extensions.Telemetry;
 using UserService.Infrastructure.Persistence;

@@ -2,9 +2,7 @@ using MediaService.Contracts.DTOs;
 using MediaService.Contracts.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using MediaService.Application.Commands;
-using System.ComponentModel.DataAnnotations;
 
 namespace MediaService.API.Controllers;
 

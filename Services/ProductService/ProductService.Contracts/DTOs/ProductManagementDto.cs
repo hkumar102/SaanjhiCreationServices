@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using ProductService.Contracts.Enums;
 
 namespace ProductService.Contracts.DTOs;
 

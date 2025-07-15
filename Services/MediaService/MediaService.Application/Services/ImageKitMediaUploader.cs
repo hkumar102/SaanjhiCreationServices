@@ -1,5 +1,3 @@
-using System.Net.Http.Headers;
-using Imagekit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using MediaService.Contracts.Enums;

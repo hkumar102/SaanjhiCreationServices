@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
         // Current user service
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-
+        //services.AddCustomValidationResponse();
         return services;
     }
 }

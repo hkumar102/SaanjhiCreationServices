@@ -1,7 +1,6 @@
 // ProductService.Infrastructure/Persistence/ProductDbContext.cs
 using Microsoft.EntityFrameworkCore;
 using ProductService.Domain.Entities;
-using ProductService.Infrastructure.Configurations;
 using Shared.Application.Interfaces;
 using Shared.Infrastructure.Extensions;
 

@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProductService.Contracts.DTOs;
-using ProductService.Domain.Entities;
 using ProductService.Infrastructure.Persistence;
 
 namespace ProductService.Application.Inventory.Commands.UpdateInventoryItem;

@@ -1,5 +1,14 @@
 # Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+# ✅ Install required SkiaSharp native dependencies
+RUN apt-get update && apt-get install -y \
+    libfontconfig1 \
+    libfreetype6 \
+    libjpeg-dev \
+    libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
+    
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443

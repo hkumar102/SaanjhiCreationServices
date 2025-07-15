@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
@@ -35,13 +34,6 @@ public class CustomExceptionMiddleware
             context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
             context.Response.ContentType = "application/json";
             var errorResponse = new[] { ex.Message };
-            await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
-        }
-        catch (Exception ex)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            context.Response.ContentType = "application/json";
-            var errorResponse = new[] { "An unexpected error occurred.", ex.Message };
             await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
         }
     }

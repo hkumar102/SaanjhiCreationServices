@@ -1,5 +1,4 @@
 using CustomerService.Contracts.Enums;
-using CustomerService.Domain.Entities;
 using MediatR;
 
 namespace CustomerService.Application.Addresses.Commands.Create;

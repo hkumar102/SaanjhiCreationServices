@@ -1,4 +1,3 @@
-using Shared.Domain;
 using Shared.Domain.Entities;
 
 namespace CategoryService.Domain.Entities;

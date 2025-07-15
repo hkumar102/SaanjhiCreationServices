@@ -1,5 +1,3 @@
-using ProductService.Contracts.Enums;
-
 namespace ProductService.Contracts.DTOs;
 
 /// <summary>

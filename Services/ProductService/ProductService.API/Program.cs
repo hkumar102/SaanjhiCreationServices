@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using ProductService.Infrastructure.HttpClients;
 using ProductService.Infrastructure.HttpHandlers;
 using ProductService.Application.Services;
-using Shared.ErrorHandling;
 using Shared.Extensions.Telemetry;
 using ProductService.Infrastructure.Persistence;
 using Shared.Extensions;
