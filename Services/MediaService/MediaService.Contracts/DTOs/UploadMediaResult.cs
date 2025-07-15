@@ -1,6 +1,6 @@
-using Shared.Contracts.Media;
+using MediaService.Contracts.Enums;
 
-namespace MediaService.Application.DTOs;
+namespace MediaService.Contracts.DTOs;
 
 public class UploadMediaResult
 {

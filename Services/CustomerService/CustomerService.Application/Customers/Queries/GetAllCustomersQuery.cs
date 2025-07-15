@@ -1,6 +1,5 @@
 using CustomerService.Contracts.DTOs;
 using MediatR;
-using CustomerService.Domain.Entities;
 using Shared.Contracts.Common;
 
 namespace CustomerService.Application.Customers.Queries;

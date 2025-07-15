@@ -71,36 +71,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5  
-  category-service:
-    build:
-      context: .
-      dockerfile: Services/CategoryService/CategoryService.API/Dockerfile
-    image: sanjhi.category.api
-    container_name: sanjhi.category.api
-    ports:
-      - "8006:80"
-#      - "8007:443"
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-#      ASPNETCORE_URLS: https://+:443;http://+:80
-      ASPNETCORE_URLS: http://*:80      
-      ASPNETCORE_Kestrel__Certificates__Default__Password: reallyStrongPassword123
-      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aspnetapp.pfx
-      FirebaseSecretPath: /secrets/firebase.json
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=saanjhicreation;Username=saanjhiuser;Password=saanjhiuser
-    depends_on:
-      - postgres
-    volumes:
-      - ${HOME}/.aspnet/dev-certs/https:/https/
-      - secrets:/secrets:ro
-    networks:
-      - default
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "https://localhost:443/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      
+
   product-service:
     build:
       context: .

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using RentalService.Infrastructure.HttpClients;
 using RentalService.Infrastructure.HttpHandlers;
-using Shared.ErrorHandling;
 using Shared.Extensions.Telemetry;
 using RentalService.Infrastructure.Persistence;
 using Shared.Extensions;

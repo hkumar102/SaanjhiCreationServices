@@ -1,6 +1,5 @@
 using AutoMapper;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using UserService.Application.Commands;
 using UserService.Infrastructure.Persistence;
 using Shared.Contracts.Users;

@@ -1,7 +1,7 @@
-using MediaService.Application.DTOs;
+using MediaService.Contracts.DTOs;
+using MediaService.Contracts.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.Contracts.Media;
 
 namespace MediaService.Application.Commands;
 

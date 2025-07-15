@@ -1,6 +1,6 @@
 using MediaService.Application.Commands;
-using MediaService.Application.DTOs;
-using MediaService.Application.Interfaces;
+using MediaService.Contracts.DTOs;
+using MediaService.Contracts.Interfaces;
 using MediatR;
 
 namespace MediaService.Application.Handlers;

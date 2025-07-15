@@ -5,5 +5,6 @@ public enum RentalStatus
     Pending,
     Active,
     Completed,
+    Returned,
     Cancelled
 }

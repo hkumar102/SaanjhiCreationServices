@@ -1,10 +1,8 @@
-using System.Net.Http.Headers;
-using Imagekit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Shared.Contracts.Media;
-using MediaService.Application.DTOs;
-using MediaService.Application.Interfaces;
+using MediaService.Contracts.Enums;
+using MediaService.Contracts.DTOs;
+using MediaService.Contracts.Interfaces;
 
 namespace MediaService.Application.Services;
 

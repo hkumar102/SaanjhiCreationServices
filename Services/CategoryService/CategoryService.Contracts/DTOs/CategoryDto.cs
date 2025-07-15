@@ -1,5 +1,3 @@
-using System;
-
 namespace CategoryService.Contracts.DTOs;
 
 public class CategoryDto
