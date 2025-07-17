@@ -139,24 +139,14 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
         // Resize if image is too large
         if (image.Width > maxWidth || image.Height > maxHeight)
         {
-            var aspectRatio = (double)image.Width / image.Height;
-            
-            int newWidth, newHeight;
-            if (aspectRatio > 1) // Landscape
+            var resizeOptions = new ResizeOptions
             {
-                newWidth = Math.Min(maxWidth, image.Width);
-                newHeight = (int)(newWidth / aspectRatio);
-            }
-            else // Portrait or square
-            {
-                newHeight = Math.Min(maxHeight, image.Height);
-                newWidth = (int)(newHeight * aspectRatio);
-            }
-            
-            _logger.LogDebug("Resizing image from {OriginalWidth}x{OriginalHeight} to {NewWidth}x{NewHeight}", 
-                originalWidth, originalHeight, newWidth, newHeight);
-            
-            image.Mutate(x => x.Resize(newWidth, newHeight));
+                Size = new Size(maxWidth, maxHeight),
+                Mode = ResizeMode.Max // Preserve aspect ratio, fit within box
+            };
+            _logger.LogDebug("Resizing image from {OriginalWidth}x{OriginalHeight} to fit within {MaxWidth}x{MaxHeight}", 
+                originalWidth, originalHeight, maxWidth, maxHeight);
+            image.Mutate(x => x.Resize(resizeOptions));
         }
         
         // Compress based on file type
@@ -255,7 +245,6 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
             {
                 Url = _urlService.GetThumbnailUrl(originalUrl),
                 Width = 150,
-                Height = 150,
                 FileSize = 0, // ImageKit calculates on-demand
                 Format = "auto", // ImageKit auto-selects best format
                 Usage = "list_view"
@@ -264,7 +253,6 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
             {
                 Url = _urlService.GetSmallUrl(originalUrl),
                 Width = 400,
-                Height = 400,
                 FileSize = 0,
                 Format = "auto",
                 Usage = "grid_view"
@@ -273,7 +261,6 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
             {
                 Url = _urlService.GetMediumUrl(originalUrl),
                 Width = 800,
-                Height = 800,
                 FileSize = 0,
                 Format = "auto",
                 Usage = "detail_view"
@@ -282,7 +269,6 @@ public class ImageKitUploadProductMediaCommandHandler : IRequestHandler<UploadPr
             {
                 Url = _urlService.GetLargeUrl(originalUrl),
                 Width = 1200,
-                Height = 1200,
                 FileSize = 0,
                 Format = "auto",
                 Usage = "zoom_view"

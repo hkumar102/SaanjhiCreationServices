@@ -9,6 +9,7 @@ public class ProductMediaConfiguration : BaseEntityConfiguration<ProductMedia>
 {
     public override void Configure(EntityTypeBuilder<ProductMedia> builder)
     {
+        base.Configure(builder);
         builder.HasKey(m => m.Id);
 
         // Required Properties

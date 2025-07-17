@@ -13,6 +13,11 @@ using Shared.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Debug);
+
 var appAssembly = Assembly.Load("ProductService.Application");
 
 builder.UseSharedSentry();

@@ -11,5 +11,8 @@ public record CreateInventoryItemCommand(
     decimal AcquisitionCost,
     DateTime? AcquisitionDate = null,
     string? ConditionNotes = null,
-    string? WarehouseLocation = null
+    string? WarehouseLocation = null,
+    bool IsRetired = false,
+    DateTime? RetiredDate = null,
+    string? RetirementReason = null
 ) : IRequest<InventoryItemDto>;

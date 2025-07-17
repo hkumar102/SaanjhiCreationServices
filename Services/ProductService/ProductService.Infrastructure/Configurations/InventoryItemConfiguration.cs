@@ -9,6 +9,7 @@ public class InventoryItemConfiguration : BaseEntityConfiguration<InventoryItem>
 {
     public override void Configure(EntityTypeBuilder<InventoryItem> builder)
     {
+        base.Configure(builder);
         builder.HasKey(i => i.Id);
 
         // Physical Properties
