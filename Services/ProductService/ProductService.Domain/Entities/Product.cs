@@ -25,7 +25,7 @@ public class Product : BaseEntity
     public string[] AvailableColors { get; set; } = Array.Empty<string>(); // ["Black", "Navy", "Red"]
     public string? Material { get; set; } // "Silk", "Cotton", "Polyester"
     public string? CareInstructions { get; set; }
-    public string? Occasion { get; set; } // "Wedding", "Formal", "Casual"
+    public string[] Occasion { get; set; } = Array.Empty<string>();// "Wedding", "Formal", "Casual"
     public string? Season { get; set; } // "Spring/Summer", "Fall/Winter", "All Season"
 
     // Business Logic

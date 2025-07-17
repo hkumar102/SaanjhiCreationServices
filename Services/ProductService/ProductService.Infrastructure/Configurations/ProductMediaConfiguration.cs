@@ -7,7 +7,7 @@ namespace ProductService.Infrastructure.Configurations;
 
 public class ProductMediaConfiguration : BaseEntityConfiguration<ProductMedia>
 {
-    public void Configure(EntityTypeBuilder<ProductMedia> builder)
+    public override void Configure(EntityTypeBuilder<ProductMedia> builder)
     {
         builder.HasKey(m => m.Id);
 

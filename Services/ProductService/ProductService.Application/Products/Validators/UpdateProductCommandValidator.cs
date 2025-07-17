@@ -26,7 +26,6 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
         // Product Specifications
         RuleFor(x => x.Material).MaximumLength(100);
         RuleFor(x => x.CareInstructions).MaximumLength(500);
-        RuleFor(x => x.Occasion).MaximumLength(100);
         RuleFor(x => x.Season).MaximumLength(50);
 
         // Relationships

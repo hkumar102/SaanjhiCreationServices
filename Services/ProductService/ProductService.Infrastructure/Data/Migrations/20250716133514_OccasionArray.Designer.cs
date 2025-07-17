@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProductService.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using ProductService.Infrastructure.Persistence;
 namespace ProductService.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProductDbContext))]
-    partial class ProductDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250716133514_OccasionArray")]
+    partial class OccasionArray
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,13 +188,13 @@ namespace ProductService.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.PrimitiveCollection<string[]>("AvailableColors")
+                    b.Property<string>("AvailableColors")
                         .IsRequired()
-                        .HasColumnType("text[]");
+                        .HasColumnType("text");
 
-                    b.PrimitiveCollection<string[]>("AvailableSizes")
+                    b.Property<string>("AvailableSizes")
                         .IsRequired()
-                        .HasColumnType("text[]");
+                        .HasColumnType("text");
 
                     b.Property<string>("Brand")
                         .HasMaxLength(100)
@@ -259,9 +262,9 @@ namespace ProductService.Infrastructure.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.PrimitiveCollection<string[]>("Occasion")
+                    b.Property<string>("Occasion")
                         .IsRequired()
-                        .HasColumnType("text[]");
+                        .HasColumnType("text");
 
                     b.Property<decimal>("PurchasePrice")
                         .HasColumnType("decimal(18,2)");

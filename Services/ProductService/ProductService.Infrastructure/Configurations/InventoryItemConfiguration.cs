@@ -7,7 +7,7 @@ namespace ProductService.Infrastructure.Configurations;
 
 public class InventoryItemConfiguration : BaseEntityConfiguration<InventoryItem>
 {
-    public void Configure(EntityTypeBuilder<InventoryItem> builder)
+    public override void Configure(EntityTypeBuilder<InventoryItem> builder)
     {
         builder.HasKey(i => i.Id);
 

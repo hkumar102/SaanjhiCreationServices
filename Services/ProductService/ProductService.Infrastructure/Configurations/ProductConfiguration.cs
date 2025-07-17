@@ -42,14 +42,10 @@ public class ProductConfiguration : BaseEntityConfiguration<Product>
 
         // Specification Properties
         builder.Property(p => p.AvailableSizes)
-            .HasConversion(
-                v => string.Join(',', v),
-                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries));
+            .HasColumnType("text[]");
 
         builder.Property(p => p.AvailableColors)
-            .HasConversion(
-                v => string.Join(',', v),
-                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries));
+            .HasColumnType("text[]");
 
         builder.Property(p => p.Material)
             .HasMaxLength(100);
@@ -58,7 +54,7 @@ public class ProductConfiguration : BaseEntityConfiguration<Product>
             .HasMaxLength(500);
 
         builder.Property(p => p.Occasion)
-            .HasMaxLength(100);
+            .HasColumnType("text[]");
 
         builder.Property(p => p.Season)
             .HasMaxLength(50);
