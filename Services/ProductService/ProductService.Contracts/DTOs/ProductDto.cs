@@ -25,7 +25,7 @@ public class ProductDto
     public string[] AvailableColors { get; set; } = Array.Empty<string>();
     public string? Material { get; set; }
     public string? CareInstructions { get; set; }
-    public string? Occasion { get; set; }
+    public string[] Occasion { get; set; }
     public string? Season { get; set; }
     
     // Business Logic

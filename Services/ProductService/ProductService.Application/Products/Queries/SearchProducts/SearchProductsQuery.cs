@@ -13,7 +13,7 @@ public class SearchProductsQuery : IRequest<PaginatedResult<ProductDto>>
     public string? Brand { get; set; }
     public string? Designer { get; set; }
     public string? Material { get; set; }
-    public string? Occasion { get; set; }
+    public List<string>? Occasion { get; set; }
     public string? Season { get; set; }
     
     public decimal? MinRentalPrice { get; set; }

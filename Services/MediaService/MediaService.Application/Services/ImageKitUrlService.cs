@@ -56,23 +56,23 @@ public class ImageKitUrlService
     /// Get thumbnail URL (150x150)
     /// </summary>
     public string GetThumbnailUrl(string originalUrl) 
-        => GetOptimizedUrl(originalUrl, 150, 150, "80", "auto");
+        => GetOptimizedUrl(originalUrl, 150, null, "80", "auto");
 
     /// <summary>
     /// Get small image URL (400x400)
     /// </summary>
     public string GetSmallUrl(string originalUrl) 
-        => GetOptimizedUrl(originalUrl, 400, 400, "85", "auto");
+        => GetOptimizedUrl(originalUrl, 400, null, "85", "auto");
 
     /// <summary>
     /// Get medium image URL (800x800)
     /// </summary>
     public string GetMediumUrl(string originalUrl) 
-        => GetOptimizedUrl(originalUrl, 800, 800, "85", "auto");
+        => GetOptimizedUrl(originalUrl, 800, null, "85", "auto");
 
     /// <summary>
     /// Get large image URL (1200x1200)
     /// </summary>
     public string GetLargeUrl(string originalUrl) 
-        => GetOptimizedUrl(originalUrl, 1200, 1200, "90", "auto");
+        => GetOptimizedUrl(originalUrl, 1200, null, "90", "auto");
 }

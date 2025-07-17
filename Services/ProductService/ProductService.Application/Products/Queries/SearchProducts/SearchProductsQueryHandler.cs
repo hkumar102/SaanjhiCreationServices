@@ -86,7 +86,6 @@ public class SearchProductsQueryHandler(
                 (p.Brand != null && p.Brand.ToLower().Contains(searchTerm)) ||
                 (p.Designer != null && p.Designer.ToLower().Contains(searchTerm)) ||
                 (p.Material != null && p.Material.ToLower().Contains(searchTerm)) ||
-                (p.Occasion != null && p.Occasion.ToLower().Contains(searchTerm)) ||
                 (p.Season != null && p.Season.ToLower().Contains(searchTerm)));
         }
 
@@ -120,15 +119,19 @@ public class SearchProductsQueryHandler(
         {
             query = query.Where(p => p.Material != null && p.Material.ToLower().Contains(request.Material.ToLower()));
         }
-
-        if (!string.IsNullOrWhiteSpace(request.Occasion))
-        {
-            query = query.Where(p => p.Occasion != null && p.Occasion.ToLower().Contains(request.Occasion.ToLower()));
-        }
+        
 
         if (!string.IsNullOrWhiteSpace(request.Season))
         {
             query = query.Where(p => p.Season != null && p.Season.ToLower().Contains(request.Season.ToLower()));
+        }
+        
+        if (request.Occasion != null && request.Occasion.Any())
+        {
+            foreach (var occasion in request.Occasion)
+            {
+                query = query.Where(p => p.Occasion.Contains(occasion));
+            }
         }
 
         if (request.Sizes != null && request.Sizes.Any())
