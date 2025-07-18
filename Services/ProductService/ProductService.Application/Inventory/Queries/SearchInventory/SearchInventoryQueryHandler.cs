@@ -21,10 +21,10 @@ public class SearchInventoryQueryHandler(
         var query = db.InventoryItems.AsQueryable();
 
         // Filtering
-        if (!string.IsNullOrWhiteSpace(request.Size))
-            query = query.Where(i => i.Size == request.Size);
-        if (!string.IsNullOrWhiteSpace(request.Color))
-            query = query.Where(i => i.Color == request.Color);
+        if (request.Sizes != null && request.Sizes.Any())
+            query = query.Where(i => request.Sizes.Contains(i.Size));
+        if (request.Colors != null && request.Colors.Any())
+            query = query.Where(i => request.Colors.Contains(i.Color));
         if (request.Status.HasValue)
             query = query.Where(i => i.Status == request.Status);
         if (request.Condition.HasValue)

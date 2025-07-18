@@ -8,8 +8,8 @@ namespace ProductService.Application.Inventory.Queries.SearchInventory;
 public record SearchInventoryQuery(
     int Page = 1,
     int PageSize = 20,
-    string? Size = null,
-    string? Color = null,
+    List<string>? Sizes = null,
+    List<string>? Colors = null,
     InventoryStatus? Status = null,
     ItemCondition? Condition = null,
     bool IncludeRetired = false,
