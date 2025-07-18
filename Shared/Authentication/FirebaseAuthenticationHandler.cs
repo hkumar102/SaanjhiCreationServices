@@ -62,7 +62,7 @@ public class FirebaseAuthenticationHandler(
             // Add display name if available (Firebase specific)
             if (!string.IsNullOrEmpty(decoded.Claims.GetValueOrDefault("firebase")?.ToString()))
             {
-                var firebaseData = decoded.Claims["firebase"] as System.Collections.Generic.Dictionary<string, object>;
+                var firebaseData = decoded.Claims["firebase"] as Dictionary<string, object>;
                 if (firebaseData?.TryGetValue("sign_in_provider", out var provider) == true)
                 {
                     claims.Add(new Claim("sign_in_provider", provider.ToString()!));
@@ -72,7 +72,7 @@ public class FirebaseAuthenticationHandler(
             // Add custom claims if any
             if (decoded.Claims.TryGetValue("custom_claims", out var customClaims) && customClaims != null)
             {
-                var customClaimsDict = customClaims as System.Collections.Generic.Dictionary<string, object>;
+                var customClaimsDict = customClaims as Dictionary<string, object>;
                 if (customClaimsDict != null)
                 {
                     foreach (var claim in customClaimsDict)
@@ -90,7 +90,7 @@ public class FirebaseAuthenticationHandler(
 
             if (decoded.Claims.TryGetValue("roles", out var roles) && roles != null)
             {
-                if (roles is System.Collections.Generic.List<object> rolesList)
+                if (roles is List<object> rolesList)
                 {
                     foreach (var r in rolesList)
                     {
