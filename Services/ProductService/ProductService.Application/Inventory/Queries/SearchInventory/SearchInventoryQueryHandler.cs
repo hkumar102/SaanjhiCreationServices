@@ -20,15 +20,20 @@ public class SearchInventoryQueryHandler(
 
         var query = db.InventoryItems.AsQueryable();
 
+        if(!string.IsNullOrWhiteSpace(request.SerialNumber))
+        {
+            logger.LogDebug("Filtering by SerialNumber: {SerialNumber}", request.SerialNumber);
+            query = query.Where(i => EF.Functions.ILike(i.SerialNumber, $"%{request.SerialNumber}%"));
+        }
         // Filtering
         if (request.Sizes != null && request.Sizes.Any())
             query = query.Where(i => request.Sizes.Contains(i.Size));
         if (request.Colors != null && request.Colors.Any())
             query = query.Where(i => request.Colors.Contains(i.Color));
-        if (request.Status.HasValue)
-            query = query.Where(i => i.Status == request.Status);
-        if (request.Condition.HasValue)
-            query = query.Where(i => i.Condition == request.Condition);
+        if (request.Statuses != null && request.Statuses.Any())
+            query = query.Where(i => request.Statuses.Contains(i.Status));
+        if (request.Conditions != null && request.Conditions.Any())
+            query = query.Where(i => request.Conditions.Contains(i.Condition));
         if (!request.IncludeRetired)
             query = query.Where(i => !i.IsRetired);
         if (request.ProductId.HasValue)

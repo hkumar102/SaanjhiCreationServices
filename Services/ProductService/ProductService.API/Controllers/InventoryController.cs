@@ -68,11 +68,12 @@ public class InventoryController(IMediator mediator) : ControllerBase
     /// <param name="inventoryItemId">Inventory item ID</param>
     /// <returns>Inventory item details</returns>
     [HttpGet("{inventoryItemId:guid}")]
-    public ActionResult<InventoryItemDto> GetInventoryItem(Guid inventoryItemId)
+    public async Task<ActionResult<InventoryItemDto>> GetInventoryItem(Guid inventoryItemId)
     {
-        // We need to find which product this inventory item belongs to
-        // For now, this is a simplified approach - in production you might want a dedicated query
-        return BadRequest("Use GET /api/inventory/product/{productId} to get inventory items for a specific product");
+        var result = await mediator.Send(new Application.Inventory.Queries.GetInventoryItemById.GetInventoryItemByIdQuery(inventoryItemId));
+        if (result == null)
+            return NotFound();
+        return Ok(result);
     }
 
     /// <summary>

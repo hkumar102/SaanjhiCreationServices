@@ -24,8 +24,8 @@ public class CreateInventoryItemCommandHandler(
 
         try
         {
-            // Verify product exists and get available sizes/colors
-            var product = await db.Products.FirstOrDefaultAsync(p => p.Id == request.ProductId, cancellationToken);
+            // Verify product exists and get available sizes/colors (include Category)
+            var product = await db.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == request.ProductId, cancellationToken);
             if (product == null)
             {
                 throw new KeyNotFoundException($"Product with ID {request.ProductId} not found");
@@ -42,8 +42,29 @@ public class CreateInventoryItemCommandHandler(
                 throw new ArgumentException($"Color '{request.Color}' is not available for this product");
             }
 
-            // Generate serial number
-            var serialNumber = GenerateSerialNumber(request.ProductId);
+
+            // Get full product and category name
+
+            string productName = product.Name;
+            string categoryName = product.Category?.Name;
+            if (string.IsNullOrWhiteSpace(categoryName))
+            {
+                throw new Shared.ErrorHandling.BusinessRuleException($"Product is missing Category, please attach category to product first: {productName}");
+            }
+
+
+            // Generate unique serial number with new format
+            string serialNumber;
+            int serialTries = 0;
+            do
+            {
+                serialNumber = GenerateSerialNumber(request.ProductId, productName, categoryName, request.Color, request.Size);
+                serialTries++;
+                // If we ever get stuck, break after 10 tries (should never happen)
+                if (serialTries > 10)
+                    throw new Exception("Failed to generate unique serial number after 10 attempts");
+            }
+            while (await db.InventoryItems.AnyAsync(i => i.SerialNumber == serialNumber, cancellationToken));
 
             // Generate barcode image as Base64
             var barcodeImageBase64 = GenerateBarcodeBase64(serialNumber);
@@ -83,11 +104,30 @@ public class CreateInventoryItemCommandHandler(
         }
     }
 
-    private static string GenerateSerialNumber(Guid productId)
+    private static string GenerateSerialNumber(Guid productId, string productName, string categoryName, string color, string size)
     {
-        var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-        var random = new Random().Next(1000, 9999);
-        return $"SAANJHI-{productId}-{timestamp}-{random}";
+        // Format: SAANJHI-[PROD3]-[TYPE3]-[COL4]-[SIZE]-[ID4]
+        // PROD3: First 3 chars of product name (upper, no spaces)
+        // TYPE3: First 3 chars of category name (upper, no spaces)
+        // COL4: First 4 chars of color (upper, no spaces)
+        // SIZE: Size string (upper, no spaces)
+        // ID4: Random 4-digit number
+
+        var prod3 = (productName ?? "XXX").Replace(" ", string.Empty).ToUpper();
+        if (prod3.Length > 3) prod3 = prod3.Substring(0, 3);
+        else if (prod3.Length < 3) prod3 = prod3.PadRight(3, 'X');
+
+        var type3 = (categoryName ?? "INV").Replace(" ", string.Empty).ToUpper();
+        if (type3.Length > 3) type3 = type3.Substring(0, 3);
+        else if (type3.Length < 3) type3 = type3.PadRight(3, 'X');
+
+        var col4 = (color ?? "NONE").Replace(" ", string.Empty).ToUpper();
+        if (col4.Length > 4) col4 = col4.Substring(0, 4);
+        else if (col4.Length < 4) col4 = col4.PadRight(4, 'X');
+
+        var sizePart = (size ?? "").Replace(" ", string.Empty).ToUpper();
+        var id4 = Random.Shared.Next(1000, 9999).ToString();
+        return $"SAANJHI-{prod3}-{type3}-{col4}-{sizePart}-{id4}";
     }
     
     
