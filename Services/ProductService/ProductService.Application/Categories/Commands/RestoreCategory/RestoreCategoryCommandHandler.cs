@@ -19,7 +19,7 @@ public class RestoreCategoryCommandHandler(
         try
         {
             // Find soft deleted category (bypass query filter)
-            var category = await db.GetWithSoftDeleted<ProductService.Domain.Entities.Category>()
+            var category = await db.GetWithSoftDeleted<Domain.Entities.Category>()
                 .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken)
                 ?? throw new KeyNotFoundException($"Category with ID {request.Id} not found");
 

@@ -1,3 +1,4 @@
+using Shared.Extensions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -28,9 +29,9 @@ public class GetAllCategoriesQueryHandler(
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 logger.LogDebug("Filtering by search term: {Search}", request.Search);
-                query = query.Where(c => 
-                    c.Name.Contains(request.Search) ||
-                    (c.Description != null && c.Description.Contains(request.Search)));
+                query = query
+                    .WhereContainsIgnoreCase(c => c.Name, request.Search)
+                    .WhereContainsIgnoreCase(c => c.Description, request.Search);
             }
 
             // Sorting

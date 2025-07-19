@@ -65,10 +65,10 @@ public class ReportsController(IMediator mediator) : ControllerBase
         {
             TotalProducts = inventoryReport.Select(i => i.ProductId).Distinct().Count(),
             TotalInventoryItems = inventoryReport.Sum(i => i.Quantity),
-            AvailableItems = inventoryReport.Where(i => i.Status == ProductService.Contracts.Enums.InventoryStatus.Available).Sum(i => i.Quantity),
-            RentedItems = inventoryReport.Where(i => i.Status == ProductService.Contracts.Enums.InventoryStatus.Rented).Sum(i => i.Quantity),
-            MaintenanceItems = inventoryReport.Where(i => i.Status == ProductService.Contracts.Enums.InventoryStatus.Maintenance).Sum(i => i.Quantity),
-            RetiredItems = inventoryReport.Where(i => i.Status == ProductService.Contracts.Enums.InventoryStatus.Retired).Sum(i => i.Quantity),
+            AvailableItems = inventoryReport.Where(i => i.Status == Contracts.Enums.InventoryStatus.Available).Sum(i => i.Quantity),
+            RentedItems = inventoryReport.Where(i => i.Status == Contracts.Enums.InventoryStatus.Rented).Sum(i => i.Quantity),
+            MaintenanceItems = inventoryReport.Where(i => i.Status == Contracts.Enums.InventoryStatus.Maintenance).Sum(i => i.Quantity),
+            RetiredItems = inventoryReport.Where(i => i.Status == Contracts.Enums.InventoryStatus.Retired).Sum(i => i.Quantity),
             TotalRevenue = performanceReport.Sum(p => p.TotalRentalRevenue),
             AverageRentalPrice = performanceReport.Where(p => p.AverageRentalPrice > 0).DefaultIfEmpty().Average(p => p?.AverageRentalPrice ?? 0),
             TopPerformingProducts = performanceReport.OrderByDescending(p => p.TotalRentalRevenue).Take(5),
@@ -96,9 +96,9 @@ public class ReportsController(IMediator mediator) : ControllerBase
                 g.Key.ProductId,
                 g.Key.ProductName,
                 g.Key.CategoryName,
-                AvailableCount = g.Where(i => i.Status == ProductService.Contracts.Enums.InventoryStatus.Available).Sum(i => i.Quantity),
+                AvailableCount = g.Where(i => i.Status == Contracts.Enums.InventoryStatus.Available).Sum(i => i.Quantity),
                 TotalCount = g.Sum(i => i.Quantity),
-                RentedCount = g.Where(i => i.Status == ProductService.Contracts.Enums.InventoryStatus.Rented).Sum(i => i.Quantity)
+                RentedCount = g.Where(i => i.Status == Contracts.Enums.InventoryStatus.Rented).Sum(i => i.Quantity)
             })
             .Where(p => p.AvailableCount < minimumAvailable)
             .Select(p => new

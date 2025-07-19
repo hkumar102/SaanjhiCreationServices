@@ -20,7 +20,7 @@ public class GetDeletedCategoriesQueryHandler(
 
         try
         {
-            var deletedCategories = await db.GetSoftDeleted<ProductService.Domain.Entities.Category>()
+            var deletedCategories = await db.GetSoftDeleted<Domain.Entities.Category>()
                 .OrderByDescending(c => c.DeletedAt)
                 .ToListAsync(cancellationToken);
 

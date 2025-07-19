@@ -1,3 +1,5 @@
+using Shared.Extensions;
+using Shared.Extensions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -239,12 +241,13 @@ public class GetAllProductsQueryHandler(
                 "designer" => request.SortDesc ? query.OrderByDescending(p => p.Designer) : query.OrderBy(p => p.Designer),
                 "createdat" => request.SortDesc ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
                 "modifiedat" => request.SortDesc ? query.OrderByDescending(p => p.ModifiedAt) : query.OrderBy(p => p.ModifiedAt),
-                _ => query.OrderByDescending(p => p.CreatedAt) // default fallback
+                _ => query.OrderByDescending(p => p.ModifiedAt ?? p.CreatedAt) // default fallback
             };
         }
         else
         {
-            query = query.OrderByDescending(p => p.CreatedAt); // default when no sort specified
+            // Default: sort by ModifiedAt if present, else CreatedAt
+            query = query.OrderByDescending(p => p.ModifiedAt ?? p.CreatedAt);
         }
 
         return query;
