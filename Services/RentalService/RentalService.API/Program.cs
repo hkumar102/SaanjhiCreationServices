@@ -11,12 +11,12 @@ using Shared.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var appAssembly = Assembly.Load("RentalService.Application");
-
 builder.UseSharedSentry();
 builder.Services.AddSharedTelemetry(builder.Configuration, "RentalService");
 // Common shared service registration
-builder.Services.AddApplicationServices(appAssembly, builder.Configuration);
+var appAssembly = "RentalService.Application";
+builder.Services.RegisterAssemblyServices(appAssembly);
+builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddTransient<AuthenticatedHttpClientHandler>();
 builder.Services.AddTransient<ITokenProvider, TokenProvider>();
 builder.Services.AddHttpClient<ICustomerApiClient, CustomerApiClient>(c =>
@@ -42,7 +42,6 @@ builder.Services.AddSaanjhiHealthChecks(builder.Configuration)
         builder.Configuration["HttpClient:ProductService:BaseAddress"] ?? string.Empty)
     .AddSaanjhiServiceHealthCheck("Customer Service",
         builder.Configuration["HttpClient:CustomerService:BaseAddress"] ?? string.Empty);
-builder.Services.AddAutoMapper(appAssembly);
 
 var app = builder.Build();
 app.ApplyMigrations<RentalDbContext>();

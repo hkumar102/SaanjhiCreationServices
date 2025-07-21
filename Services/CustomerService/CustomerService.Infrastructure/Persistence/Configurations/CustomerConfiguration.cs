@@ -1,13 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using CustomerService.Domain.Entities;
+using Shared.Infrastructure.Configurations;
 
 namespace CustomerService.Infrastructure.Persistence.Configurations;
 
-public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
+public class CustomerConfiguration : BaseEntityConfiguration<Customer>
 {
-    public void Configure(EntityTypeBuilder<Customer> builder)
+    public override void Configure(EntityTypeBuilder<Customer> builder)
     {
+        base.Configure(builder);
         builder.HasKey(c => c.Id);
 
         builder.Property(c => c.Name)

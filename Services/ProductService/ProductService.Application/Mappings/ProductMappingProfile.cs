@@ -50,7 +50,9 @@ public class ProductMappingProfile : Profile
         CreateMap<Category, CategoryDto>();
 
         // Inventory mappings
-        CreateMap<InventoryItem, InventoryItemDto>();
+        CreateMap<InventoryItem, InventoryItemDto>()
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+            .ForMember(dest => dest.ProductBrand, opt => opt.MapFrom(src => src.Product.Brand));
 
         // Media mappings
         CreateMap<ProductMediaDto, ProductMedia>()
@@ -59,12 +61,12 @@ public class ProductMappingProfile : Profile
             .ForMember(dest => dest.Product, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.ModifiedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.VariantsJson, opt => opt.MapFrom(src => 
+            .ForMember(dest => dest.VariantsJson, opt => opt.MapFrom(src =>
                 SerializeVariants(src.Variants)))
             .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => (Shared.Contracts.Media.MediaType)src.MediaType));
 
         CreateMap<ProductMedia, ProductMediaDto>()
-            .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => 
+            .ForMember(dest => dest.Variants, opt => opt.MapFrom(src =>
                 DeserializeVariants(src.VariantsJson)))
             .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => (int)src.MediaType));
     }
@@ -76,7 +78,7 @@ public class ProductMappingProfile : Profile
 
     private static MediaVariantsDto? DeserializeVariants(string? variantsJson)
     {
-        return !string.IsNullOrEmpty(variantsJson) 
+        return !string.IsNullOrEmpty(variantsJson)
             ? JsonSerializer.Deserialize<MediaVariantsDto>(variantsJson)
             : null;
     }

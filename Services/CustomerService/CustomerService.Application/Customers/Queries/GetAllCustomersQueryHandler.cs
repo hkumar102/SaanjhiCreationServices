@@ -27,17 +27,17 @@ public class GetAllCustomersQueryHandler(
             if (!string.IsNullOrWhiteSpace(request.Name))
             {
                 logger.LogDebug("Filtering by name: {Name}", request.Name);
-                query = query.Where(c => c.Name.Contains(request.Name));
+                query = query.Where(c => EF.Functions.ILike(c.Name, request.Name));
             }
             if (!string.IsNullOrWhiteSpace(request.Email))
             {
                 logger.LogDebug("Filtering by email: {Email}", request.Email);
-                query = query.Where(c => c.Email.Contains(request.Email));
+                query = query.Where(c => EF.Functions.ILike(c.Email, request.Email));
             }
             if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
             {
                 logger.LogDebug("Filtering by phone number: {PhoneNumber}", request.PhoneNumber);
-                query = query.Where(c => c.PhoneNumber != null && c.PhoneNumber.Contains(request.PhoneNumber));
+                query = query.Where(c => c.PhoneNumber != null && EF.Functions.ILike(c.PhoneNumber, request.PhoneNumber));
             }
 
             // Sorting

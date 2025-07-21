@@ -9,12 +9,13 @@ using Shared.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var appAssembly = Assembly.Load("CategoryService.Application");
 
 builder.UseSharedSentry();
 builder.Services.AddSharedTelemetry(builder.Configuration, "CategoryService");
 // Common shared service registration
-builder.Services.AddApplicationServices(appAssembly, builder.Configuration);
+var appAssembly = "CategoryService.Application";
+builder.Services.RegisterAssemblyServices(appAssembly);
+builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddSwaggerDocs("Category Service");
 
 // EF Core registration specific to the service
@@ -22,7 +23,6 @@ builder.Services.AddDbContext<CategoryDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSaanjhiHealthChecks(builder.Configuration);
-builder.Services.AddAutoMapper(appAssembly);
 
 var app = builder.Build();
 app.ApplyMigrations<CategoryDbContext>();

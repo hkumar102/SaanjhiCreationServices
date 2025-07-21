@@ -106,28 +106,10 @@ public class CreateInventoryItemCommandHandler(
 
     private static string GenerateSerialNumber(Guid productId, string productName, string categoryName, string color, string size)
     {
-        // Format: SAANJHI-[PROD3]-[TYPE3]-[COL4]-[SIZE]-[ID4]
-        // PROD3: First 3 chars of product name (upper, no spaces)
-        // TYPE3: First 3 chars of category name (upper, no spaces)
-        // COL4: First 4 chars of color (upper, no spaces)
-        // SIZE: Size string (upper, no spaces)
-        // ID4: Random 4-digit number
-
-        var prod3 = (productName ?? "XXX").Replace(" ", string.Empty).ToUpper();
-        if (prod3.Length > 3) prod3 = prod3.Substring(0, 3);
-        else if (prod3.Length < 3) prod3 = prod3.PadRight(3, 'X');
-
-        var type3 = (categoryName ?? "INV").Replace(" ", string.Empty).ToUpper();
-        if (type3.Length > 3) type3 = type3.Substring(0, 3);
-        else if (type3.Length < 3) type3 = type3.PadRight(3, 'X');
-
-        var col4 = (color ?? "NONE").Replace(" ", string.Empty).ToUpper();
-        if (col4.Length > 4) col4 = col4.Substring(0, 4);
-        else if (col4.Length < 4) col4 = col4.PadRight(4, 'X');
-
-        var sizePart = (size ?? "").Replace(" ", string.Empty).ToUpper();
-        var id4 = Random.Shared.Next(1000, 9999).ToString();
-        return $"SAANJHI-{prod3}-{type3}-{col4}-{sizePart}-{id4}";
+        // Format: INV-YYYYMMDDHHMMSSffffff (timestamp to microseconds)
+        var now = DateTime.UtcNow;
+        string timestamp = now.ToString("yyyyMMddHHmmssffffff");
+        return $"INV-{timestamp}";
     }
     
     
