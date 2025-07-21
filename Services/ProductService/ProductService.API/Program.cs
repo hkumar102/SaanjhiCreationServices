@@ -10,6 +10,7 @@ using ProductService.Infrastructure.Persistence;
 using Shared.Extensions;
 using Shared.HealthChecks;
 using Shared.Infrastructure.Extensions;
+using CustomerService.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,10 @@ builder.Logging.AddDebug();
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Debug);
 
-var appAssembly = Assembly.Load("ProductService.Application");
+var appAssembly = "ProductService.Application";
+var customerAssembly = "CustomerService.Application";
+builder.Services.RegisterAssemblyServices(appAssembly);
+builder.Services.RegisterAssemblyServices(customerAssembly);
 
 builder.UseSharedSentry();
 builder.Services.AddSharedTelemetry(builder.Configuration, "ProductService");
@@ -27,7 +31,7 @@ builder.Services.AddSharedTelemetry(builder.Configuration, "ProductService");
 builder.Services.AddSharedInfrastructure();
 
 // Common shared service registration
-builder.Services.AddApplicationServices(appAssembly, builder.Configuration);
+builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddTransient<AuthenticatedHttpClientHandler>();
 builder.Services.AddTransient<ITokenProvider, TokenProvider>();
 
@@ -43,16 +47,22 @@ builder.Services.AddHttpClient<IMediaServiceClient, MediaServiceClient>(client =
 // CategoryApiClient removed - categories are now handled locally
 builder.Services.AddSwaggerDocs("Product Service");
 
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 // EF Core registration specific to the service
 builder.Services.AddDbContext<ProductDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
+
+// EF Core registration specific to the service
+builder.Services.AddDbContext<CustomerDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddSaanjhiHealthChecks(builder.Configuration).AddSaanjhiServiceHealthCheck("Media Service", 
     builder.Configuration["Services:MediaService:BaseUrl"] ?? string.Empty);
-builder.Services.AddAutoMapper(appAssembly);
+
 
 var app = builder.Build();
 app.ApplyMigrations<ProductDbContext>();
+app.ApplyMigrations<CustomerDbContext>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

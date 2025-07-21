@@ -3,9 +3,8 @@ using Shared.Domain.Entities;
 
 namespace CustomerService.Domain.Entities;
 
-public class Address : AuditableEntity
+public class Address : BaseEntity
 {
-    public Guid Id { get; set; }
     public Guid CustomerId { get; set; }
     public string Line1 { get; set; } = default!;
     public string? Line2 { get; set; }

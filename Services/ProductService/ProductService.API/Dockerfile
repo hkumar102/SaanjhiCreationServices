@@ -15,11 +15,14 @@ EXPOSE 443
 # Copy solution and csproj files
 COPY SaanjhiCreation.sln ./
 
-# Copy ProductService and Shared project files
+
+# Copy ProductService, CustomerService, and Shared project files
 COPY Services/ProductService/ProductService.API/*.csproj ./Services/ProductService/ProductService.API/
 COPY Services/ProductService/ProductService.Application/*.csproj ./Services/ProductService/ProductService.Application/
 COPY Services/ProductService/ProductService.Domain/*.csproj ./Services/ProductService/ProductService.Domain/
 COPY Services/ProductService/ProductService.Infrastructure/*.csproj ./Services/ProductService/ProductService.Infrastructure/
+COPY Services/CustomerService/CustomerService.Application/*.csproj ./Services/CustomerService/CustomerService.Application/
+COPY Services/CustomerService/CustomerService.Infrastructure/*.csproj ./Services/CustomerService/CustomerService.Infrastructure/
 COPY Services/CategoryService/CategoryService.Contracts/*.csproj ./Services/CategoryService/CategoryService.Contracts/
 COPY Shared/Shared.*/*.csproj ./Shared/
 

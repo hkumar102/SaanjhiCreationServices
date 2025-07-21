@@ -13,13 +13,14 @@ using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var appAssembly = Assembly.Load("MediaService.Application");
 
 builder.UseSharedSentry();
 builder.Services.AddSharedTelemetry(builder.Configuration, "MediaService");
 
 // Common shared service registration
-builder.Services.AddApplicationServices(appAssembly, builder.Configuration);
+var appAssembly = "MediaService.Application";
+builder.Services.RegisterAssemblyServices(appAssembly);
+builder.Services.AddApplicationServices(builder.Configuration);
 
 // MediaService specific services
 builder.Services.AddScoped<IMediaUploader, ImageKitMediaUploader>();
@@ -48,7 +49,6 @@ builder.Services.AddDbContext<MediaDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSaanjhiHealthChecks(builder.Configuration);
-builder.Services.AddAutoMapper(appAssembly);
 
 var app = builder.Build();
 app.ApplyMigrations<MediaDbContext>();

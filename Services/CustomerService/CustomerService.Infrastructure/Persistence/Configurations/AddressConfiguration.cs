@@ -1,13 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using CustomerService.Domain.Entities;
+using Shared.Infrastructure.Configurations;
 
 namespace CustomerService.Infrastructure.Persistence.Configurations;
 
-public class AddressConfiguration : IEntityTypeConfiguration<Address>
+public class AddressConfiguration : BaseEntityConfiguration<Address>
 {
-    public void Configure(EntityTypeBuilder<Address> builder)
+    public override void Configure(EntityTypeBuilder<Address> builder)
     {
+        base.Configure(builder);
         builder.HasKey(a => a.Id);
 
         builder.Property(a => a.Line1)

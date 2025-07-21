@@ -2,9 +2,8 @@ using Shared.Domain.Entities;
 
 namespace CustomerService.Domain.Entities;
 
-public class Customer : AuditableEntity
+public class Customer : BaseEntity
 {
-    public Guid Id { get; set; }
     public Guid? UserId { get; set; }
     public string Name { get; set; } = default!;
     public string Email { get; set; } = default!;

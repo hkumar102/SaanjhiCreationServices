@@ -6,28 +6,34 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Shared.Authentication;
+using AutoMapper;
 
 namespace Shared.Extensions;
 
 public static class ServiceCollectionExtensions
 {
     /// <summary>
+    /// Registers MediatR and FluentValidation using the provided assembly name.
+    /// </summary>
+    public static IServiceCollection RegisterAssemblyServices(this IServiceCollection services, string assemblyName)
+    {
+        var assembly = Assembly.Load(assemblyName);
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
+        services.AddFluentValidationAutoValidation();
+        services.AddValidatorsFromAssembly(assembly);
+        services.AddAutoMapper(assembly);
+        return services;
+    }
+    /// <summary>
     /// Registers common application services like MediatR, FluentValidation, Swagger, and FirebaseAuth.
     /// </summary>
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, Assembly applicationAssembly, IConfiguration configuration)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<ICurrentUserService, FirebaseCurrentUserService>();
 
         //Firebase Authentication
         var firebaseConfig = configuration["FirebaseSecretPath"];
         FirebaseInitializer.InitializeFirebase(firebaseConfig);
-        
-        // MediatR
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationAssembly));
-
-        // FluentValidation
-        services.AddFluentValidationAutoValidation();
-        services.AddValidatorsFromAssembly(applicationAssembly);
         
         services.AddAuthentication(options =>
         {
