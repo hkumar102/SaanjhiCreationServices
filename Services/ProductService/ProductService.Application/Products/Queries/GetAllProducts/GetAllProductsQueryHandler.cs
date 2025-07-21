@@ -1,5 +1,3 @@
-using Shared.Extensions;
-using Shared.Extensions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -25,7 +23,7 @@ public class GetAllProductsQueryHandler(
         try
         {
             // Build base query with includes
-            var query = db.Products.AsQueryable();
+            var query = db.Products.Include(p => p.Category).AsQueryable();
 
             // Include media if requested
             if (request.IncludeMedia)
@@ -255,9 +253,6 @@ public class GetAllProductsQueryHandler(
 
     private async Task EnhanceProductDtos(List<ProductDto> items, GetAllProductsQuery request, CancellationToken cancellationToken)
     {
-        // Fetch categories in bulk
-        await FetchCategoryNames(items, cancellationToken);
-
         // Calculate inventory counts
         CalculateInventoryCounts(items);
 
@@ -265,27 +260,6 @@ public class GetAllProductsQueryHandler(
         if (request.OrganizeMediaByColor && request.IncludeMedia)
         {
             OrganizeMediaByColor(items);
-        }
-    }
-
-    private async Task FetchCategoryNames(List<ProductDto> items, CancellationToken cancellationToken)
-    {
-        var categoryIds = items.Select(p => p.CategoryId).Distinct().ToList();
-        logger.LogDebug("Fetching {CategoryCount} categories from local database", categoryIds.Count);
-        
-        var categories = await db.Categories
-            .Where(c => categoryIds.Contains(c.Id))
-            .Select(c => new { c.Id, c.Name })
-            .ToListAsync(cancellationToken);
-            
-        logger.LogDebug("Received {CategoryCount} categories from local database", categories.Count);
-
-        // Map category names to products
-        var categoryDict = categories.ToDictionary(c => c.Id, c => c.Name);
-        foreach (var dto in items)
-        {
-            if (dto.CategoryId != Guid.Empty && categoryDict.TryGetValue(dto.CategoryId, out var name))
-                dto.CategoryName = name;
         }
     }
 

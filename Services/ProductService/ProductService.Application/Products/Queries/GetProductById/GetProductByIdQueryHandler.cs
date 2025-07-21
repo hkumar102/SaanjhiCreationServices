@@ -22,7 +22,7 @@ public class GetProductByIdQueryHandler(
             logger.LogDebug("Fetching product with ID: {ProductId} from database", request.Id);
             
             // Build query with conditional includes
-            var query = db.Products.AsQueryable();
+            var query = db.Products.Include(p => p.Category).AsQueryable();
 
             if (request.IncludeMedia)
             {
@@ -58,9 +58,6 @@ public class GetProductByIdQueryHandler(
 
     private async Task EnhanceProductDto(ProductDto productDto, GetProductByIdQuery request, CancellationToken cancellationToken)
     {
-        // Fetch category name
-        await FetchCategoryName(productDto, cancellationToken);
-
         // Calculate inventory counts
         CalculateInventoryCounts(productDto);
 
@@ -69,18 +66,6 @@ public class GetProductByIdQueryHandler(
         {
             OrganizeMediaByColor(productDto);
         }
-    }
-
-    private async Task FetchCategoryName(ProductDto productDto, CancellationToken cancellationToken)
-    {
-        logger.LogDebug("Fetching category with ID: {CategoryId} from local database", productDto.CategoryId);
-        var category = await db.Categories
-            .Where(c => c.Id == productDto.CategoryId)
-            .Select(c => new { c.Name })
-            .FirstOrDefaultAsync(cancellationToken);
-            
-        productDto.CategoryName = category?.Name ?? string.Empty;
-        logger.LogDebug("Successfully retrieved category: {CategoryName}", category?.Name);
     }
 
     private void CalculateInventoryCounts(ProductDto productDto)

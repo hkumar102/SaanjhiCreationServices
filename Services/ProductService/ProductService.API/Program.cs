@@ -11,6 +11,7 @@ using Shared.Extensions;
 using Shared.HealthChecks;
 using Shared.Infrastructure.Extensions;
 using CustomerService.Infrastructure.Persistence;
+using Shared.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,7 @@ builder.Services.AddSharedInfrastructure();
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddTransient<AuthenticatedHttpClientHandler>();
 builder.Services.AddTransient<ITokenProvider, TokenProvider>();
+builder.Services.AddScoped<BarcodeQrCodeClient>();
 
 // MediaService HTTP client
 builder.Services.AddHttpClient<IMediaServiceClient, MediaServiceClient>(client =>

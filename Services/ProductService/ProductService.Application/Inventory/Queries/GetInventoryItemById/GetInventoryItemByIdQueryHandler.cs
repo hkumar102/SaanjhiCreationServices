@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +21,7 @@ public class GetInventoryItemByIdQueryHandler : IRequestHandler<GetInventoryItem
     public async Task<InventoryItemDto> Handle(GetInventoryItemByIdQuery request, CancellationToken cancellationToken)
     {
         var entity = await _db.InventoryItems
+            .Include(i => i.Product) // Include Product to get product details
             .AsNoTracking()
             .FirstOrDefaultAsync(i => i.Id == request.InventoryItemId, cancellationToken);
 

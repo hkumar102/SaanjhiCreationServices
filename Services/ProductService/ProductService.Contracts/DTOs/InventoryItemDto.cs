@@ -15,6 +15,8 @@ public class InventoryItemDto
     public string Color { get; set; } = null!;
     public string? SerialNumber { get; set; }
     public string? BarcodeImageBase64 { get; set; }
+    public string? QRCodeImageBase64 { get; set; } // QR code image as Base64 string
+
     
     // Item Status and Condition
     public InventoryStatus Status { get; set; }
@@ -44,6 +46,9 @@ public class InventoryItemDto
     // Computed Properties
     public bool IsAvailable { get; set; }
     public int DaysSinceLastRented { get; set; }
+
+    public string[] AvailableSizes { get; set; } = Array.Empty<string>();
+    public string[] AvailableColors { get; set; } = Array.Empty<string>();
     
     // Audit Information
     public DateTime CreatedAt { get; set; }

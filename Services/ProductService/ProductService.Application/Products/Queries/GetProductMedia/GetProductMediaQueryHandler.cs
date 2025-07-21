@@ -21,7 +21,7 @@ public class GetProductMediaQueryHandler(
         try
         {
             // Verify product exists
-            var productExists = await db.Products.AnyAsync(p => p.Id == request.ProductId, cancellationToken);
+            var productExists = await db.Products.Include(p => p.Category).AnyAsync(p => p.Id == request.ProductId, cancellationToken);
             if (!productExists)
             {
                 throw new KeyNotFoundException($"Product with ID {request.ProductId} not found");

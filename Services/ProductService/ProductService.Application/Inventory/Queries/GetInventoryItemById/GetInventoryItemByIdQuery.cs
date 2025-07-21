@@ -1,6 +1,5 @@
 using MediatR;
 using ProductService.Contracts.DTOs;
-using System;
 
 namespace ProductService.Application.Inventory.Queries.GetInventoryItemById;
 

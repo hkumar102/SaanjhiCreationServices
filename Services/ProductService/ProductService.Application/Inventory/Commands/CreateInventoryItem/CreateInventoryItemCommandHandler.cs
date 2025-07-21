@@ -5,23 +5,34 @@ using Microsoft.Extensions.Logging;
 using ProductService.Contracts.DTOs;
 using ProductService.Domain.Entities;
 using ProductService.Infrastructure.Persistence;
-using SkiaSharp;
-using ZXing;
-using ZXing.Common;
-using ZXing.SkiaSharp.Rendering;
+
+using ProductService.Application.Common.Utils;
+using Shared.Utils;
 
 namespace ProductService.Application.Inventory.Commands.CreateInventoryItem;
 
-public class CreateInventoryItemCommandHandler(
-    ProductDbContext db, 
-    IMapper mapper,
-    ILogger<CreateInventoryItemCommandHandler> logger)
-    : IRequestHandler<CreateInventoryItemCommand, InventoryItemDto>
+public class CreateInventoryItemCommandHandler : IRequestHandler<CreateInventoryItemCommand, InventoryItemDto>
 {
+    private readonly ProductDbContext db;
+    private readonly IMapper mapper;
+    private readonly ILogger<CreateInventoryItemCommandHandler> logger;
+    private readonly BarcodeQrCodeClient barcodeQrCodeClient;
+
+    public CreateInventoryItemCommandHandler(
+        ProductDbContext db,
+        IMapper mapper,
+        ILogger<CreateInventoryItemCommandHandler> logger,
+        BarcodeQrCodeClient barcodeQrCodeClient)
+    {
+        this.db = db;
+        this.mapper = mapper;
+        this.logger = logger;
+        this.barcodeQrCodeClient = barcodeQrCodeClient;
+    }
+
     public async Task<InventoryItemDto> Handle(CreateInventoryItemCommand request, CancellationToken cancellationToken)
     {
         logger.LogDebug("Starting CreateInventoryItemCommand execution for ProductId: {ProductId}", request.ProductId);
-
         try
         {
             // Verify product exists and get available sizes/colors (include Category)
@@ -54,22 +65,15 @@ public class CreateInventoryItemCommandHandler(
 
 
             // Generate unique serial number with new format
-            string serialNumber;
-            int serialTries = 0;
-            do
-            {
-                serialNumber = GenerateSerialNumber(request.ProductId, productName, categoryName, request.Color, request.Size);
-                serialTries++;
-                // If we ever get stuck, break after 10 tries (should never happen)
-                if (serialTries > 10)
-                    throw new Exception("Failed to generate unique serial number after 10 attempts");
-            }
-            while (await db.InventoryItems.AnyAsync(i => i.SerialNumber == serialNumber, cancellationToken));
 
-            // Generate barcode image as Base64
-            var barcodeImageBase64 = GenerateBarcodeBase64(serialNumber);
+            string serialNumber = SerialNumberGenerator.Generate();
+
+            // Generate barcode and QR code images as Base64 using shared HTTP client
+            var barcodeImageBase64 = await barcodeQrCodeClient.GetBarcodeBase64Async(serialNumber);
+            var qrCodeImageBase64 = await barcodeQrCodeClient.GetQrCodeBase64Async(serialNumber);
 
             // Create inventory item
+
             var inventoryItem = new InventoryItem
             {
                 Id = Guid.NewGuid(),
@@ -85,6 +89,7 @@ public class CreateInventoryItemCommandHandler(
                 TimesRented = 0,
                 SerialNumber = serialNumber,
                 BarcodeImageBase64 = barcodeImageBase64,
+                QRCodeImageBase64 = qrCodeImageBase64,
                 WarehouseLocation = request.WarehouseLocation
             };
 
@@ -102,40 +107,5 @@ public class CreateInventoryItemCommandHandler(
             logger.LogError(ex, "Error occurred while executing CreateInventoryItemCommand for ProductId: {ProductId}", request.ProductId);
             throw;
         }
-    }
-
-    private static string GenerateSerialNumber(Guid productId, string productName, string categoryName, string color, string size)
-    {
-        // Format: INV-YYYYMMDDHHMMSSffffff (timestamp to microseconds)
-        var now = DateTime.UtcNow;
-        string timestamp = now.ToString("yyyyMMddHHmmssffffff");
-        return $"INV-{timestamp}";
-    }
-    
-    
-    public static byte[] GenerateBarcode(string text, int width = 300, int height = 100)
-    {
-        var writer = new BarcodeWriter<SKBitmap>
-        {
-            Format = BarcodeFormat.CODE_128,
-            Options = new EncodingOptions
-            {
-                Width = width,
-                Height = height,
-                Margin = 10
-            },
-            Renderer = new SKBitmapRenderer()
-        };
-
-        using var bitmap = writer.Write(text);
-        using var image = SKImage.FromBitmap(bitmap);
-        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
-
-        return data.ToArray();
-    }
-    private static string GenerateBarcodeBase64(string value)
-    {
-        var barcodeArray = GenerateBarcode(value);
-        return Convert.ToBase64String(barcodeArray);
     }
 }

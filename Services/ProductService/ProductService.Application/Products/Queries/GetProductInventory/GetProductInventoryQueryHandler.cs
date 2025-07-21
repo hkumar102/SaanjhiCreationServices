@@ -29,6 +29,7 @@ public class GetProductInventoryQueryHandler(
 
             // Build query with filters - using navigation property from Product
             var query = db.Products
+                .Include(p => p.Category)
                 .Where(p => p.Id == request.ProductId)
                 .SelectMany(p => p.InventoryItems);
 

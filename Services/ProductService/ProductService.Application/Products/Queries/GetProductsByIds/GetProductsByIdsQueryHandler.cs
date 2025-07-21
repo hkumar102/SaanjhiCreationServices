@@ -28,6 +28,7 @@ public class GetProductsByIdsQueryHandler(
             logger.LogDebug("Fetching products from database for IDs: {ProductIds}", request.ProductIds);
             var products = await db.Products
                 .Include(p => p.Media)
+                .Include(p => p.Category)
                 .Where(p => request.ProductIds.Contains(p.Id))
                 .ToListAsync(cancellationToken);
 

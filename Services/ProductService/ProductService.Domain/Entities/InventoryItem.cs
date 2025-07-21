@@ -18,6 +18,7 @@ public class InventoryItem : BaseEntity
     public string Color { get; set; } = null!; // "Black", "Navy", etc.
     public string? SerialNumber { get; set; } // Unique identifier for this specific item
     public string? BarcodeImageBase64 { get; set; } // Barcode image as Base64 string
+    public string? QRCodeImageBase64 { get; set; } // QR code image as Base64 string
 
     // Item Status & Condition
     public InventoryStatus Status { get; set; } = InventoryStatus.Available;

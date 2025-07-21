@@ -40,7 +40,7 @@ public class ProductMappingProfile : Profile
         CreateMap<Product, ProductDto>()
             .ForMember(dest => dest.Media, opt => opt.MapFrom(src => src.Media))
             .ForMember(dest => dest.InventoryItems, opt => opt.MapFrom(src => src.InventoryItems))
-            .ForMember(dest => dest.CategoryName, opt => opt.Ignore())
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
             .ForMember(dest => dest.TotalInventoryCount, opt => opt.Ignore())
             .ForMember(dest => dest.AvailableInventoryCount, opt => opt.Ignore())
             .ForMember(dest => dest.MediaByColor, opt => opt.Ignore())
@@ -52,7 +52,9 @@ public class ProductMappingProfile : Profile
         // Inventory mappings
         CreateMap<InventoryItem, InventoryItemDto>()
             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
-            .ForMember(dest => dest.ProductBrand, opt => opt.MapFrom(src => src.Product.Brand));
+            .ForMember(dest => dest.ProductBrand, opt => opt.MapFrom(src => src.Product.Brand))
+            .ForMember(dest => dest.AvailableSizes, opt => opt.MapFrom(src => src.Product.AvailableSizes))
+            .ForMember(dest => dest.AvailableColors, opt => opt.MapFrom(src => src.Product.AvailableColors));
 
         // Media mappings
         CreateMap<ProductMediaDto, ProductMedia>()

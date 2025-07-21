@@ -1,7 +1,10 @@
+
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.Inventory.Commands.CreateInventoryItem;
+using ProductService.Application.Inventory.Commands.GenerateInventoryCodes;
 using ProductService.Application.Inventory.Commands.UpdateInventoryItem;
+using ProductService.Application.Inventory.Queries.GetInventoryItemBySerialNumber;
 using ProductService.Application.Inventory.Queries.SearchInventory;
 using ProductService.Application.Products.Commands.UpdateInventoryStatus;
 using ProductService.Application.Products.Queries.GetProductInventory;
@@ -113,7 +116,7 @@ public class InventoryController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(command);
         return Ok(result);
     }
-    
+
     /// <summary>
     /// Search inventory items with pagination, filtering, and sorting.
     /// </summary>
@@ -127,6 +130,35 @@ public class InventoryController(IMediator mediator) : ControllerBase
     public async Task<ActionResult<PaginatedResult<InventoryItemDto>>> SearchInventory([FromBody] SearchInventoryQuery query)
     {
         var result = await mediator.Send(query);
+        return Ok(result);
+    }
+
+        /// <summary>
+    /// Generate barcode and QR code for an inventory item by ID
+    /// </summary>
+    /// <param name="inventoryItemId">Inventory item ID</param>
+    /// <returns>Base64 barcode and QR code images</returns>
+    [HttpPost("{inventoryItemId:guid}/generate-codes")]
+    public async Task<ActionResult<GenerateInventoryCodesResult>> GenerateInventoryCodes(Guid inventoryItemId)
+    {
+        var result = await mediator.Send(new GenerateInventoryCodesCommand
+        {
+            InventoryItemId = inventoryItemId
+        });
+        return Ok(result);
+    }
+        
+    /// <summary>
+    /// Get inventory item by serial number
+    /// </summary>
+    /// <param name="serialNumber">Inventory item serial number</param>
+    /// <returns>Inventory item details</returns>
+    [HttpGet("by-serial/{serialNumber}")]
+    public async Task<ActionResult<InventoryItemDto>> GetInventoryItemBySerialNumber(string serialNumber)
+    {
+        var result = await mediator.Send(new GetInventoryItemBySerialNumberQuery(serialNumber));
+        if (result == null)
+            return NotFound();
         return Ok(result);
     }
 }
