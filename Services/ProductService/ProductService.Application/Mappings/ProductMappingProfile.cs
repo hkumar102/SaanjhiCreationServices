@@ -54,7 +54,8 @@ public class ProductMappingProfile : Profile
             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
             .ForMember(dest => dest.ProductBrand, opt => opt.MapFrom(src => src.Product.Brand))
             .ForMember(dest => dest.AvailableSizes, opt => opt.MapFrom(src => src.Product.AvailableSizes))
-            .ForMember(dest => dest.AvailableColors, opt => opt.MapFrom(src => src.Product.AvailableColors));
+            .ForMember(dest => dest.AvailableColors, opt => opt.MapFrom(src => src.Product.AvailableColors))
+            .ForMember(dest => dest.Media, opt => opt.MapFrom(src => src.Product.Media));
 
         // Media mappings
         CreateMap<ProductMediaDto, ProductMedia>()

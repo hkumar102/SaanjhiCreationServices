@@ -3,9 +3,8 @@ using Shared.Domain.Entities;
 
 namespace RentalService.Domain.Entities;
 
-public class Rental : AuditableEntity
+public class Rental : BaseEntity
 {
-    public Guid Id { get; set; }
 
     // Product & Inventory References
     public Guid ProductId { get; set; } // Reference to Product (catalog item)
@@ -15,6 +14,7 @@ public class Rental : AuditableEntity
     // Rental Period
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
+    public DateTime? ActualStartDate { get; set; } // When item was actually delivered/picked up
     public DateTime? ActualReturnDate { get; set; } // When item was actually returned
 
     // Pricing
@@ -36,14 +36,20 @@ public class Rental : AuditableEntity
     public string? Shoulder { get; set; }
     public string? SleeveLength { get; set; }
     public string? Inseam { get; set; }
-    
+
+
     // Business Properties
-    public int BookNumber { get; set; } 
+    public int BookNumber { get; set; }
     public string? Notes { get; set; } // Optional additional notes
     public string? ReturnConditionNotes { get; set; } // Condition when returned
+    public string RentalNumber { get; set; } // User-friendly reference number
+
 
     // Calculated Properties
     public int RentalDays => (int)(EndDate - StartDate).TotalDays + 1;
     public bool IsOverdue => DateTime.UtcNow > EndDate && Status != RentalStatus.Returned;
     public decimal TotalAmount => RentalPrice + SecurityDeposit + (LateFee ?? 0) + (DamageFee ?? 0);
+
+    // Navigation Properties
+    public ICollection<RentalTimeline> Timelines { get; set; } = new List<RentalTimeline>();
 }

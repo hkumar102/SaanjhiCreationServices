@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RentalService.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using RentalService.Infrastructure.Persistence;
 namespace RentalService.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    partial class RentalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250722035351_RentalAddedSomeFields")]
+    partial class RentalAddedSomeFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,8 +48,7 @@ namespace RentalService.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
@@ -56,13 +58,6 @@ namespace RentalService.Infrastructure.Data.Migrations
 
                     b.Property<decimal?>("DamageFee")
                         .HasColumnType("numeric");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
@@ -82,11 +77,6 @@ namespace RentalService.Infrastructure.Data.Migrations
                     b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
                     b.Property<decimal?>("LateFee")
                         .HasColumnType("numeric");
 
@@ -94,8 +84,7 @@ namespace RentalService.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ModifiedBy")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -104,20 +93,11 @@ namespace RentalService.Infrastructure.Data.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("RentalNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<decimal>("RentalPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ReturnConditionNotes")
                         .HasColumnType("text");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
 
                     b.Property<decimal>("SecurityDeposit")
                         .HasColumnType("decimal(18,2)");
@@ -145,71 +125,11 @@ namespace RentalService.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedAt");
-
                     b.HasIndex("CustomerId");
-
-                    b.HasIndex("IsDeleted");
 
                     b.HasIndex("ProductId");
 
                     b.ToTable("Rentals", (string)null);
-                });
-
-            modelBuilder.Entity("RentalService.Domain.Entities.RentalTimeline", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<Guid>("RentalId")
-                        .HasColumnType("uuid");
-
-                    b.Property<byte[]>("RowVersion")
-                        .HasColumnType("bytea");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RentalId");
-
-                    b.ToTable("RentalTimeline", (string)null);
-                });
-
-            modelBuilder.Entity("RentalService.Domain.Entities.RentalTimeline", b =>
-                {
-                    b.HasOne("RentalService.Domain.Entities.Rental", null)
-                        .WithMany()
-                        .HasForeignKey("RentalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

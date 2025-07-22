@@ -22,6 +22,7 @@ public class GetInventoryItemByIdQueryHandler : IRequestHandler<GetInventoryItem
     {
         var entity = await _db.InventoryItems
             .Include(i => i.Product) // Include Product to get product details
+            .ThenInclude(p => p.Media) // Include Product Media
             .AsNoTracking()
             .FirstOrDefaultAsync(i => i.Id == request.InventoryItemId, cancellationToken);
 

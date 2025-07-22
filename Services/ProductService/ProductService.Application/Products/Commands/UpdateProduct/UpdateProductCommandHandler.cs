@@ -8,7 +8,7 @@ using ProductService.Domain.Entities;
 namespace ProductService.Application.Products.Commands.UpdateProduct;
 
 public class UpdateProductCommandHandler(
-    ProductDbContext db, 
+    ProductDbContext db,
     IMapper mapper,
     ILogger<UpdateProductCommandHandler> logger) : IRequestHandler<UpdateProductCommand>
 {
@@ -35,17 +35,20 @@ public class UpdateProductCommandHandler(
             // Remove existing media
             db.ProductMedia.RemoveRange(product.Media);
             await db.SaveChangesAsync(cancellationToken);
-            
+
             logger.LogDebug("Removed {MediaCount} existing media items", product.Media.Count);
 
             // Update product properties
             mapper.Map(request, product);
             product.Media = mapper.Map<List<ProductMedia>>(request.Media);
-            
+            if (string.IsNullOrWhiteSpace(product.SKU))
+            {
+                product.SKU = GenerateSku(product.Name, product.CategoryId);
+            }
             logger.LogDebug("Updated product properties and added {NewMediaCount} new media items", request.Media?.Count ?? 0);
 
             await db.SaveChangesAsync(cancellationToken);
-            
+
             logger.LogDebug("UpdateProductCommand completed successfully for ProductId: {ProductId}", request.Id);
         }
         catch (Exception ex)
@@ -53,5 +56,13 @@ public class UpdateProductCommandHandler(
             logger.LogError(ex, "Error occurred while executing UpdateProductCommand for ProductId: {ProductId}", request.Id);
             throw;
         }
+    }
+
+    private static string GenerateSku(string? name, Guid categoryId)
+    {
+        var categoryCode = categoryId.ToString().Substring(0, 4).ToUpper();
+        var slug = (name ?? "product").ToLower().Replace(" ", "-");
+        var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        return $"SKU-{slug}-{categoryCode}-{timestamp}";
     }
 }

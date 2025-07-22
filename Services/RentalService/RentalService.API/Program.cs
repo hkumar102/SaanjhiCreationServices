@@ -8,6 +8,7 @@ using Shared.Extensions.Telemetry;
 using RentalService.Infrastructure.Persistence;
 using Shared.Extensions;
 using Shared.HealthChecks;
+using Shared.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,9 @@ builder.Services.AddHttpClient<IProductApiClient, ProductApiClient>(c =>
         if (categoryServiceUrl != null) c.BaseAddress = new Uri(categoryServiceUrl);
     })
     .AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
+
+// Add shared infrastructure services (includes ICurrentUserService)
+builder.Services.AddSharedInfrastructure();
 builder.Services.AddSwaggerDocs("Rental Service");
 
 // EF Core registration specific to the service

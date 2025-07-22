@@ -26,7 +26,7 @@ public class GetInventoryItemBySerialNumberQueryHandler : IRequestHandler<GetInv
     public async Task<InventoryItemDto?> Handle(GetInventoryItemBySerialNumberQuery request, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Handling GetInventoryItemBySerialNumberQuery for SerialNumber: {SerialNumber}", request.SerialNumber);
-        var entity = await _db.InventoryItems.Include(i => i.Product).FirstOrDefaultAsync(i => i.SerialNumber == request.SerialNumber, cancellationToken);
+        var entity = await _db.InventoryItems.Include(i => i.Product).ThenInclude(p => p.Media).FirstOrDefaultAsync(i => i.SerialNumber == request.SerialNumber, cancellationToken);
         if (entity == null)
         {
             _logger.LogDebug("No inventory item found for SerialNumber: {SerialNumber}", request.SerialNumber);

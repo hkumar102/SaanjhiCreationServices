@@ -18,7 +18,7 @@ public class SearchInventoryQueryHandler(
     {
         logger.LogDebug("Starting SearchInventoryQuery: Page={Page}, PageSize={PageSize}", request.Page, request.PageSize);
 
-        var query = db.InventoryItems.Include(i => i.Product).AsQueryable();
+        var query = db.InventoryItems.Include(i => i.Product).ThenInclude(p => p.Media).AsQueryable();
 
         if(!string.IsNullOrWhiteSpace(request.SerialNumber))
         {

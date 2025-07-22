@@ -1,21 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RentalService.Domain.Entities;
+using Shared.Infrastructure.Configurations;
 
 namespace RentalService.Infrastructure.Persistence.Configurations;
 
-public class RentalConfiguration : IEntityTypeConfiguration<Rental>
+public class RentalConfiguration : BaseEntityConfiguration<Rental>
 {
-    public void Configure(EntityTypeBuilder<Rental> builder)
+    public override void Configure(EntityTypeBuilder<Rental> builder)
     {
+        base.Configure(builder);
         builder.HasKey(r => r.Id);
 
         builder.Property(r => r.RentalPrice).HasColumnType("decimal(18,2)");
         builder.Property(r => r.SecurityDeposit).HasColumnType("decimal(18,2)");
 
         builder.Property(r => r.Status)
-            .HasConversion<string>()
-            .HasMaxLength(20);
+            .HasConversion<int>()
+            .IsRequired();
 
         // Optional measurement fields
         builder.Property(r => r.Height).HasMaxLength(50);
@@ -34,6 +36,11 @@ public class RentalConfiguration : IEntityTypeConfiguration<Rental>
         // Optional: explicitly define FK constraints (without navigation)
         builder.Property(r => r.ProductId).IsRequired();
         builder.Property(r => r.CustomerId).IsRequired();
+
+        builder.HasMany(r => r.Timelines)
+            .WithOne()
+            .HasForeignKey(rt => rt.RentalId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.ToTable("Rentals");
     }

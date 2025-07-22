@@ -27,7 +27,10 @@ public class GetRentalsQueryHandler(
 
         try
         {
-            var query = dbContext.Rentals.AsNoTracking().AsQueryable();
+            var query = dbContext.Rentals
+                .AsNoTracking()
+                .Include(r => r.Timelines)
+                .AsQueryable();
 
             // Filtering
             if (request.CustomerIds != null && request.CustomerIds.Any())
@@ -52,6 +55,12 @@ public class GetRentalsQueryHandler(
             {
                 logger.LogDebug("Filtering by ToDate: {ToDate}", request.ToDate);
                 query = query.Where(r => r.EndDate <= request.ToDate);
+            }
+
+            if(request.Status.HasValue)
+            {
+                logger.LogDebug("Filtering by Status: {Status}", request.Status);
+                query = query.Where(r => r.Status == request.Status.Value);
             }
 
             // Sorting (basic dynamic sort)

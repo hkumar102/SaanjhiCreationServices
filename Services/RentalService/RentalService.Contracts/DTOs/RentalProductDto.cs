@@ -7,6 +7,7 @@ public class RentalProductDto
     public string? Description { get; set; }
     public required string CategoryName { get; set; }
     public List<RentalProductMediaDto> Media { get; set; } = new();
+    public RentalProductMediaDto? MainImage { get; set; }
 }
 
 public class RentalProductMediaDto

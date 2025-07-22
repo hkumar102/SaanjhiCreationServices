@@ -28,7 +28,7 @@ public class GetInventoryByProductIdQueryHandler(
             }
 
             // Build query with filters
-            var query = db.InventoryItems.Include(i => i.Product).Where(i => i.ProductId == request.ProductId);
+            var query = db.InventoryItems.Include(i => i.Product).ThenInclude(p => p.Media).Where(i => i.ProductId == request.ProductId);
 
             // Apply filters
             if (!string.IsNullOrWhiteSpace(request.Size))
