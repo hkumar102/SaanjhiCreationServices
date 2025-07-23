@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProductService.Contracts.DTOs;
+using ProductService.Contracts.Enums;
 using ProductService.Infrastructure.Persistence;
 using Shared.ErrorHandling;
 
@@ -24,7 +25,7 @@ public class UpdateInventoryItemCommandHandler(
                 throw new KeyNotFoundException($"InventoryItem with ID {request.Id} not found");
 
             // if item status is rented then inventory status cannot be updated
-            if (item.Status == Rented && request.Status.HasValue && request.Status.Value != item.Status)
+            if (item.Status == InventoryStatus.Rented && request.Status.HasValue && request.Status.Value != item.Status)
             {
                 logger.LogError("Cannot update inventory item status while it is rented. InventoryItemId: {InventoryItemId}", item.Id);
                 throw new BusinessRuleException("Cannot update inventory item status while it is rented.");
