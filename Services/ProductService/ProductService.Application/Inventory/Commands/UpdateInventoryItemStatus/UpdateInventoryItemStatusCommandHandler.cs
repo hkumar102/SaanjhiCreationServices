@@ -39,7 +39,7 @@ public class UpdateInventoryItemStatusCommandHandler(
                     : $"{inventoryItem.ConditionNotes}\n[{DateTime.UtcNow:yyyy-MM-dd HH:mm}] {request.Notes}";
                 inventoryItem.ConditionNotes = updatedNotes;
             }
-            
+
             // Handle specific status transitions
             switch (request.Status)
             {
@@ -49,7 +49,7 @@ public class UpdateInventoryItemStatusCommandHandler(
                     break;
                 case Contracts.Enums.InventoryStatus.Available when oldStatus == Contracts.Enums.InventoryStatus.Rented:
                     // Update last rented date when returning from rental
-                    inventoryItem.LastRentedDate = DateTime.UtcNow;
+                    inventoryItem.LastMaintenanceDate = DateTime.UtcNow;
                     break;
                 case Contracts.Enums.InventoryStatus.Damaged:
                 case Contracts.Enums.InventoryStatus.Retired:
