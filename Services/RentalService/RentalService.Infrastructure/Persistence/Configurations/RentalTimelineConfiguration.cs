@@ -8,12 +8,11 @@ namespace RentalService.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<RentalTimeline> builder)
         {
-            builder.HasKey(rt => rt.Id);
             builder.Property(rt => rt.Status).IsRequired();
             builder.Property(rt => rt.Notes).HasMaxLength(500);
             builder.HasIndex(rt => rt.RentalId);
-            builder.HasOne<Rental>()
-                .WithMany()
+            builder.HasOne(rt => rt.Rental)
+                .WithMany(r => r.Timelines)
                 .HasForeignKey(rt => rt.RentalId)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.ToTable("RentalTimeline");

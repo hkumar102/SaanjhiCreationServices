@@ -13,6 +13,7 @@ public class RentalDto
 
     public RentalProductDto Product { get; set; } = null!;
     public RentalCustomerDto Customer { get; set; } = null!;
+    public RentalInventoryItemDto InventoryItem { get; set; } = null!;
     public Guid ShippingAddressId { get; set; }
     public string? ShippingAddress { get; set; } // populated via CustomerApiClient
 
@@ -45,11 +46,14 @@ public class RentalDto
     public int BookNumber { get; set; }
     public string? Notes { get; set; }
     public string? ReturnConditionNotes { get; set; }
-    public string RentalNumber { get; set; } = null!;
+    public string RentalNumber { get; set; } = string.Empty;
 
 
     // Calculated Properties
     public int RentalDays { get; set; }
     public bool IsOverdue { get; set; }
     public decimal TotalAmount { get; set; }
+
+    // Navigation Properties
+    public ICollection<RentalTimelineDto> Timelines { get; set; } = new List<RentalTimelineDto>();
 }

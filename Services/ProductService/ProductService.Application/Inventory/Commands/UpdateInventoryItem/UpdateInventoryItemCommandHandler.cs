@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProductService.Contracts.DTOs;
 using ProductService.Infrastructure.Persistence;
+using Shared.ErrorHandling;
 
 namespace ProductService.Application.Inventory.Commands.UpdateInventoryItem;
 
@@ -32,7 +33,16 @@ public class UpdateInventoryItemCommandHandler(
             if (request.WarehouseLocation != null) item.WarehouseLocation = request.WarehouseLocation;
             if (request.IsRetired.HasValue)
             {
+                // Handle retirement logic
+                // if status is rented, then inventory item cannot be retired
+                if (item.Status == Contracts.Enums.InventoryStatus.Rented && request.IsRetired.Value)
+                {
+                    logger.LogError("Cannot retire an inventory item that is currently rented. InventoryItemId: {InventoryItemId}", item.Id);
+                    throw new BusinessRuleException("Cannot retire an inventory item that is currently rented.");
+                }
+
                 item.IsRetired = request.IsRetired.Value;
+                item.Status = Contracts.Enums.InventoryStatus.Retired;
                 if (request.IsRetired.Value)
                 {
                     item.RetirementDate = DateTime.UtcNow;

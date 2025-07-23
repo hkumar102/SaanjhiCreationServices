@@ -39,7 +39,7 @@ public class UpdateInventoryItemStatusCommandHandler(
                     : $"{inventoryItem.ConditionNotes}\n[{DateTime.UtcNow:yyyy-MM-dd HH:mm}] {request.Notes}";
                 inventoryItem.ConditionNotes = updatedNotes;
             }
-
+            
             // Handle specific status transitions
             switch (request.Status)
             {

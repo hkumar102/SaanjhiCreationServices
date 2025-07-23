@@ -1,3 +1,5 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RentalService.Infrastructure.Persistence;
@@ -8,9 +10,11 @@ namespace RentalService.Application.Rentals.Queries.GetRentalTimeline
     public class GetRentalTimelineQueryHandler : IRequestHandler<GetRentalTimelineQuery, List<RentalTimelineDto>>
     {
         private readonly RentalDbContext _context;
-        public GetRentalTimelineQueryHandler(RentalDbContext context)
+        private readonly IMapper _mapper;
+        public GetRentalTimelineQueryHandler(RentalDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<List<RentalTimelineDto>> Handle(GetRentalTimelineQuery request, CancellationToken cancellationToken)
@@ -18,14 +22,7 @@ namespace RentalService.Application.Rentals.Queries.GetRentalTimeline
             var timeline = await _context.RentalTimelines
                 .Where(rt => rt.RentalId == request.RentalId)
                 .OrderBy(rt => rt.CreatedAt)
-                .Select(rt => new RentalTimelineDto
-                {
-                    Id = rt.Id,
-                    RentalId = rt.RentalId,
-                    ChangedAt = rt.CreatedAt,
-                    Status = rt.Status,
-                    Notes = rt.Notes
-                })
+                .ProjectTo<RentalTimelineDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
             return timeline;
         }

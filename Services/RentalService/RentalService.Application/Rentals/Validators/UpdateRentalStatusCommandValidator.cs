@@ -11,9 +11,9 @@ public class UpdateRentalStatusCommandValidator : AbstractValidator<UpdateRental
         RuleFor(x => x.Id).NotEmpty();
         RuleFor(x => x.Status).IsInEnum();
         // ActualStartDate required for PickedUp or Booked
-        When(x => x.Status == RentalStatus.PickedUp || x.Status == RentalStatus.Booked, () =>
+        When(x => x.Status == RentalStatus.PickedUp, () =>
         {
-            RuleFor(x => x.ActualStartDate).NotNull().WithMessage("ActualStartDate is required when marking as PickedUp or Booked.");
+            RuleFor(x => x.ActualStartDate).NotNull().WithMessage("ActualStartDate is required when marking as PickedUp / Delivered.");
         });
         // ActualReturnDate required for Returned
         When(x => x.Status == RentalStatus.Returned, () =>

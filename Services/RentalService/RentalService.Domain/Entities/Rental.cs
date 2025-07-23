@@ -42,7 +42,7 @@ public class Rental : BaseEntity
     public int BookNumber { get; set; }
     public string? Notes { get; set; } // Optional additional notes
     public string? ReturnConditionNotes { get; set; } // Condition when returned
-    public string RentalNumber { get; set; } // User-friendly reference number
+    public string RentalNumber { get; set; } = string.Empty; // User-friendly reference number
 
 
     // Calculated Properties

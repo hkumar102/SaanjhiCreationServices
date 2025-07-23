@@ -46,5 +46,7 @@ public class AddressConfiguration : BaseEntityConfiguration<Address>
             .WithMany(c => c.Addresses)
             .HasForeignKey(a => a.CustomerId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.ToTable("CustomerAddresses");
     }
 }

@@ -9,35 +9,28 @@ using Shared.Contracts.Common;
 namespace CustomerService.Application.Customers.Queries;
 
 public class GetAllCustomersQueryHandler(
-    CustomerDbContext context, 
+    CustomerDbContext context,
     IMapper mapper,
     ILogger<GetAllCustomersQueryHandler> logger)
     : IRequestHandler<GetAllCustomersQuery, PaginatedResult<CustomerDto>>
 {
     public async Task<PaginatedResult<CustomerDto>> Handle(GetAllCustomersQuery request, CancellationToken cancellationToken)
     {
-        logger.LogDebug("Starting GetAllCustomersQuery execution with Page={Page}, PageSize={PageSize}, Name={Name}, Email={Email}",
-            request.Page, request.PageSize, request.Name, request.Email);
+        logger.LogDebug("Starting GetAllCustomersQuery execution with Page={Page}, PageSize={PageSize}, Search={Search}",
+            request.Page, request.PageSize, request.Search);
 
         try
         {
             var query = context.Customers.Include(c => c.Addresses).AsQueryable();
 
-            // Filtering
-            if (!string.IsNullOrWhiteSpace(request.Name))
+            // Filtering (OR logic)
+            if (!string.IsNullOrWhiteSpace(request.Search))
             {
-                logger.LogDebug("Filtering by name: {Name}", request.Name);
-                query = query.Where(c => EF.Functions.ILike(c.Name, request.Name));
-            }
-            if (!string.IsNullOrWhiteSpace(request.Email))
-            {
-                logger.LogDebug("Filtering by email: {Email}", request.Email);
-                query = query.Where(c => EF.Functions.ILike(c.Email, request.Email));
-            }
-            if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
-            {
-                logger.LogDebug("Filtering by phone number: {PhoneNumber}", request.PhoneNumber);
-                query = query.Where(c => c.PhoneNumber != null && EF.Functions.ILike(c.PhoneNumber, request.PhoneNumber));
+                logger.LogDebug("Filtering by Search term: {Search}", request.Search);
+                query = query.Where(c =>
+                    EF.Functions.ILike(c.Name, $"%{request.Search}%") ||
+                    EF.Functions.ILike(c.Email, $"%{request.Search}%") ||
+                    (c.PhoneNumber != null && EF.Functions.ILike(c.PhoneNumber, $"%{request.Search}%")));
             }
 
             // Sorting
@@ -63,7 +56,7 @@ public class GetAllCustomersQueryHandler(
             logger.LogDebug("Found {TotalCount} total records", totalCount);
 
             // Pagination
-            logger.LogDebug("Applying pagination: Skip={Skip}, Take={Take}", 
+            logger.LogDebug("Applying pagination: Skip={Skip}, Take={Take}",
                 (request.Page - 1) * request.PageSize, request.PageSize);
             var pagedQuery = query.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize);
 
@@ -80,14 +73,14 @@ public class GetAllCustomersQueryHandler(
                 PageSize = request.PageSize
             };
 
-            logger.LogDebug("GetAllCustomersQuery completed successfully. Returning {ItemCount} items, Page {Page}, Total={TotalCount}", 
+            logger.LogDebug("GetAllCustomersQuery completed successfully. Returning {ItemCount} items, Page {Page}, Total={TotalCount}",
                 paginatedResult.Items.Count, paginatedResult.PageNumber, paginatedResult.TotalCount);
 
             return paginatedResult;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while executing GetAllCustomersQuery with Page={Page}, PageSize={PageSize}", 
+            logger.LogError(ex, "Error occurred while executing GetAllCustomersQuery with Page={Page}, PageSize={PageSize}",
                 request.Page, request.PageSize);
             throw;
         }

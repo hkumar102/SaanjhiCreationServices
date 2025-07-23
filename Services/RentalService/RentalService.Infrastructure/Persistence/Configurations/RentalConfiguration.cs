@@ -10,7 +10,6 @@ public class RentalConfiguration : BaseEntityConfiguration<Rental>
     public override void Configure(EntityTypeBuilder<Rental> builder)
     {
         base.Configure(builder);
-        builder.HasKey(r => r.Id);
 
         builder.Property(r => r.RentalPrice).HasColumnType("decimal(18,2)");
         builder.Property(r => r.SecurityDeposit).HasColumnType("decimal(18,2)");

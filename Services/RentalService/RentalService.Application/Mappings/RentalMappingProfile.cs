@@ -23,5 +23,10 @@ public class RentalMappingProfile : Profile
 
         // UpdateRentalCommand -> Rental
         CreateMap<UpdateRentalCommand, Rental>();
+
+        // RentalTimeline <-> RentalTimelineDto
+        CreateMap<RentalTimeline, RentalTimelineDto>()
+            .ForMember(dest => dest.ChangedByUserId, opt => opt.MapFrom(src => src.CreatedBy))
+            .ForMember(dest => dest.ChangedAt, opt => opt.MapFrom(src => src.CreatedAt));
     }
 }

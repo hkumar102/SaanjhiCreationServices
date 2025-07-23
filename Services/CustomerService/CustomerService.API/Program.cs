@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +5,8 @@ using Shared.Extensions.Telemetry;
 using CustomerService.Infrastructure.Persistence;
 using Shared.Extensions;
 using Shared.HealthChecks;
+using Shared.Infrastructure.Extensions;
+using Shared.ErrorHandling;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,7 @@ var appAssembly = "CustomerService.Application";
 builder.Services.RegisterAssemblyServices(appAssembly);
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddSwaggerDocs("Customer Service");
+builder.Services.AddSharedInfrastructure();
 
 // EF Core registration specific to the service
 builder.Services.AddDbContext<CustomerDbContext>(options =>
@@ -51,7 +53,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 });
 // Use CORS policy
 app.UseCors("AllowAll");
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<CustomExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

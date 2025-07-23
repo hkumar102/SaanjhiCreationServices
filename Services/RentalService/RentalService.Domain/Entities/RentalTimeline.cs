@@ -8,5 +8,7 @@ namespace RentalService.Domain.Entities
         public Guid RentalId { get; set; }
         public int Status { get; set; } // Use same enum/int as Rental.Status
         public string? Notes { get; set; }
+
+        public Rental Rental { get; set; }
     }
 }

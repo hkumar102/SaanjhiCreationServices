@@ -13,7 +13,6 @@ using Shared.ErrorHandling;
 public class GetRentalByIdQueryHandler(
     RentalDbContext dbContext,
     IMapper mapper,
-    ICustomerApiClient customerClient,
     IProductApiClient productClient,
     ILogger<GetRentalByIdQueryHandler> logger)
     : IRequestHandler<GetRentalByIdQuery, RentalDto>
@@ -42,7 +41,7 @@ public class GetRentalByIdQueryHandler(
             var dto = mapper.Map<RentalDto>(entity);
 
             logger.LogDebug("Fetching customer data for CustomerId: {CustomerId}", entity.CustomerId);
-            var customer = await customerClient.GetCustomerByIdAsync(entity.CustomerId, cancellationToken);
+            var customer = await productClient.GetCustomerByIdAsync(entity.CustomerId, cancellationToken);
             if (customer is not null)
             {
                 dto.Customer = customer;
@@ -54,7 +53,7 @@ public class GetRentalByIdQueryHandler(
             }
 
             logger.LogDebug("Fetching shipping address for AddressId: {AddressId}", entity.ShippingAddressId);
-            var customerAddress = await customerClient.GetAddressByIdAsync(entity.ShippingAddressId, cancellationToken);
+            var customerAddress = await productClient.GetAddressByIdAsync(entity.ShippingAddressId, cancellationToken);
             dto.ShippingAddress = customerAddress?.Address();
 
             logger.LogDebug("Fetching product data for ProductId: {ProductId}", entity.ProductId);
@@ -62,6 +61,11 @@ public class GetRentalByIdQueryHandler(
             if (product is not null)
             {
                 dto.Product = product;
+                var inventoryItem = product.InventoryItems.FirstOrDefault(i => i.Id == entity.InventoryItemId);
+                if (inventoryItem is not null)
+                {
+                    dto.InventoryItem = inventoryItem;
+                }
             }
             else
             {

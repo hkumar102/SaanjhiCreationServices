@@ -38,26 +38,6 @@ public class CustomerController(IMediator mediator) : ControllerBase
         var customers = await mediator.Send(query);
         return Ok(customers);
     }
-    
-    [HttpGet]
-    [ProducesResponseType(typeof(PaginatedResult<CustomerDto>), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetAll(
-        [FromQuery] string? name,
-        [FromQuery] string? email,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10)
-    {
-        var query = new GetAllCustomersQuery
-        {
-            Name = name,
-            Email = email,
-            Page = page,
-            PageSize = pageSize
-        };
-    
-        var customers = await mediator.Send(query);
-        return Ok(customers);
-    }
 
     [HttpPost("search")]
     [ProducesResponseType(typeof(PaginatedResult<CustomerDto>), (int)HttpStatusCode.OK)]

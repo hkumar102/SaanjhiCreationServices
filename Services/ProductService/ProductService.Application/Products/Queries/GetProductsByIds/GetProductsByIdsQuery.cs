@@ -6,4 +6,5 @@ namespace ProductService.Application.Products.Queries.GetProductsByIds;
 public class GetProductsByIdsQuery : IRequest<List<ProductDto>>
 {
     public List<Guid> ProductIds { get; set; } = new();
+    public bool IncludeInventoryItems { get; set; } = true;
 }

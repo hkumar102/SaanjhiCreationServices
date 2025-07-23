@@ -29,6 +29,7 @@ public class GetProductsByIdsQueryHandler(
             var products = await db.Products
                 .Include(p => p.Media)
                 .Include(p => p.Category)
+                .Include(p => p.InventoryItems) // Include inventory items if requested
                 .Where(p => request.ProductIds.Contains(p.Id))
                 .ToListAsync(cancellationToken);
 

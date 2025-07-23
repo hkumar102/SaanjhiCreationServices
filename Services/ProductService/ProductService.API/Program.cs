@@ -49,7 +49,7 @@ builder.Services.AddHttpClient<IMediaServiceClient, MediaServiceClient>(client =
 // CategoryApiClient removed - categories are now handled locally
 builder.Services.AddSwaggerDocs("Product Service");
 
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 // EF Core registration specific to the service
 builder.Services.AddDbContext<ProductDbContext>(options =>
     options.UseNpgsql(connectionString));

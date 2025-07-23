@@ -14,7 +14,6 @@ using Infrastructure.Persistence;
 public class GetRentalsQueryHandler(
     RentalDbContext dbContext,
     IMapper mapper,
-    ICustomerApiClient customerClient,
     IProductApiClient productClient,
     ILogger<GetRentalsQueryHandler> logger)
     : IRequestHandler<GetRentalsQuery, PaginatedResult<RentalDto>>
@@ -77,12 +76,13 @@ public class GetRentalsQueryHandler(
                         ? query.OrderByDescending(r => r.RentalPrice)
                         : query.OrderBy(r => r.RentalPrice),
 
-                    _ => query.OrderBy(r => r.Id) // default fallback
+                    _ => query.OrderBy(r => r.ModifiedAt).ThenBy(r => r.CreatedAt) // default fallback
                 };
             }
             else
             {
-                query = query.OrderBy(r => r.Id);
+                //we want default sort to modified at then created at
+                query = query.OrderBy(r => r.ModifiedAt).ThenBy(r => r.CreatedAt);
             }
 
             // Count total records before pagination
@@ -108,7 +108,7 @@ public class GetRentalsQueryHandler(
                 customerIds.Count, productIds.Count);
 
             // Bulk API calls
-            var customersTask = customerClient.GetCustomersByIdsAsync(customerIds, cancellationToken);
+            var customersTask = productClient.GetCustomersByIdsAsync(customerIds, cancellationToken);
             var productsTask = productClient.GetProductsByIdsAsync(productIds, cancellationToken);
 
             await Task.WhenAll(customersTask, productsTask);
@@ -122,6 +122,9 @@ public class GetRentalsQueryHandler(
             // Create lookup dictionaries for fast access
             var customerLookup = customers.ToDictionary(c => c.Id, c => c);
             var productLookup = products.ToDictionary(p => p.Id, p => p);
+            var inventoryLookup = products
+                .SelectMany(p => p.InventoryItems.Select(i => new { i.Id, InventoryItem = i }))
+                .ToDictionary(x => x.Id, x => x.InventoryItem);
             
             // Create address lookup from customer addresses
             var addressLookup = customers
@@ -139,7 +142,7 @@ public class GetRentalsQueryHandler(
                 // Use lookup dictionaries instead of API calls
                 dto.Customer = customerLookup.GetValueOrDefault(rental.CustomerId);
                 dto.Product = productLookup.GetValueOrDefault(rental.ProductId);
-                
+                dto.InventoryItem = inventoryLookup.GetValueOrDefault(rental.InventoryItemId);
                 if (addressLookup.TryGetValue(rental.ShippingAddressId, out var address))
                 {
                     dto.ShippingAddress = address.Address();

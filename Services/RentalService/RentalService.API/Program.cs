@@ -9,6 +9,7 @@ using RentalService.Infrastructure.Persistence;
 using Shared.Extensions;
 using Shared.HealthChecks;
 using Shared.Infrastructure.Extensions;
+using Shared.ErrorHandling;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,16 +21,11 @@ builder.Services.RegisterAssemblyServices(appAssembly);
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddTransient<AuthenticatedHttpClientHandler>();
 builder.Services.AddTransient<ITokenProvider, TokenProvider>();
-builder.Services.AddHttpClient<ICustomerApiClient, CustomerApiClient>(c =>
-    {
-        var categoryServiceUrl = builder.Configuration["HttpClient:CustomerService:BaseAddress"];
-        if (categoryServiceUrl != null) c.BaseAddress = new Uri(categoryServiceUrl);
-    })
-    .AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
+
 builder.Services.AddHttpClient<IProductApiClient, ProductApiClient>(c =>
     {
-        var categoryServiceUrl = builder.Configuration["HttpClient:ProductService:BaseAddress"];
-        if (categoryServiceUrl != null) c.BaseAddress = new Uri(categoryServiceUrl);
+        var productServiceUrl = builder.Configuration["HttpClient:ProductService:BaseAddress"];
+        if (productServiceUrl != null) c.BaseAddress = new Uri(productServiceUrl);
     })
     .AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
 
@@ -43,9 +39,7 @@ builder.Services.AddDbContext<RentalDbContext>(options =>
 
 builder.Services.AddSaanjhiHealthChecks(builder.Configuration)
     .AddSaanjhiServiceHealthCheck("Product Service",
-        builder.Configuration["HttpClient:ProductService:BaseAddress"] ?? string.Empty)
-    .AddSaanjhiServiceHealthCheck("Customer Service",
-        builder.Configuration["HttpClient:CustomerService:BaseAddress"] ?? string.Empty);
+        builder.Configuration["HttpClient:ProductService:BaseAddress"] ?? string.Empty);
 
 var app = builder.Build();
 app.ApplyMigrations<RentalDbContext>();
@@ -76,7 +70,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 });
 // Use CORS policy
 app.UseCors("AllowAll");
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<CustomExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
