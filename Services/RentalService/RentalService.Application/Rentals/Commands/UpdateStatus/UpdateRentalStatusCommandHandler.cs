@@ -49,7 +49,37 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
             throw new BusinessRuleException($"Inventory item with ID {entity.InventoryItemId} not found");
         }
 
+        // Block transition to Booked or PickedUp if inventory item is not available (retired, damaged, lost, etc.)
+        if ((request.Status == RentalStatus.Booked || request.Status == RentalStatus.PickedUp)
+            && (inventoryItem.Status != InventoryStatus.Available && inventoryItem.Status != InventoryStatus.Reserved))
+        {
+            logger.LogError($"Cannot transition rental {request.Id} to {request.Status.ToString()} because inventory item {entity.InventoryItemId} is not available (current status: {inventoryItem.Status.ToString()})");
+            throw new BusinessRuleException($"Cannot transition rental to {request.Status.ToString()} because inventory item is not available (current status: {inventoryItem.Status.ToString()})");
+        }
+
+        // Validate inventory item is available and not already reserved for the requested dates (for Booked)
         if (request.Status == RentalStatus.Booked)
+        {
+            var overlappingRentalExists = await dbContext.Rentals.AnyAsync(r =>
+                r.InventoryItemId == entity.InventoryItemId &&
+                r.Id != entity.Id &&
+                r.Status != RentalStatus.Cancelled &&
+                r.Status != RentalStatus.Returned &&
+                r.StartDate <= entity.EndDate &&
+                r.EndDate >= entity.StartDate,
+                cancellationToken);
+
+            if (overlappingRentalExists)
+            {
+                logger.LogError("Inventory item with ID {InventoryItemId} is already reserved for the selected dates", entity.InventoryItemId);
+                throw new BusinessRuleException($"Inventory item with ID {entity.InventoryItemId} is already reserved for the selected dates");
+            }
+
+            await productApiClient.UpdateInventoryItemStatusAsync(entity.InventoryItemId, InventoryStatus.Reserved, $"Inventory item reserved for {request.Id}", cancellationToken);
+
+        }
+
+        if (request.Status == RentalStatus.PickedUp)
         {
             if (inventoryItem.Status != InventoryStatus.Available)
             {
@@ -60,17 +90,21 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
             // Update inventory item status to Rented
             await productApiClient.UpdateInventoryItemStatusAsync(entity.InventoryItemId, InventoryStatus.Rented, $"Inventory item rented for {request.Id}, because it was booked", cancellationToken);
         }
-        else if (request.Status == RentalStatus.Cancelled)
-        {
-            // Update inventory item status to Available
-            await productApiClient.UpdateInventoryItemStatusAsync(entity.InventoryItemId, InventoryStatus.Available, $"Inventory item returned from {request.Id}, because it was cancelled", cancellationToken);
-        }
         else if (request.Status == RentalStatus.Returned)
         {
             if (!request.ActualReturnDate.HasValue)
                 throw new BusinessRuleException("ActualReturnDate is required when marking as Returned.");
             entity.ActualReturnDate = request.ActualReturnDate.Value;
-            await productApiClient.UpdateInventoryItemStatusAsync(entity.InventoryItemId, InventoryStatus.Available, $"Inventory item returned from {request.Id}, because it was returned", cancellationToken);
+        }
+        else if (request.Status == RentalStatus.Cancelled || request.Status == RentalStatus.Returned)
+        {
+            var hasFutureRental = await dbContext.Rentals.AnyAsync(r =>
+                r.InventoryItemId == entity.InventoryItemId &&
+                r.Status == RentalStatus.Booked &&
+                r.StartDate > entity.ActualReturnDate,
+                cancellationToken);
+            var newStatus = hasFutureRental ? InventoryStatus.Reserved : InventoryStatus.Available;
+            await productApiClient.UpdateInventoryItemStatusAsync(entity.InventoryItemId, newStatus, $"Inventory item returned from {request.Id}, status set to {newStatus}", cancellationToken);
         }
 
 
@@ -99,12 +133,16 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
         {
             await dbContext.SaveChangesAsync(cancellationToken);
             logger.LogDebug("Rental status updated for RentalId: {RentalId} to Status: {Status}", request.Id, request.Status);
-
         }
         catch (Exception ex)
         {
             if (request.Status == RentalStatus.Booked)
             {
+                await productApiClient.UpdateInventoryItemStatusAsync(entity.InventoryItemId, InventoryStatus.Available, request.Notes, cancellationToken);
+            }
+            else if (request.Status == RentalStatus.Returned)
+            {
+                // On error, fallback to Available
                 await productApiClient.UpdateInventoryItemStatusAsync(entity.InventoryItemId, InventoryStatus.Available, request.Notes, cancellationToken);
             }
             logger.LogError(ex, "Error occurred while updating rental status for RentalId: {RentalId}", request.Id);

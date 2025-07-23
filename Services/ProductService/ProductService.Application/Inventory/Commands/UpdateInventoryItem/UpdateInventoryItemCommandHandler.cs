@@ -23,6 +23,13 @@ public class UpdateInventoryItemCommandHandler(
             if (item == null)
                 throw new KeyNotFoundException($"InventoryItem with ID {request.Id} not found");
 
+            // if item status is rented then inventory status cannot be updated
+            if (item.Status == Rented && request.Status.HasValue && request.Status.Value != item.Status)
+            {
+                logger.LogError("Cannot update inventory item status while it is rented. InventoryItemId: {InventoryItemId}", item.Id);
+                throw new BusinessRuleException("Cannot update inventory item status while it is rented.");
+            }
+
             // Update fields if provided
             if (request.Size != null) item.Size = request.Size;
             if (request.Color != null) item.Color = request.Color;
@@ -31,6 +38,7 @@ public class UpdateInventoryItemCommandHandler(
             if (request.AcquisitionDate.HasValue) item.AcquisitionDate = request.AcquisitionDate.Value;
             if (request.ConditionNotes != null) item.ConditionNotes = request.ConditionNotes;
             if (request.WarehouseLocation != null) item.WarehouseLocation = request.WarehouseLocation;
+            if (request.Status.HasValue) item.Status = request.Status.Value;
             if (request.IsRetired.HasValue)
             {
                 // Handle retirement logic
