@@ -40,7 +40,7 @@ public class UpdateInventoryItemCommandHandler(
             if (request.ConditionNotes != null) item.ConditionNotes = request.ConditionNotes;
             if (request.WarehouseLocation != null) item.WarehouseLocation = request.WarehouseLocation;
             if (request.Status.HasValue) item.Status = request.Status.Value;
-            if (request.IsRetired.HasValue)
+            if (request.IsRetired.Value)
             {
                 // Handle retirement logic
                 // if status is rented, then inventory item cannot be retired

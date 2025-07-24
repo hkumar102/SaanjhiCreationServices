@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using NotificationService.Application.Extensions;
 using RentalService.Infrastructure.HttpClients;
 using RentalService.Infrastructure.HttpHandlers;
 using Shared.Extensions.Telemetry;
@@ -10,6 +11,7 @@ using Shared.Extensions;
 using Shared.HealthChecks;
 using Shared.Infrastructure.Extensions;
 using Shared.ErrorHandling;
+using NotificationService.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,10 +33,14 @@ builder.Services.AddHttpClient<IProductApiClient, ProductApiClient>(c =>
 
 // Add shared infrastructure services (includes ICurrentUserService)
 builder.Services.AddSharedInfrastructure();
+builder.Services.AddNotificationServices(builder.Configuration);
 builder.Services.AddSwaggerDocs("Rental Service");
 
 // EF Core registration specific to the service
+// Register both DbContexts to use the same database (DefaultConnection)
 builder.Services.AddDbContext<RentalDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<NotificationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSaanjhiHealthChecks(builder.Configuration)
@@ -43,6 +49,7 @@ builder.Services.AddSaanjhiHealthChecks(builder.Configuration)
 
 var app = builder.Build();
 app.ApplyMigrations<RentalDbContext>();
+app.ApplyMigrations<NotificationDbContext>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

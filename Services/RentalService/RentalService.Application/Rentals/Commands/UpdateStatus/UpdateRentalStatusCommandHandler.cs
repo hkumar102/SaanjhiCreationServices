@@ -1,3 +1,4 @@
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Shared.ErrorHandling;
@@ -6,6 +7,9 @@ using RentalService.Contracts.Enums;
 using RentalService.Infrastructure.Persistence;
 using RentalService.Infrastructure.HttpClients;
 using RentalService.Contracts.DTOs;
+using RentalService.Application.Notifications.Commands;
+using NotificationService.Contracts.Enums;
+using RentalService.Application.Rentals.Queries.GetRentalById;
 
 namespace RentalService.Application.Rentals.Commands.UpdateStatus;
 
@@ -14,15 +18,21 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
     private readonly RentalDbContext dbContext;
     private readonly ILogger<UpdateRentalStatusCommandHandler> logger;
     private readonly IProductApiClient productApiClient;
+    private readonly IMapper _mapper;
+    private readonly IMediator _mediator;
 
     public UpdateRentalStatusCommandHandler(
         RentalDbContext dbContext,
         IProductApiClient productApiClient,
-        ILogger<UpdateRentalStatusCommandHandler> logger)
+        ILogger<UpdateRentalStatusCommandHandler> logger,
+        IMediator mediator,
+        IMapper mapper)
     {
         this.dbContext = dbContext;
         this.productApiClient = productApiClient;
         this.logger = logger;
+        this._mediator = mediator;
+        this._mapper = mapper;
     }
 
     public async Task Handle(UpdateRentalStatusCommand request, CancellationToken cancellationToken)
@@ -148,6 +158,12 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
             logger.LogError(ex, "Error occurred while updating rental status for RentalId: {RentalId}", request.Id);
             throw ex;
         }
+
+        await _mediator.Send(new SendRentalNotificationCommand
+        {
+            Rental = await _mediator.Send(new GetRentalByIdQuery { Id = entity.Id }, cancellationToken),
+            Type = NotificationType.RentalStatusChanged
+        });
     }
 
     private static bool IsValidTransition(RentalStatus current, RentalStatus next)

@@ -14,6 +14,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\..\NotificationService\NotificationService.Application\NotificationService.Application.csproj" />
+    <ProjectReference Include="..\..\NotificationService\NotificationService.Contracts\NotificationService.Contracts.csproj" />
     <ProjectReference Include="..\RentalService.Contracts\RentalService.Contracts.csproj" />
     <ProjectReference Include="..\RentalService.Domain\RentalService.Domain.csproj" />
     <ProjectReference Include="..\RentalService.Infrastructure\RentalService.Infrastructure.csproj" />

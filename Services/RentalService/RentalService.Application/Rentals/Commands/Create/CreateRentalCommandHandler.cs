@@ -3,14 +3,17 @@ using MediatR;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NotificationService.Contracts.Enums;
+using RentalService.Application.Notifications.Commands;
 using RentalService.Application.Rentals.Commands.Create;
+using RentalService.Application.Rentals.Queries.GetRentalById;
 using RentalService.Contracts.DTOs;
 using RentalService.Domain.Entities;
 using RentalService.Infrastructure.Persistence;
 using RentalService.Infrastructure.HttpClients;
 using Shared.ErrorHandling;
 
-public class CreateRentalCommandHandler(RentalDbContext dbContext, IMapper mapper, IProductApiClient productApiClient, ILogger<CreateRentalCommandHandler> logger)
+public class CreateRentalCommandHandler(RentalDbContext dbContext, IMapper mapper, IProductApiClient productApiClient, ILogger<CreateRentalCommandHandler> logger, IMediator mediator)
     : IRequestHandler<CreateRentalCommand, Guid>
 {
     public async Task<Guid> Handle(CreateRentalCommand request, CancellationToken cancellationToken)
@@ -54,6 +57,17 @@ public class CreateRentalCommandHandler(RentalDbContext dbContext, IMapper mappe
 
         await dbContext.SaveChangesAsync(cancellationToken);
         logger.LogDebug("DbContext changes saved for new RentalId: {RentalId}", entity.Id);
+
+
+        var rentalDto = await mediator.Send(new GetRentalByIdQuery() { Id = entity.Id }, cancellationToken);
+        // Send notification after rental creation
+        var notificationCommand = new SendRentalNotificationCommand
+        {
+            Rental = rentalDto,
+            Type = NotificationType.RentalCreated
+        };
+
+        await mediator.Send(notificationCommand, cancellationToken);
         return entity.Id;
     }
 }
