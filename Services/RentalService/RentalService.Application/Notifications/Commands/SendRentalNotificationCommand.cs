@@ -1,5 +1,4 @@
 using MediatR;
-using RentalService.Domain.Entities;
 using NotificationService.Contracts.Enums;
 using RentalService.Contracts.DTOs;
 

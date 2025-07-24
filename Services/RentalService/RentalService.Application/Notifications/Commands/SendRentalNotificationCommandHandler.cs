@@ -1,10 +1,6 @@
-using System.Text.Json.Serialization;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using NotificationService.Contracts.Enums;
 using NotificationService.Application.Notifications.Commands;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace RentalService.Application.Notifications.Commands;

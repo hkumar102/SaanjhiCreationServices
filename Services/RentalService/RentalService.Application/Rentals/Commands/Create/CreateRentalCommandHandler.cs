@@ -1,19 +1,17 @@
-using RentalService.Contracts.Enums;
-using MediatR;
 using AutoMapper;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using NotificationService.Contracts.Enums;
-using RentalService.Application.Notifications.Commands;
-using RentalService.Application.Rentals.Commands.Create;
-using RentalService.Application.Rentals.Queries.GetRentalById;
 using RentalService.Contracts.DTOs;
+using RentalService.Contracts.Enums;
 using RentalService.Domain.Entities;
-using RentalService.Infrastructure.Persistence;
 using RentalService.Infrastructure.HttpClients;
+using RentalService.Infrastructure.Persistence;
 using Shared.ErrorHandling;
 
-public class CreateRentalCommandHandler(RentalDbContext dbContext, IMapper mapper, IProductApiClient productApiClient, ILogger<CreateRentalCommandHandler> logger, IMediator mediator)
+namespace RentalService.Application.Rentals.Commands.Create;
+
+public class CreateRentalCommandHandler(RentalDbContext dbContext, IMapper mapper, IProductApiClient productApiClient, ILogger<CreateRentalCommandHandler> logger)
     : IRequestHandler<CreateRentalCommand, Guid>
 {
     public async Task<Guid> Handle(CreateRentalCommand request, CancellationToken cancellationToken)
@@ -33,6 +31,22 @@ public class CreateRentalCommandHandler(RentalDbContext dbContext, IMapper mappe
         {
             logger.LogError("Inventory item with ID {InventoryItemId} is not available for rental", request.InventoryItemId);
             throw new BusinessRuleException($"Inventory item with ID {request.InventoryItemId} is not available for rental");
+        }
+
+        // we need to check if inventory item is available for rental for the rental dates
+        var overlappingRentalExists = await dbContext.Rentals.AnyAsync(r =>
+                r.InventoryItemId == request.InventoryItemId &&
+                r.Status != RentalStatus.Cancelled &&
+                r.Status != RentalStatus.Returned &&
+                r.Status != RentalStatus.Pending &&
+                r.StartDate <= request.EndDate &&
+                r.EndDate >= request.StartDate,
+            cancellationToken);
+
+        if (overlappingRentalExists)
+        {
+            logger.LogError("Inventory item with ID {InventoryItemId} is already reserved for the selected dates", request.InventoryItemId);
+            throw new BusinessRuleException($"Inventory item with ID {request.InventoryItemId} is already reserved for the selected dates");
         }
 
 
@@ -57,17 +71,7 @@ public class CreateRentalCommandHandler(RentalDbContext dbContext, IMapper mappe
 
         await dbContext.SaveChangesAsync(cancellationToken);
         logger.LogDebug("DbContext changes saved for new RentalId: {RentalId}", entity.Id);
-
-
-        var rentalDto = await mediator.Send(new GetRentalByIdQuery() { Id = entity.Id }, cancellationToken);
-        // Send notification after rental creation
-        var notificationCommand = new SendRentalNotificationCommand
-        {
-            Rental = rentalDto,
-            Type = NotificationType.RentalCreated
-        };
-
-        await mediator.Send(notificationCommand, cancellationToken);
+        
         return entity.Id;
     }
 }
