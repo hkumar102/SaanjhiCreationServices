@@ -91,7 +91,7 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
 
         if (request.Status == RentalStatus.PickedUp)
         {
-            if (inventoryItem.Status != InventoryStatus.Available)
+            if (inventoryItem.Status != InventoryStatus.Available && inventoryItem.Status != InventoryStatus.Reserved)
             {
                 logger.LogError("Inventory item with ID {InventoryItemId} is not available for booking", entity.InventoryItemId);
                 throw new BusinessRuleException($"Inventory item with ID {entity.InventoryItemId} is not available for booking");
@@ -106,7 +106,8 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
                 throw new BusinessRuleException("ActualReturnDate is required when marking as Returned.");
             entity.ActualReturnDate = request.ActualReturnDate.Value;
         }
-        else if (request.Status == RentalStatus.Cancelled || request.Status == RentalStatus.Returned)
+        
+        if (request.Status == RentalStatus.Cancelled || request.Status == RentalStatus.Returned)
         {
             var hasFutureRental = await dbContext.Rentals.AnyAsync(r =>
                 r.InventoryItemId == entity.InventoryItemId &&

@@ -13,7 +13,6 @@ public class CreateAddressCommandValidator : AbstractValidator<CreateAddressComm
         RuleFor(x => x.State).NotEmpty().MaximumLength(100);
         RuleFor(x => x.PostalCode).NotEmpty().MaximumLength(20);
         RuleFor(x => x.Country).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.PhoneNumber).MaximumLength(20);
         RuleFor(x => x.Type).IsInEnum();
     }
 }

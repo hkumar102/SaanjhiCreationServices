@@ -25,6 +25,9 @@ public class ProductConfiguration : BaseEntityConfiguration<Product>
         builder.Property(p => p.Designer)
             .HasMaxLength(100);
 
+        //We need make sure SKU is unique across products
+        builder.HasIndex(p => p.SKU)
+            .IsUnique();
         builder.Property(p => p.SKU)
             .HasMaxLength(50);
 

@@ -47,9 +47,8 @@ public class CreateProductCommandHandler(
 
     private static string GenerateSku(string? name, Guid categoryId)
     {
-        var categoryCode = categoryId.ToString().Substring(0, 4).ToUpper();
-        var slug = (name ?? "product").ToLower().Replace(" ", "-");
         var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-        return $"SKU-{slug}-{categoryCode}-{timestamp}";
+        var sku = $"SKU-{timestamp}";
+        return sku;
     }
 }

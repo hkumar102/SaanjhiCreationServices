@@ -52,7 +52,7 @@ public class CreateRentalCommandHandler(RentalDbContext dbContext, IMapper mappe
         {
             RentalId = entity.Id,
             Status = (int)entity.Status,
-            Notes = request.Notes,
+            Notes = request.Notes ?? "Marked as pending"
         });
 
         await dbContext.SaveChangesAsync(cancellationToken);
