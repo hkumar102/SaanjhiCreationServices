@@ -54,4 +54,8 @@ public class InventoryItemDto
     // Audit Information
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+
+    public decimal PurchasePrice { get; set; }
+    public decimal RentalPrice { get; set; }
+    public decimal? SecurityDeposit { get; set; }
 }
