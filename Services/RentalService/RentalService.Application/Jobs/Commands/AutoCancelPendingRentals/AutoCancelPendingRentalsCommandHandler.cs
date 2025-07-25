@@ -7,6 +7,9 @@ using Microsoft.Extensions.Logging;
 using NotificationService.Contracts.Enums;
 using AutoMapper;
 using RentalService.Contracts.DTOs;
+using RentalService.Application.Rentals.Queries.GetRentalsWithDetails;
+using System.Drawing;
+using Microsoft.Extensions.Configuration;
 
 namespace RentalService.Application.Jobs.Commands.AutoCancelPendingRentals;
 
@@ -16,17 +19,20 @@ public class AutoCancelPendingRentalsCommandHandler : IRequestHandler<AutoCancel
     private readonly RentalDbContext _dbContext;
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
+    private readonly string _baseUrl;
 
     public AutoCancelPendingRentalsCommandHandler(
         ILogger<AutoCancelPendingRentalsCommandHandler> logger,
         RentalDbContext dbContext,
         IMediator mediator,
-        IMapper mapper)
+        IMapper mapper,
+        IConfiguration configuration)
     {
         _logger = logger;
         _dbContext = dbContext;
         _mediator = mediator;
         _mapper = mapper;
+        _baseUrl = configuration["App:AdminPortalBaseUrl"] ?? "https://www.saanjhicreation.com";
     }
 
     public async Task Handle(AutoCancelPendingRentalsCommand request, CancellationToken cancellationToken)
@@ -34,9 +40,9 @@ public class AutoCancelPendingRentalsCommandHandler : IRequestHandler<AutoCancel
         using var scope = _logger.BeginScope("AutoCancelPendingRentalsJob");
         _logger.LogTrace("Starting auto-cancel job for pending rentals older than 5 days");
         var threshold = DateTime.UtcNow.AddDays(-5);
-        var pendingRentals = _dbContext.Rentals
-            .Where(r => r.Status == RentalStatus.Pending && r.CreatedAt < threshold)
-            .ToList();
+        var pendingRentalsQueryable = _dbContext.Rentals
+            .Where(r => r.Status == RentalStatus.Pending && r.CreatedAt < threshold);
+        var pendingRentals = await _mediator.Send(new GetRentalsWithDetailsQuery { Queryable = pendingRentalsQueryable }, cancellationToken);
         _logger.LogInformation("Found {Count} pending rentals older than 5 days", pendingRentals.Count);
         foreach (var rental in pendingRentals)
         {
@@ -50,9 +56,24 @@ public class AutoCancelPendingRentalsCommandHandler : IRequestHandler<AutoCancel
             });
             await _mediator.Send(new SendRentalNotificationCommand
             {
-                Rental = _mapper.Map<RentalDto>(rental),
+                Rental = new
+                {
+                    rental.RentalNumber,
+                    CustomerName = rental.Customer?.Name,
+                    CustomerPhone = rental.Customer?.PhoneNumber,
+                    ProductName = rental.Product?.Name,
+                    rental.Product.CategoryName,
+                    rental.InventoryItem.Size,
+                    rental.InventoryItem.Color,
+                    Status = rental.Status.ToString(),
+                    Link = $"{_baseUrl.TrimEnd('/')}/rentals/{rental.Id}"
+                },
                 Type = NotificationType.RentalStatusChanged
             }, cancellationToken);
+
+            var rentalEntity = _dbContext.Rentals.Find(rental.Id);
+            rentalEntity.Status = RentalStatus.Cancelled;
+            _dbContext.Rentals.Update(rentalEntity);
         }
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Auto-cancel job completed. {Count} rentals cancelled.", pendingRentals.Count);

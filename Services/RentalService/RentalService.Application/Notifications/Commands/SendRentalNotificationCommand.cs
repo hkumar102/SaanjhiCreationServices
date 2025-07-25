@@ -6,7 +6,7 @@ namespace RentalService.Application.Notifications.Commands;
 
 public class SendRentalNotificationCommand : IRequest
 {
-    public RentalDto Rental { get; set; }
+    public object Rental { get; set; }
     public NotificationType Type { get; set; } = NotificationType.RentalCreated; // e.g. RentalCreated, RentalStatusChanged
     // Optionally, add additional context fields if needed in the future
 }

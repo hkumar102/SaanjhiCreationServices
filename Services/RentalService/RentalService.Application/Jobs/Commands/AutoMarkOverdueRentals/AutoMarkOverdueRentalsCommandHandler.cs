@@ -5,8 +5,10 @@ using MediatR;
 using RentalService.Application.Notifications.Commands;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using Microsoft.Extensions.Configuration;
 using NotificationService.Contracts.Enums;
 using RentalService.Contracts.DTOs;
+using RentalService.Application.Rentals.Queries.GetRentalsWithDetails;
 
 namespace RentalService.Application.Jobs.Commands.AutoMarkOverdueRentals;
 
@@ -16,17 +18,20 @@ public class AutoMarkOverdueRentalsCommandHandler : IRequestHandler<AutoMarkOver
     private readonly RentalDbContext _dbContext;
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
+    private readonly string _baseUrl;
 
     public AutoMarkOverdueRentalsCommandHandler(
         ILogger<AutoMarkOverdueRentalsCommandHandler> logger,
         RentalDbContext dbContext,
         IMediator mediator,
-        IMapper mapper)
+        IMapper mapper,
+        IConfiguration configuration)
     {
         _logger = logger;
         _dbContext = dbContext;
         _mediator = mediator;
         _mapper = mapper;
+        _baseUrl = configuration["App:AdminPortalBaseUrl"] ?? "https://www.saanjhicreation.com";
     }
 
     public async Task Handle(AutoMarkOverdueRentalsCommand request, CancellationToken cancellationToken)
@@ -34,9 +39,9 @@ public class AutoMarkOverdueRentalsCommandHandler : IRequestHandler<AutoMarkOver
         using var scope = _logger.BeginScope("AutoMarkOverdueRentalsJob");
         _logger.LogTrace("Starting auto-mark overdue job for rentals past end date");
         var now = DateTime.UtcNow;
-        var overdueRentals = _dbContext.Rentals
-            .Where(r => r.Status != RentalStatus.Returned && r.Status != RentalStatus.Cancelled && r.EndDate < now)
-            .ToList();
+        var overdueRentalsQueryable = _dbContext.Rentals
+            .Where(r => r.Status == RentalStatus.PickedUp && r.EndDate < now);
+        var overdueRentals = await _mediator.Send(new GetRentalsWithDetailsQuery { Queryable = overdueRentalsQueryable }, cancellationToken);
         _logger.LogInformation("Found {Count} rentals past end date and not returned/cancelled", overdueRentals.Count);
         foreach (var rental in overdueRentals)
         {
@@ -50,9 +55,24 @@ public class AutoMarkOverdueRentalsCommandHandler : IRequestHandler<AutoMarkOver
             });
             await _mediator.Send(new SendRentalNotificationCommand
             {
-                Rental = _mapper.Map<RentalDto>(rental),
+                Rental = new
+                {
+                    rental.RentalNumber,
+                    CustomerName = rental.Customer?.Name,
+                    CustomerPhone = rental.Customer?.PhoneNumber,
+                    ProductName = rental.Product?.Name,
+                    rental.Product.CategoryName,
+                    rental.InventoryItem.Size,
+                    rental.InventoryItem.Color,
+                    Status = rental.Status.ToString(),
+                    Link = $"{_baseUrl.TrimEnd('/')}/rentals/details/{rental.Id}"
+                },
                 Type = NotificationType.RentalStatusChanged
             }, cancellationToken);
+
+            var rentalEntity = _dbContext.Rentals.Find(rental.Id);
+            rentalEntity.Status = RentalStatus.Overdue;
+            _dbContext.Rentals.Update(rentalEntity);
         }
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Auto-mark overdue job completed. {Count} rentals marked as overdue.", overdueRentals.Count);

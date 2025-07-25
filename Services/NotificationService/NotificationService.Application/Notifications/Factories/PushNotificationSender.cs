@@ -21,7 +21,7 @@ public class PushNotificationSender : INotificationSender
         _logger.LogDebug("[Push] Sending notification: {@Notification}", notification);
         try
         {
-            await _pushoverClient.SendMessageAsync(notification.Title, notification.Message, cancellationToken);
+            await _pushoverClient.SendMessageAsync(notification, cancellationToken);
             _logger.LogInformation("[Push] Notification sent to user {RecipientUserId}", notification.RecipientUserId);
             return NotificationStatus.Sent;
         }

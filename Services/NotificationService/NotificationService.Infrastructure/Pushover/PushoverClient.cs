@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NotificationService.Domain;
 
 namespace NotificationService.Infrastructure.Pushover;
 
@@ -22,12 +23,28 @@ public class PushoverClient
         _options = options.Value;
     }
 
-    public async Task<bool> SendMessageAsync(string title, string message, CancellationToken cancellationToken)
+    public async Task<bool> SendMessageAsync(Notification notification, CancellationToken cancellationToken)
     {
         var apiToken = _options.ApiToken;
         var userKey = _options.UserKey;
         var baseUrl = _options.BaseUrl ?? "https://api.pushover.net/1/messages.json";
-        var urlContent = $"token={apiToken}&user={userKey}&title={title}&message={message}";
+        var sb = new StringBuilder();
+        sb.Append($"token={apiToken}&user={userKey}");
+        sb.Append($"&title={Uri.EscapeDataString(notification.Title)}");
+        sb.Append($"&message={Uri.EscapeDataString(notification.Message)}");
+        if (!string.IsNullOrWhiteSpace(notification.Metadata))
+        {
+            try
+            {
+                var meta = JsonDocument.Parse(notification.Metadata).RootElement;
+                if (meta.TryGetProperty("Link", out var linkProp))
+                    sb.Append($"&url={Uri.EscapeDataString(linkProp.GetString())}");
+                if (meta.TryGetProperty("url_title", out var urlTitleProp))
+                    sb.Append($"&url_title=View Details");
+            }
+            catch { /* ignore metadata parse errors for url fields */ }
+        }
+        var urlContent = sb.ToString();
         _logger.LogInformation("[Push] Notification sent to user {RecipientUserId} - {apiToken} - {baseUrl} - {urlContent}", userKey, apiToken, baseUrl, urlContent);
         var content = new StringContent(urlContent, Encoding.UTF8, "application/x-www-form-urlencoded");
         var response = await _httpClient.PostAsync(baseUrl, content, cancellationToken);

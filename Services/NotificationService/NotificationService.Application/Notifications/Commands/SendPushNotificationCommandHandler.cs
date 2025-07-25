@@ -6,6 +6,7 @@ using NotificationService.Contracts.Enums;
 using NotificationService.Domain;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Application.Notifications.Factories;
+using Shared.Extensions;
 
 namespace NotificationService.Application.Notifications.Commands;
 
@@ -39,7 +40,7 @@ public class SendPushNotificationCommandHandler : IRequestHandler<SendPushNotifi
             Type = request.Type,
             Title = request.Title,
             Message = request.Message,
-            Metadata = request.Metadata,
+            Metadata = request.Metadata?.ToJson() ?? string.Empty,
             Status = NotificationStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };

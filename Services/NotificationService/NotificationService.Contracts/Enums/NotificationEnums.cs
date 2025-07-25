@@ -13,9 +13,11 @@ public enum NotificationType
     RentalStatusChanged = 1,
     PaymentReminder = 2,
     ReturnReminder = 3,
-    InventoryUnavailable = 4,
-    Promotion = 5,
-    AccountUpdate = 6
+    DeliveryReminder = 4,
+    InventoryUnavailable = 5,
+    Promotion = 6,
+    AccountUpdate = 7,
+    AdminReturnDeliverySummary = 8
 }
 
 public enum NotificationStatus

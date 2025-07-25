@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using NotificationService.Application.Notifications.Commands;
 using Microsoft.EntityFrameworkCore;
+using Shared.Extensions;
 
 namespace RentalService.Application.Notifications.Commands;
 
@@ -41,44 +42,18 @@ public class SendRentalNotificationCommandHandler : IRequestHandler<SendRentalNo
             return;
         }
 
-        // Extract fields for notification
-        var rentalNumber = rental.RentalNumber;
-        var customerName = rental.Customer?.Name ?? "";
-        var customerPhone = rental.Customer?.PhoneNumber ?? "";
-        var productName = rental.Product?.Name ?? "";
-        var categoryName = rental.Product?.CategoryName ?? "";
-        var size = rental.InventoryItem.Size;
-        var color = rental.InventoryItem.Color;
-        var status = rental.Status.ToString();
-        var startDate = rental.StartDate;
-        var endDate = rental.EndDate;
-
-        _logger.LogInformation("Sending notification for rental process. Type: {Type}, RentalNumber: {RentalNumber}", request.Type, rentalNumber);
+        _logger.LogInformation("Sending notification for rental process. Type: {Type}, Metadata: {RentalNumber}", request.Type, rental.ToJson());
 
         // Select template based on notification type
-        string titleTemplate = notificationTemplate.TitleTemplate;
-        string messageTemplate = notificationTemplate.MessageTemplate;
-
-
-        // Parse template with data
-        string ParseTemplate(string template) => template
-            .Replace("{RentalNumber}", rentalNumber)
-            .Replace("{CustomerName}", customerName)
-            .Replace("{CustomerPhone}", customerPhone)
-            .Replace("{ProductName}", productName)
-            .Replace("{CategoryName}", categoryName)
-            .Replace("{Size}", size)
-            .Replace("{Color}", color)
-            .Replace("{Status}", status)
-            .Replace("{StartDate}", startDate.ToString("d"))
-            .Replace("{EndDate}", endDate.ToString("d"));
+        string titleTemplate = notificationTemplate.TitleTemplate.ParseTemplateWithObject(rental);
+        string messageTemplate = notificationTemplate.MessageTemplate.ParseTemplateWithObject(rental);
 
         var notificationCommand = new SendPushNotificationCommand
         {
             Type = request.Type,
-            Title = ParseTemplate(titleTemplate),
-            Message = ParseTemplate(messageTemplate),
-            Metadata = System.Text.Json.JsonSerializer.Serialize(new { link = $"https://saanjhicreation.com/rentals/manage/{rental.Id}" })
+            Title = titleTemplate,
+            Message = messageTemplate,
+            Metadata = rental
         };
 
         await _mediator.Send(notificationCommand, cancellationToken);
