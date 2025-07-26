@@ -32,6 +32,7 @@ public class PushoverClient
         sb.Append($"token={apiToken}&user={userKey}");
         sb.Append($"&title={Uri.EscapeDataString(notification.Title)}");
         sb.Append($"&message={Uri.EscapeDataString(notification.Message)}");
+        sb.Append($"&url_title=View Details");
         if (!string.IsNullOrWhiteSpace(notification.Metadata))
         {
             try
@@ -39,8 +40,6 @@ public class PushoverClient
                 var meta = JsonDocument.Parse(notification.Metadata).RootElement;
                 if (meta.TryGetProperty("Link", out var linkProp))
                     sb.Append($"&url={Uri.EscapeDataString(linkProp.GetString())}");
-                if (meta.TryGetProperty("url_title", out var urlTitleProp))
-                    sb.Append($"&url_title=View Details");
             }
             catch { /* ignore metadata parse errors for url fields */ }
         }
