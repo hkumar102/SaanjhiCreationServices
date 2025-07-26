@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Shared.ErrorHandling;
 using Microsoft.Extensions.Logging;
 using RentalService.Contracts.Enums;
@@ -20,19 +21,24 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
     private readonly IProductApiClient productApiClient;
     private readonly IMapper _mapper;
     private readonly IMediator _mediator;
+    private readonly string _baseUrl;
+
 
     public UpdateRentalStatusCommandHandler(
         RentalDbContext dbContext,
         IProductApiClient productApiClient,
         ILogger<UpdateRentalStatusCommandHandler> logger,
         IMediator mediator,
-        IMapper mapper)
+        IMapper mapper,
+        IConfiguration configuration)
     {
         this.dbContext = dbContext;
         this.productApiClient = productApiClient;
         this.logger = logger;
         this._mediator = mediator;
         this._mapper = mapper;
+        _baseUrl = configuration["App:AdminPortalBaseUrl"] ?? "https://www.saanjhicreation.com";
+
     }
 
     public async Task Handle(UpdateRentalStatusCommand request, CancellationToken cancellationToken)
@@ -106,7 +112,7 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
                 throw new BusinessRuleException("ActualReturnDate is required when marking as Returned.");
             entity.ActualReturnDate = request.ActualReturnDate.Value;
         }
-        
+
         if (request.Status == RentalStatus.Cancelled || request.Status == RentalStatus.Returned)
         {
             var hasFutureRental = await dbContext.Rentals.AnyAsync(r =>
@@ -160,9 +166,22 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
             throw ex;
         }
 
+        var rentalDto = await _mediator.Send(new GetRentalByIdQuery { Id = entity.Id }, cancellationToken);
+
         await _mediator.Send(new SendRentalNotificationCommand
         {
-            Rental = await _mediator.Send(new GetRentalByIdQuery { Id = entity.Id }, cancellationToken),
+            Rental = new
+            {
+                rentalDto.RentalNumber,
+                CustomerName = rentalDto.Customer?.Name,
+                CustomerPhone = rentalDto.Customer?.PhoneNumber,
+                ProductName = rentalDto.Product?.Name,
+                rentalDto.Product.CategoryName,
+                rentalDto.InventoryItem?.Size,
+                rentalDto.InventoryItem?.Color,
+                Status = rentalDto.Status.ToString(),
+                Link = $"{_baseUrl.TrimEnd('/')}/rentals/details/{rentalDto.Id}"
+            },
             Type = NotificationType.RentalStatusChanged
         });
     }
