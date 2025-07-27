@@ -51,7 +51,7 @@ public enum InventoryStatus
 }
 public class RentalInventoryItemDto
 {
-   public Guid Id { get; set; }
+    public Guid Id { get; set; }
     public Guid ProductId { get; set; }
     // Physical Item Properties
     public string Size { get; set; } = null!;
@@ -61,5 +61,7 @@ public class RentalInventoryItemDto
     public string? QRCodeImageBase64 { get; set; } // QR code image as Base64 string
     // Item Status and Condition
     public InventoryStatus Status { get; set; }
+    public decimal AcquisitionCost { get; set; } = 0;
+    public DateTime AcquisitionDate { get; set; }
 
 }
