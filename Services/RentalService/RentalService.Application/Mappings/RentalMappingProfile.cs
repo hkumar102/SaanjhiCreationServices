@@ -11,6 +11,8 @@ public class RentalMappingProfile : Profile
 {
     public RentalMappingProfile()
     {
+        CreateMap<DateTime, DateOnly>().ConvertUsing(src => DateOnly.FromDateTime(src));
+        CreateMap<DateOnly, DateTime>().ConvertUsing(src => src.ToDateTime(TimeOnly.MinValue));
         // Rental <-> RentalDto
         CreateMap<Rental, RentalDto>()
             .ForMember(dest => dest.Product, opt => opt.Ignore()) // populated externally
