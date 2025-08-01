@@ -27,10 +27,10 @@ public class CreateRentalCommandHandler(RentalDbContext dbContext, IMapper mappe
             throw new BusinessRuleException($"Inventory item with ID {request.InventoryItemId} not found");
         }
 
-        if (inventoryItem.Status != InventoryStatus.Available)
+        if (inventoryItem.Status == InventoryStatus.Damaged || inventoryItem.Status == InventoryStatus.Retired)
         {
-            logger.LogError("Inventory item with ID {InventoryItemId} is not available for rental", request.InventoryItemId);
-            throw new BusinessRuleException($"Inventory item with ID {request.InventoryItemId} is not available for rental");
+            logger.LogError("Inventory item with ID {InventoryItemId} is not available for rental because its either Damaged or Expired", request.InventoryItemId);
+            throw new BusinessRuleException($"Inventory item with ID {request.InventoryItemId} is not available for rental because its either Damaged or Expired");
         }
 
         // we need to check if inventory item is available for rental for the rental dates

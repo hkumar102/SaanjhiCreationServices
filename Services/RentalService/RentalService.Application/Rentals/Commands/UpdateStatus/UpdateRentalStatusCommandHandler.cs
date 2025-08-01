@@ -66,8 +66,8 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
         }
 
         // Block transition to Booked or PickedUp if inventory item is not available (retired, damaged, lost, etc.)
-        if ((request.Status == RentalStatus.Booked || request.Status == RentalStatus.PickedUp)
-            && (inventoryItem.Status != InventoryStatus.Available && inventoryItem.Status != InventoryStatus.Reserved))
+        if ((request.Status == RentalStatus.PickedUp)
+            && (inventoryItem.Status == InventoryStatus.Rented))
         {
             logger.LogError($"Cannot transition rental {request.Id} to {request.Status.ToString()} because inventory item {entity.InventoryItemId} is not available (current status: {inventoryItem.Status.ToString()})");
             throw new BusinessRuleException($"Cannot transition rental to {request.Status.ToString()} because inventory item is not available (current status: {inventoryItem.Status.ToString()})");
@@ -97,7 +97,7 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
 
         if (request.Status == RentalStatus.PickedUp)
         {
-            if (inventoryItem.Status != InventoryStatus.Available && inventoryItem.Status != InventoryStatus.Reserved)
+            if (inventoryItem.Status == InventoryStatus.Rented)
             {
                 logger.LogError("Inventory item with ID {InventoryItemId} is not available for booking", entity.InventoryItemId);
                 throw new BusinessRuleException($"Inventory item with ID {entity.InventoryItemId} is not available for booking");
