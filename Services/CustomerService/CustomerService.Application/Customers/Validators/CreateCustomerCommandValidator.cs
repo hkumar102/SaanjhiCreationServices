@@ -8,7 +8,7 @@ public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCo
     public CreateCustomerCommandValidator()
     {
         RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(200);
+        RuleFor(x => x.Email).EmailAddress().MaximumLength(200);
         RuleFor(x => x.PhoneNumber).MaximumLength(20);
     }
 }

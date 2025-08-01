@@ -22,12 +22,11 @@ public class CreateCustomerCommandHandler(
         {
 
             // Customer with same phone or email cannot be created
-            if (await context.Customers.AnyAsync(c => c.PhoneNumber == request.PhoneNumber ||
-                                                      c.Email == request.Email, cancellationToken))
+            if (await context.Customers.AnyAsync(c => c.PhoneNumber == request.PhoneNumber && c.Name == request.Name, cancellationToken))
             {
-                logger.LogWarning("Customer with PhoneNumber: {PhoneNumber} or Email: {Email} already exists",
-                    request.PhoneNumber, request.Email);
-                throw new BusinessRuleException("Customer with same phone or email already exists.");
+                logger.LogWarning("Customer with PhoneNumber: {PhoneNumber} and Name: {Name} already exists",
+                    request.PhoneNumber, request.Name);
+                throw new BusinessRuleException("Customer with same phone and name already exists.");
             }
 
 
