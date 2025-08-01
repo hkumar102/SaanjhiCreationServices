@@ -39,4 +39,11 @@ public class ReportsController : ControllerBase
         var result = await _mediator.Send(new GetRentalsActivityReportQuery { FromDate = fromDate, ToDate = toDate }, cancellationToken);
         return Ok(result);
     }
+
+    [HttpGet("dashboard")]
+    public async Task<ActionResult<RentalDashboardReportDto>> GetDashboard([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetRentalDashboardReportQuery { FromDate = fromDate, ToDate = toDate }, cancellationToken);
+        return Ok(result);
+    }
 }
