@@ -65,7 +65,7 @@ public class AutoMarkOverdueRentalsCommandHandler : IRequestHandler<AutoMarkOver
                     rental.InventoryItem.Size,
                     rental.InventoryItem.Color,
                     Status = rental.Status.ToString(),
-                    Link = $"{_baseUrl.TrimEnd('/')}/rentals/details/{rental.Id}"
+                    Link = $"{_baseUrl.TrimEnd('/')}/rentals/manage/{rental.Id}"
                 },
                 Type = NotificationType.RentalStatusChanged
             }, cancellationToken);

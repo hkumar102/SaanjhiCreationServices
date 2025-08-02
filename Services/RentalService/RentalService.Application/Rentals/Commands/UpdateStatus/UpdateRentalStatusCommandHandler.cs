@@ -180,7 +180,7 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
                 rentalDto.InventoryItem?.Size,
                 rentalDto.InventoryItem?.Color,
                 Status = rentalDto.Status.ToString(),
-                Link = $"{_baseUrl.TrimEnd('/')}/rentals/details/{rentalDto.Id}"
+                Link = $"{_baseUrl.TrimEnd('/')}/rentals/manage/{rentalDto.Id}"
             },
             Type = NotificationType.RentalStatusChanged
         });

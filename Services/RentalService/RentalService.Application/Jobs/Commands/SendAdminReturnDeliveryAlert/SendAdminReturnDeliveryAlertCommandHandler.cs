@@ -64,7 +64,7 @@ public class SendAdminReturnDeliveryAlertCommandHandler : IRequestHandler<SendAd
                     rental.Product.CategoryName,
                     rental.InventoryItem?.Size,
                     rental.InventoryItem?.Color,
-                    Link = $"{_baseUrl.TrimEnd('/')}/rentals/details/{rental.Id}"
+                    Link = $"{_baseUrl.TrimEnd('/')}/rentals/manage/{rental.Id}"
                 },
                 Type = NotificationType.ReturnReminder
             }, cancellationToken);
