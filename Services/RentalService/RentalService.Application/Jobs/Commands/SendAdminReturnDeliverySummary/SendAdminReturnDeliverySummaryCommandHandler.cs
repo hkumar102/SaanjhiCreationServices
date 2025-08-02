@@ -40,7 +40,7 @@ public class SendAdminReturnDeliverySummaryCommandHandler : IRequestHandler<Send
         _logger.LogTrace("Starting admin return/delivery summary notification job");
         var today = DateTime.UtcNow.Date;
         var dueReturnsQueryable = _dbContext.Rentals
-            .Where(r => r.EndDate.Date == today && r.Status != RentalStatus.PickedUp);
+            .Where(r => r.EndDate.Date == today && r.Status == RentalStatus.PickedUp);
         var dueReturns = await _mediator.Send(new GetRentalsWithDetailsQuery() { Queryable = dueReturnsQueryable});
         var dueDeliveriesQueryable = _dbContext.Rentals
             .Where(r => r.StartDate.Date == today && r.Status == RentalStatus.Booked);
