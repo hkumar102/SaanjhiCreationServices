@@ -39,7 +39,7 @@ public class AutoCancelPendingRentalsCommandHandler : IRequestHandler<AutoCancel
     {
         using var scope = _logger.BeginScope("AutoCancelPendingRentalsJob");
         _logger.LogTrace("Starting auto-cancel job for pending rentals older than 5 days");
-        var threshold = DateTime.UtcNow.AddDays(-5);
+        var threshold = DateTime.UtcNow.Date.AddDays(-10);
         var pendingRentalsQueryable = _dbContext.Rentals
             .Where(r => r.Status == RentalStatus.Pending && r.CreatedAt < threshold);
         var pendingRentals = await _mediator.Send(new GetRentalsWithDetailsQuery { Queryable = pendingRentalsQueryable }, cancellationToken);
