@@ -26,11 +26,11 @@ public class GetRentalDashboardReportQueryHandler : IRequestHandler<GetRentalDas
     public async Task<RentalDashboardReportDto> Handle(GetRentalDashboardReportQuery request, CancellationToken cancellationToken)
     {
         var rentalsQuery = _dbContext.Rentals.AsNoTracking()
-            .Where(r => r.Status == RentalStatus.Booked || r.Status == RentalStatus.PickedUp || r.Status == RentalStatus.Returned);
+            .Where(r => r.Status == RentalStatus.Booked || r.Status == RentalStatus.PickedUp || r.Status == RentalStatus.Returned || r.Status == RentalStatus.Overdue);
         if (request.FromDate.HasValue)
-            rentalsQuery = rentalsQuery.Where(r => r.StartDate >= request.FromDate);
+            rentalsQuery = rentalsQuery.Where(r => r.StartDate >= request.FromDate.Value.Date);
         if (request.ToDate.HasValue)
-            rentalsQuery = rentalsQuery.Where(r => r.EndDate <= request.ToDate);
+            rentalsQuery = rentalsQuery.Where(r => r.StartDate <= request.ToDate.Value.Date);
         var rentals = await rentalsQuery.ToListAsync(cancellationToken);
         var totalEarning = rentals.Sum(r => r.RentalPrice);
         var totalSecurityDeposit = rentals.Sum(r => r.SecurityDeposit);
