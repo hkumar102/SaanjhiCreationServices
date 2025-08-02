@@ -53,6 +53,8 @@ public class CreateRentalCommandHandler(RentalDbContext dbContext, IMapper mappe
         logger.LogDebug("CreateRentalCommand received for ProductId: {ProductId}, InventoryItemId: {InventoryItemId}, CustomerId: {CustomerId}", request.ProductId, request.InventoryItemId, request.CustomerId);
         var entity = mapper.Map<Rental>(request);
         entity.Status = RentalStatus.Pending;
+        entity.StartDate = request.StartDate.Date;
+        entity.EndDate = request.EndDate.Date;
 
         // Generate user-friendly RentalNumber: RNT-YYYYMMDD-XXXXX
         var today = DateTime.UtcNow.Date;

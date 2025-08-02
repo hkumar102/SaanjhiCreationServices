@@ -110,7 +110,7 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
         {
             if (!request.ActualReturnDate.HasValue)
                 throw new BusinessRuleException("ActualReturnDate is required when marking as Returned.");
-            entity.ActualReturnDate = request.ActualReturnDate.Value;
+            entity.ActualReturnDate = request.ActualReturnDate.Value.Date;
         }
 
         if (request.Status == RentalStatus.Cancelled || request.Status == RentalStatus.Returned)
@@ -133,7 +133,7 @@ public class UpdateRentalStatusCommandHandler : IRequestHandler<UpdateRentalStat
         {
             if (!request.ActualStartDate.HasValue)
                 throw new BusinessRuleException("ActualStartDate is required when marking as PickedUp.");
-            entity.ActualStartDate = request.ActualStartDate.Value;
+            entity.ActualStartDate = request.ActualStartDate.Value.Date;
         }
 
         // Add RentalTimeline entry for status change

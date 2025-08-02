@@ -38,7 +38,7 @@ public class AutoMarkOverdueRentalsCommandHandler : IRequestHandler<AutoMarkOver
     {
         using var scope = _logger.BeginScope("AutoMarkOverdueRentalsJob");
         _logger.LogTrace("Starting auto-mark overdue job for rentals past end date");
-        var now = DateTime.UtcNow;
+        var now = DateTime.UtcNow.Date;
         var overdueRentalsQueryable = _dbContext.Rentals
             .Where(r => r.Status == RentalStatus.PickedUp && r.EndDate < now);
         var overdueRentals = await _mediator.Send(new GetRentalsWithDetailsQuery { Queryable = overdueRentalsQueryable }, cancellationToken);

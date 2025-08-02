@@ -24,7 +24,9 @@ public class UpdateRentalCommandHandler(RentalDbContext dbContext, IMapper mappe
             logger.LogDebug("Update blocked for RentalId: {RentalId} due to status: {Status}", request.Id, entity.Status);
             throw new BusinessRuleException("Only rentals with status 'Pending' can be updated.");
         }
-
+        
+        request.StartDate = request.StartDate.Date;
+        request.EndDate = request.EndDate.Date;
         mapper.Map(request, entity);
         logger.LogDebug("Rental with Id: {RentalId} mapped with update request.", request.Id);
         await dbContext.SaveChangesAsync(cancellationToken);
