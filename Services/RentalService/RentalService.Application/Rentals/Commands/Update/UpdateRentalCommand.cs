@@ -9,6 +9,7 @@ public class UpdateRentalCommand : IRequest
     public Guid ProductId { get; set; }
     public Guid InventoryItemId { get; set; }
     public Guid CustomerId { get; set; }
+    public DateTime BookingDate { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public DateTime? ActualStartDate { get; set; }

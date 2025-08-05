@@ -12,6 +12,7 @@ public class Rental : BaseEntity
     public Guid CustomerId { get; set; }
 
     // Rental Period
+    public DateTime BookingDate { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public DateTime? ActualStartDate { get; set; } // When item was actually delivered/picked up

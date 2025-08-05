@@ -18,6 +18,7 @@ public class RentalDto
     public string? ShippingAddress { get; set; } // populated via CustomerApiClient
 
     // Rental Period
+    public DateTime BookingDate { get; set; }
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
     public DateOnly? ActualStartDate { get; set; }
