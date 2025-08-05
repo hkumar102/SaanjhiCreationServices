@@ -55,6 +55,7 @@ public class CreateRentalCommandHandler(RentalDbContext dbContext, IMapper mappe
         entity.Status = RentalStatus.Pending;
         entity.StartDate = request.StartDate.Date;
         entity.EndDate = request.EndDate.Date;
+        entity.BookingDate = request.BookingDate.Date;
 
         // Generate user-friendly RentalNumber: RNT-YYYYMMDD-XXXXX
         var today = DateTime.UtcNow.Date;
