@@ -46,17 +46,29 @@ public class GetRentalsQueryHandler(
 
             if (request.FromDate.HasValue)
             {
-                logger.LogDebug("Filtering by FromDate: {FromDate}", request.FromDate);
-                query = query.Where(r => r.StartDate >= request.FromDate);
+                logger.LogDebug("Filtering by FromDate: {FromDate}", request.FromDate.Value.Date);
+                query = query.Where(r => (r.ActualStartDate ?? r.StartDate) >= request.FromDate.Value.Date);
             }
 
             if (request.ToDate.HasValue)
             {
-                logger.LogDebug("Filtering by ToDate: {ToDate}", request.ToDate);
-                query = query.Where(r => r.EndDate <= request.ToDate);
+                logger.LogDebug("Filtering by ToDate: {ToDate}", request.ToDate.Value.Date);
+                query = query.Where(r => (r.ActualReturnDate ?? r.EndDate) <= request.ToDate.Value.Date);
+            }
+            
+            if(request.BookingFromDate.HasValue)
+            {
+                logger.LogDebug("Filtering by BookingFromDate: {BookingFromDate}", request.BookingFromDate.Value.Date);
+                query = query.Where(r => r.BookingDate >= request.BookingFromDate.Value.Date);
             }
 
-            if(request.Status.HasValue)
+            if (request.BookingToDate.HasValue)
+            {
+                logger.LogDebug("Filtering by BookingToDate: {BookingToDate}", request.BookingToDate.Value.Date);
+                query = query.Where(r => r.BookingDate <= request.BookingToDate.Value.Date);
+            }
+
+            if (request.Status.HasValue)
             {
                 logger.LogDebug("Filtering by Status: {Status}", request.Status);
                 query = query.Where(r => r.Status == request.Status.Value);

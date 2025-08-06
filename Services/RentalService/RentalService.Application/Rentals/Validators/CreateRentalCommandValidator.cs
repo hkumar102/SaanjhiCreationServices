@@ -12,8 +12,10 @@ public class CreateRentalCommandValidator : AbstractValidator<CreateRentalComman
         RuleFor(x => x.CustomerId).NotEmpty();
         RuleFor(x => x.ShippingAddressId).NotEmpty();
         RuleFor(x => x.InventoryItemId).NotEmpty();
-        RuleFor(x => x.BookNumber).GreaterThan(0);
-        RuleFor(x => x.StartDate).LessThanOrEqualTo(x => x.EndDate);
+        RuleFor(x => x.StartDate).NotEmpty().LessThanOrEqualTo(x => x.EndDate);
+        RuleFor(x => x.EndDate).NotEmpty().GreaterThanOrEqualTo(x => x.StartDate);
+        RuleFor(x => x.BookNumber).NotEmpty().GreaterThan(0);
+        RuleFor(x => x.BookingDate).NotEmpty().GreaterThanOrEqualTo(x => x.StartDate);
         RuleFor(x => x.RentalPrice).GreaterThanOrEqualTo(0);
         RuleFor(x => x.SecurityDeposit).GreaterThanOrEqualTo(0);
     }

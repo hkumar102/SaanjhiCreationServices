@@ -11,6 +11,10 @@ public class GetRentalsQuery : IRequest<PaginatedResult<RentalDto>>
     public List<Guid>? ProductIds { get; set; }
     public DateTime? FromDate { get; set; }
     public DateTime? ToDate { get; set; }
+    
+    public DateTime? BookingToDate { get; set; }
+    
+    public DateTime? BookingFromDate { get; set; }
     public RentalStatus? Status { get; set; } = null;
     public string? SortBy { get; set; }
     public bool Descending { get; set; } = false;

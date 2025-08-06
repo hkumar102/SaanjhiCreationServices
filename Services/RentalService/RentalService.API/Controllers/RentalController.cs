@@ -23,6 +23,8 @@ public class RentalController(IMediator mediator) : ControllerBase
     public async Task<ActionResult<PaginatedResult<RentalDto>>> GetRentals(
         [FromQuery] DateTime? fromDate,
         [FromQuery] DateTime? toDate,
+        [FromQuery] DateTime? bookingFromDate,
+        [FromQuery] DateTime? bookingToDate,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
@@ -30,6 +32,8 @@ public class RentalController(IMediator mediator) : ControllerBase
         {
             FromDate = fromDate,
             ToDate = toDate,
+            BookingFromDate = bookingFromDate,
+            BookingToDate = bookingToDate,
             Page = page,
             PageSize = pageSize
         };

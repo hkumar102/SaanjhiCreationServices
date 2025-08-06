@@ -1,4 +1,6 @@
 
+using Shared.ErrorHandling;
+
 namespace RentalService.Application.Rentals.Commands.Update;
 using MediatR;
 using AutoMapper;
@@ -22,6 +24,7 @@ public class UpdateRentalCommandHandler(RentalDbContext dbContext, IMapper mappe
         request.StartDate = request.StartDate.Date;
         request.EndDate = request.EndDate.Date;
         request.BookingDate = request.BookingDate.Date;
+        
         mapper.Map(request, entity);
         logger.LogDebug("Rental with Id: {RentalId} mapped with update request.", request.Id);
         await dbContext.SaveChangesAsync(cancellationToken);
