@@ -1,4 +1,5 @@
 using MediatR;
+using RentalService.Contracts.Enums;
 
 namespace RentalService.Application.Rentals.Commands.Update;
 
@@ -31,5 +32,5 @@ public class UpdateRentalCommand : IRequest
     public decimal? DamageFee { get; set; }
     public string? ReturnConditionNotes { get; set; }
     // Optionally, you may want to allow updating Status:
-    // public RentalStatus Status { get; set; }
+    public RentalStatus Status { get; set; }
 }

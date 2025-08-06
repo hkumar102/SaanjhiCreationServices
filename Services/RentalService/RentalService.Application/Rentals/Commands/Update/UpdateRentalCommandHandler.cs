@@ -4,7 +4,6 @@ using MediatR;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Persistence;
-using Shared.ErrorHandling;
 using Microsoft.Extensions.Logging;
 
 public class UpdateRentalCommandHandler(RentalDbContext dbContext, IMapper mapper, ILogger<UpdateRentalCommandHandler> logger)
@@ -19,12 +18,7 @@ public class UpdateRentalCommandHandler(RentalDbContext dbContext, IMapper mappe
             logger.LogDebug("Rental not found for Id: {RentalId}", request.Id);
             throw new KeyNotFoundException("Rental not found.");
         }
-        if (entity.Status != RentalService.Contracts.Enums.RentalStatus.Pending)
-        {
-            logger.LogDebug("Update blocked for RentalId: {RentalId} due to status: {Status}", request.Id, entity.Status);
-            throw new BusinessRuleException("Only rentals with status 'Pending' can be updated.");
-        }
-        
+
         request.StartDate = request.StartDate.Date;
         request.EndDate = request.EndDate.Date;
         request.BookingDate = request.BookingDate.Date;
