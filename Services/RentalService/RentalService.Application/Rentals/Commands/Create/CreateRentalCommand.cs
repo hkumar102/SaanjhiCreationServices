@@ -31,4 +31,7 @@ public class CreateRentalCommand : IRequest<Guid>
     public decimal? LateFee { get; set; }
     public decimal? DamageFee { get; set; }
     public string? ReturnConditionNotes { get; set; }
+
+    // Receipt Information
+    public string? ReceiptDocumentUrl { get; set; } // URL to the receipt document
 }

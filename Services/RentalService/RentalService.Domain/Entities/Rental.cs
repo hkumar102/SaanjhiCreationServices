@@ -51,6 +51,9 @@ public class Rental : BaseEntity
     public bool IsOverdue => DateTime.UtcNow > EndDate && Status != RentalStatus.Returned;
     public decimal TotalAmount => RentalPrice + SecurityDeposit + (LateFee ?? 0) + (DamageFee ?? 0);
 
+    // Receipt Information
+    public string? ReceiptDocumentUrl { get; set; }
+
     // Navigation Properties
     public ICollection<RentalTimeline> Timelines { get; set; } = new List<RentalTimeline>();
 }

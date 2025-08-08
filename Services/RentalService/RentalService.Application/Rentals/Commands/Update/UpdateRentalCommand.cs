@@ -31,6 +31,8 @@ public class UpdateRentalCommand : IRequest
     public decimal? LateFee { get; set; }
     public decimal? DamageFee { get; set; }
     public string? ReturnConditionNotes { get; set; }
+    // Receipt Information
+    public string? ReceiptDocumentUrl { get; set; } // URL to the receipt document
     // Optionally, you may want to allow updating Status:
     public RentalStatus Status { get; set; }
 }

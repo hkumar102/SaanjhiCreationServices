@@ -55,6 +55,9 @@ public class RentalDto
     public bool IsOverdue { get; set; }
     public decimal TotalAmount { get; set; }
 
+    // Receipt Information
+    public string? ReceiptDocumentUrl { get; set; }
+
     // Navigation Properties
     public ICollection<RentalTimelineDto> Timelines { get; set; } = new List<RentalTimelineDto>();
 }
