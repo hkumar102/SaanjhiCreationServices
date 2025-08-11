@@ -40,7 +40,7 @@ public class RentalConfiguration : BaseEntityConfiguration<Rental>
             .WithOne()
             .HasForeignKey(rt => rt.RentalId)
             .OnDelete(DeleteBehavior.Cascade);
-
+        
         builder.ToTable("Rentals");
     }
 }

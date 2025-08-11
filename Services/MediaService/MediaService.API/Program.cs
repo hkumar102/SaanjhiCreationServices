@@ -1,7 +1,8 @@
 using System.Reflection;
 using System.Text.Json;
+using Imagekit.Sdk;
+using MediaService.Application.Interfaces;
 using MediaService.Application.Services;
-using MediaService.Contracts.Interfaces;
 using MediaService.Infrastructure.Persistence;
 using MediaService.Infrastructure.Services;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -10,6 +11,8 @@ using Shared.Extensions;
 using Shared.Extensions.Telemetry;
 using Shared.HealthChecks;
 using Microsoft.Extensions.FileProviders;
+using IFileStorageService = MediaService.Contracts.Interfaces.IFileStorageService;
+using IMediaUploader = MediaService.Contracts.Interfaces.IMediaUploader;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +28,15 @@ builder.Services.AddApplicationServices(builder.Configuration);
 // MediaService specific services
 builder.Services.AddScoped<IMediaUploader, ImageKitMediaUploader>();
 builder.Services.AddScoped<IImageProcessingService, ImageProcessingService>();
+builder.Services.AddScoped<IImageUtlityService, ImageUtilityService>();
+builder.Services.AddSingleton<ImagekitClient>((serviceProvider) =>
+{
+    var configuration = builder.Configuration;
+    var publicKey = configuration["ImageKit:PublicKey"];
+    var privateKey = configuration["ImageKit:PrivateKey"];
+    var urlEndpoint = configuration["ImageKit:UrlEndpoint"] ?? "";
+    return new ImagekitClient(publicKey, privateKey, urlEndpoint);
+});
 
 // Always register ImageKitUrlService since handlers might use it
 builder.Services.AddScoped<ImageKitUrlService>();

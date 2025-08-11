@@ -60,12 +60,13 @@ public class MediaController(IMediator mediator) : ControllerBase
     [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(UploadMediaResult), 200)]
     [ProducesResponseType(400)]
-    public async Task<ActionResult<UploadMediaResult>> Upload(IFormFile file, string? productId = null, string? alt = null, bool isPrimary = false)
+    public async Task<ActionResult<UploadMediaResult>> Upload(IFormFile file, string? folderName = null)
     {
         var result = await mediator.Send(new UploadMediaCommand
         {
             File = file,
-            MediaType = MediaType.Image
+            MediaType = MediaType.Image,
+            FolderName = folderName ?? "default"
         });
 
         return Ok(result);

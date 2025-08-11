@@ -9,4 +9,6 @@ public class UploadMediaCommand : IRequest<UploadMediaResult>
 {
     public IFormFile File { get; set; } = null!;
     public MediaType MediaType { get; set; }
+    
+    public string FolderName { get; set; } = "Misc"; // Default folder name, can be overridden
 }
