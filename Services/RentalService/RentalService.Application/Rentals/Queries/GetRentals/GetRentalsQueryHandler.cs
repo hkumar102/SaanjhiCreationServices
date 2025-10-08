@@ -38,6 +38,12 @@ public class GetRentalsQueryHandler(
                 query = query.Where(r => request.CustomerIds.Contains(r.CustomerId));
             }
 
+            if (request.BookNumber.HasValue)
+            {
+                logger.LogDebug("Filtering by BookNumber: {BookNumber}", request.BookNumber.Value);
+                query = query.Where(r => r.BookNumber == request.BookNumber.Value);
+            }
+
             if (request.ProductIds != null && request.ProductIds.Any())
             {
                 logger.LogDebug("Filtering by {ProductCount} product IDs", request.ProductIds.Count);
@@ -87,6 +93,10 @@ public class GetRentalsQueryHandler(
                     nameof(Rental.RentalPrice) => request.Descending
                         ? query.OrderByDescending(r => r.RentalPrice)
                         : query.OrderBy(r => r.RentalPrice),
+
+                    nameof(Rental.BookNumber) => request.Descending
+                        ? query.OrderByDescending(r => r.BookNumber)
+                        : query.OrderBy(r => r.BookNumber),
 
                     _ => query.OrderBy(r => r.ModifiedAt).ThenBy(r => r.CreatedAt) // default fallback
                 };

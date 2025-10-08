@@ -11,7 +11,7 @@ public class GetRentalsQuery : IRequest<PaginatedResult<RentalDto>>
     public List<Guid>? ProductIds { get; set; }
     public DateTime? FromDate { get; set; }
     public DateTime? ToDate { get; set; }
-    
+    public int? BookNumber { get; set; }
     public DateTime? BookingToDate { get; set; }
     
     public DateTime? BookingFromDate { get; set; }
